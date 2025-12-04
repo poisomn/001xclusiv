@@ -1,0 +1,32 @@
+/* Hero GSAP 001xclusiv */
+.hero-gsap {
+    position: relative;
+    width: 100%;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero-gsap-figure {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.hero-gsap svg {
+    padding: 5vw;
+    width: 90vw;
+    max-width: 900px;
+}
+
+/* color del logo (puedes cambiarlo si quieres otro tono) */
+.hero-gsap svg>* {
+    fill: #f8f9fa;
+    /* casi blanco, combina con bg oscuro */
+    stroke: #f8f9fa;
+    stroke-width: 0.85px;
+}

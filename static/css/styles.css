@@ -1,0 +1,431 @@
+/* Global Typography */
+:root {
+    --size-3: 0.75rem;
+    --size-5: 1.5rem;
+    --size-fluid-2: clamp(1rem, 2vw, 1.5rem);
+    --size-fluid-3: clamp(1.25rem, 2.5vw, 1.75rem);
+    --size-fluid-4: clamp(1.75rem, 3vw, 2.25rem);
+    --size-fluid-6: clamp(2.5rem, 5vw, 3.5rem);
+
+    --font-size-fluid-3: clamp(2rem, 6vw, 3.5rem);
+    --font-size-fluid-1: clamp(1rem, 2.5vw, 1.4rem);
+    --font-size-8: 3rem;
+
+    --font-weight-7: 700;
+    --font-weight-9: 800;
+
+    --gradient-10: linear-gradient(90deg, #000, #666);
+
+    --blue-1: #e8f1ff;
+    --gray-0: #ffffff;
+    --gray-1: #f6f6f6;
+    --gray-8: #222222;
+    --text-1: #111111;
+
+    --radius-3: 1.5rem;
+    --shadow-3: 0 18px 50px rgba(0, 0, 0, 0.08);
+}
+
+
+body {
+    background: #ffffff;
+    color: #111111;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navbar Customization */
+.navbar-separator {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* Sombra suave y difusa */
+    transition: box-shadow 0.3s ease;
+}
+
+.navbar-brand {
+    letter-spacing: -0.5px;
+    /* Tracking tight */
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: #111111 !important;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #555555 !important;
+    position: relative;
+}
+
+/* Efecto de subrayado animado en hover para links del navbar (opcional, estilo Nike) */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #111111;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Utility Classes */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+.fs-7 {
+    font-size: 0.875rem;
+    /* 14px */
+}
+
+/* Hero GSAP 001xclusiv */
+.hero-gsap {
+    position: relative;
+    width: 100%;
+    min-height: 60vh;
+    /* Un poco más alto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #ffffff;
+    margin: 0;
+}
+
+.hero-gsap svg {
+    padding: 2vw;
+    width: 100%;
+    max-width: 1400px;
+    /* Asegurar que el SVG sea responsive y centrado */
+}
+
+/* color del logo en Hero */
+.hero-gsap svg>* {
+    fill: #111111;
+    stroke: #111111;
+    stroke-width: 0.85px;
+}
+
+@property --radial-progress {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+}
+
+/* títulos dentro de esta zona */
+.scroll-container :where(h3) {
+    margin-block-end: var(--size-3);
+}
+
+/* contenedor general del scroll demo */
+.scroll-container {
+    max-width: 80rem;
+    padding-inline: var(--size-5);
+    margin-block: 4rem;
+    margin-inline: auto;
+}
+
+/* hero de la sección scroll */
+.scroll-hero {
+    container-type: inline-size;
+    min-height: 40vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-5);
+}
+
+.scroll-hero__title {
+    font-size: var(--font-size-fluid-3);
+    text-align: center;
+    background-image: var(--gradient-10);
+    background-clip: text;
+    color: transparent;
+}
+
+@container (width > 40rem) {
+    .scroll-hero__title {
+        font-size: calc(var(--font-size-8) * 1.5);
+    }
+}
+
+.scroll-hero__payoff {
+    font-size: var(--font-size-fluid-1);
+    text-align: center;
+    font-weight: var(--font-weight-9);
+}
+
+/* resto de layout, scopeado a scroll-container */
+
+.scroll-container .grid-center {
+    display: grid;
+    place-items: center;
+}
+
+.scroll-container .section {
+    container-type: inline-size;
+    position: relative;
+}
+
+.scroll-container .section__title {
+    margin-block: 0 var(--size-fluid-2);
+}
+
+
+.scroll-container .panel--no-overflow {
+    overflow: clip;
+}
+
+.scroll-container .panel__content {
+    padding: var(--size-fluid-4);
+}
+
+.scroll-container .divider-v {
+    display: grid;
+    gap: var(--size-fluid-6);
+}
+
+.scroll-container .split-h {
+    display: grid;
+    gap: 1rem;
+}
+
+@container (width > 48.7rem) {
+    .scroll-container .split-h {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.scroll-container .cards {
+    container-type: inline-size;
+    position: relative;
+    height: 50vh;
+    width: min(100%, 350px);
+    clip-path: polygon(-50% -50%, 400% -50%, 150% 100%, -80% 100%);
+    margin-inline: auto;
+    margin-block-start: -20%;
+}
+
+.scroll-container .card {
+    --index: sibling-index();
+    --count: sibling-count();
+    --angle-min: -45;
+    --angle-max: 45;
+    --angle-diff: calc(var(--angle-max) - var(--angle-min));
+    --angle-step: calc(var(--angle-diff) / (var(--count) + 1));
+    --angle: calc(var(--angle-min) + var(--angle-step) * var(--index));
+    --angle-deg: calc((var(--angle) * var(--card-rotation-progress)) * 1deg);
+
+    width: 100%;
+    position: absolute;
+    transform-origin: bottom center;
+    rotate: var(--angle-deg);
+    translate: 0 50%;
+
+    animation: cardUp 1ms ease-out both, cardRotate 1ms ease-out forwards;
+    animation-timeline: view(block);
+    animation-range: entry 100% contain 50%;
+}
+
+.scroll-container .popup-container {
+    display: grid;
+    gap: 1rem;
+}
+
+@container (width > 40rem) {
+    .scroll-container .popup-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.scroll-container .cover-image {
+    clip-path: shape(from 100% 0,
+            line to 90% 0%,
+            curve to 90% 100% with 50% 10% / 50% 90%,
+            line to 100% 100%,
+            close);
+    animation: imageShape 1ms linear forwards;
+    animation-timeline: view(block);
+    animation-range: entry 60% contain 35%;
+}
+
+.scroll-container .cover-image img {
+    width: 100%;
+    display: block;
+}
+
+.scroll-container .review {
+    --index: sibling-index();
+    --count: sibling-count();
+    --entry-start: 20%;
+    --entry-step: calc((100% - var(--entry-start)) / (var(--count) + 1));
+    --entry: calc(var(--entry-start) + var(--index) * var(--entry-step));
+
+    background: var(--gray-1);
+    width: 100%;
+    border-radius: var(--radius-3);
+    padding: var(--size-fluid-4);
+    color: var(--gray-8);
+
+    animation: reviewUp 1ms ease-out both;
+    animation-timeline: view(block);
+    animation-range: entry var(--entry) contain 50%;
+}
+
+.scroll-container .review h3 {
+    font-size: var(--font-size-fluid-1);
+    margin-block-end: var(--size-fluid-3);
+}
+
+.scroll-container .spinner {
+    --progress: calc(var(--radial-progress) * 360deg);
+    --border-width: 10px;
+
+    position: relative;
+    width: 10rem;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    border: 10px solid var(--gray-0);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow-3);
+
+    animation: radialProgress 1ms ease-out forwards;
+    animation-timeline: view(block);
+    animation-range: entry 100% contain 90%;
+}
+
+.scroll-container .spinner__progress {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    width: 100%;
+    aspect-ratio: 1;
+    background: conic-gradient(from 0deg,
+            #8b5cf6 0deg,
+            #8b5cf6 var(--progress, 0deg),
+            transparent var(--progress, 0deg));
+    mask: radial-gradient(circle,
+            transparent 0,
+            transparent calc(50% - 5px),
+            black calc(50% - var(--border-width)),
+            black 100%);
+}
+
+.scroll-container .spinner::before {
+    --progress-fixed: calc(var(--radial-progress) * 100);
+    counter-reset: variable var(--progress-fixed);
+    content: "" counter(variable) "%";
+    position: relative;
+    z-index: 10;
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-7);
+}
+
+.scroll-footer {
+    height: 40dvh;
+}
+
+.scroll-container p+p {
+    margin-block: var(--size-fluid-2) 0;
+}
+
+/* Animaciones keyframes (globales) */
+
+@keyframes calendarLargeAppear {
+    from {
+        transform: translateZ(-40rem) rotateX(45deg);
+    }
+
+    to {
+        transform: translateZ(0rem) rotateX(0deg);
+    }
+}
+
+@keyframes calendarLargeFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes calendarSmallAppear {
+    from {
+        opacity: 0;
+        transform: translateX(50%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0%);
+    }
+}
+
+@keyframes cardUp {
+    from {
+        translate: 0 80%;
+    }
+
+    to {
+        translate: 0 20%;
+    }
+}
+
+@keyframes cardRotate {
+    from {
+        --card-rotation-progress: 0;
+    }
+
+    to {
+        --card-rotation-progress: 1;
+    }
+}
+
+@keyframes radialProgress {
+    from {
+        --radial-progress: 0;
+    }
+
+    to {
+        --radial-progress: 1;
+    }
+}
+
+@keyframes imageShape {
+    50% {
+        clip-path: shape(from 100% 0,
+                line to 50% 0%,
+                curve to 50% 100% with -10% 10% / -10% 90%,
+                line to 100% 100%,
+                close);
+    }
+
+    100% {
+        clip-path: shape(from 100% 0,
+                line to 0% 0%,
+                curve to 0% 100% with 0% 0% / 0% 100%,
+                line to 100% 100%,
+                close);
+    }
+}
+
+@keyframes reviewUp {
+    from {
+        translate: 0 40%;
+    }
+
+    to {
+        translate: 0 0%;
+    }
+}

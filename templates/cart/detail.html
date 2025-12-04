@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Carrito – 001xclusiv{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">Tu Carrito</h1>
+    </div>
+
+    <div class="col-lg-8">
+        {% if cart %}
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="ps-4 py-3">Producto</th>
+                            <th scope="col" class="py-3">Precio</th>
+                            <th scope="col" class="py-3">Cantidad</th>
+                            <th scope="col" class="py-3 text-end pe-4">Total</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart %}
+                        <tr class="border-bottom">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    {% with image=item.product.images.all|first %}
+                                    {% if image %}
+                                    <img src="{{ image.image.url }}" alt="{{ item.product.name }}"
+                                        class="rounded-3 me-3 object-fit-cover" style="width: 64px; height: 64px;">
+                                    {% else %}
+                                    <div class="rounded-3 me-3 bg-light d-flex align-items-center justify-content-center"
+                                        style="width: 64px; height: 64px;">
+                                        <span class="small text-muted">Img</span>
+                                    </div>
+                                    {% endif %}
+                                    {% endwith %}
+                                    <div>
+                                        <a href="{% url 'catalog:detail' item.product.slug %}"
+                                            class="text-decoration-none text-dark fw-semibold">
+                                            {{ item.product.name }}
+                                        </a>
+                                        {% if item.variant %}
+                                        <div class="small text-muted">Talla: {{ item.variant.size }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3">${{ item.price }}</td>
+                            <td class="py-3">
+                                <span class="badge bg-light text-dark border">{{ item.quantity }}</span>
+                            </td>
+                            <td class="py-3 text-end pe-4 fw-bold">${{ item.total_price }}</td>
+                            <td class="py-3 text-end">
+                                <a href="{% url 'cart:cart_remove' item.product.id %}{% if item.variant %}?variant_id={{ item.variant.id }}{% endif %}"
+                                    class="text-danger text-decoration-none small">
+                                    Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <p class="lead text-muted mb-4">Tu carrito está vacío.</p>
+            <a href="{% url 'catalog:list' %}" class="btn btn-dark rounded-pill px-4">Ir al catálogo</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="card border rounded-4 bg-light p-4">
+            <h5 class="fw-bold mb-4">Resumen</h5>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Subtotal</span>
+                <span class="fw-bold">${{ cart.get_total_price }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="text-muted">Envío</span>
+                <span class="text-muted small">Calculado en el checkout</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-4 fs-5">
+                <span class="fw-bold">Total</span>
+                <span class="fw-bold">${{ cart.get_total_price }}</span>
+            </div>
+
+            <div class="d-grid">
+                {% if cart %}
+                <a href="{% url 'checkout:index' %}" class="btn btn-dark btn-lg rounded-pill">Proceder al pago</a>
+                {% else %}
+                <button class="btn btn-dark btn-lg rounded-pill" disabled>Proceder al pago</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

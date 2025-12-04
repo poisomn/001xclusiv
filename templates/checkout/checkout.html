@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout – 001xclusiv{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">Finalizar Compra</h1>
+    </div>
+
+    <div class="col-lg-7 mb-4 mb-lg-0">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h4 class="fw-bold mb-4">Datos de Envío</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre Completo</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                    <div class="text-danger small">{{ form.full_name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="text-danger small">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Dirección</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <div class="text-danger small">{{ form.address.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Ciudad</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                        <div class="text-danger small">{{ form.city.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Código Postal</label>
+                        {{ form.postal_code }}
+                        {% if form.postal_code.errors %}
+                        <div class="text-danger small">{{ form.postal_code.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-dark btn-lg rounded-pill">Confirmar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border rounded-4 bg-light p-4 sticky-top" style="top: 100px;">
+            <h5 class="fw-bold mb-4">Resumen del Pedido</h5>
+
+            <div class="mb-4">
+                {% for item in cart %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="position-relative me-3">
+                        {% with image=item.product.images.all|first %}
+                        {% if image %}
+                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}"
+                            class="rounded-3 object-fit-cover" style="width: 64px; height: 64px;">
+                        {% else %}
+                        <div class="rounded-3 bg-white d-flex align-items-center justify-content-center border"
+                            style="width: 64px; height: 64px;">
+                            <span class="small text-muted">Img</span>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">
+                            {{ item.quantity }}
+                        </span>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-semibold small">{{ item.product.name }}</h6>
+                        {% if item.variant %}
+                        <small class="text-muted">Talla: {{ item.variant.size }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="fw-bold small">${{ item.total_price }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Subtotal</span>
+                <span class="fw-bold">${{ cart.get_total_price }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="text-muted">Envío</span>
+                <span class="text-success fw-bold">Gratis</span>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between fs-5">
+                <span class="fw-bold">Total</span>
+                <span class="fw-bold">${{ cart.get_total_price }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

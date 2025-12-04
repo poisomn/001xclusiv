@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Catálogo – 001xclusiv{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3 mb-4">
+        <h4 class="fw-bold mb-3">Filtros</h4>
+
+        <div class="mb-4">
+            <h6 class="fw-bold text-uppercase small text-muted">Buscar</h6>
+            <form method="get" class="d-flex">
+                <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="Nombre, SKU..."
+                    value="{{ request.GET.q }}">
+                <button type="submit" class="btn btn-sm btn-dark">Go</button>
+            </form>
+        </div>
+
+        <div class="mb-4">
+            <h6 class="fw-bold text-uppercase small text-muted">Categorías</h6>
+            <ul class="list-unstyled">
+                <li>
+                    <a href="{% url 'catalog:list' %}"
+                        class="text-decoration-none {% if not request.GET.category %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                        Todas
+                    </a>
+                </li>
+                {% for cat in categories %}
+                <li>
+                    <a href="?category={{ cat.slug }}"
+                        class="text-decoration-none {% if request.GET.category == cat.slug %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                        {{ cat.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <h6 class="fw-bold text-uppercase small text-muted">Marcas</h6>
+            <ul class="list-unstyled">
+                <li>
+                    <a href="{% url 'catalog:list' %}"
+                        class="text-decoration-none {% if not request.GET.brand %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                        Todas
+                    </a>
+                </li>
+                {% for brand in brands %}
+                <li>
+                    <a href="?brand={{ brand.slug }}"
+                        class="text-decoration-none {% if request.GET.brand == brand.slug %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                        {{ brand.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="col-lg-9">
+        <h1 class="fw-bold mb-4">Catálogo</h1>
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-6 col-md-4">
+                <a href="{% url 'catalog:detail' product.slug %}" class="text-decoration-none text-dark d-block h-100">
+                    <div class="mb-2 border rounded-4 overflow-hidden position-relative">
+                        {% with main_image=product.images.all|first %}
+                        {% if main_image %}
+                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
+                            style="width:100%;height:280px;object-fit:cover; transition: transform 0.3s ease;"
+                            onmouseover="this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                        {% else %}
+                        <div style="width:100%;height:280px;background:#f3f3f3;display:grid;place-items:center;">
+                            <span class="text-muted small">Sin imagen</span>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        {% if product.discount_price %}
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-danger rounded-pill">Oferta</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="small text-uppercase text-muted">
+                        {{ product.brand.name|default:"" }}
+                    </div>
+                    <div class="fw-semibold text-truncate">{{ product.name }}</div>
+                    <div class="small mt-1">
+                        {% if product.discount_price %}
+                        <span class="text-decoration-line-through me-1 text-muted">
+                            ${{ product.price }}
+                        </span>
+                        <span class="fw-bold text-danger">${{ product.discount_price }}</span>
+                        {% else %}
+                        <span class="fw-bold">${{ product.price }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">No se encontraron productos.</p>
+                <a href="{% url 'catalog:list' %}" class="btn btn-outline-dark btn-sm">Limpiar filtros</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+        <nav class="mt-5 d-flex justify-content-center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link text-dark"
+                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}">&laquo;</a>
+                </li>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                    <a class="page-link {% if num == page_obj.number %}bg-dark border-dark text-white{% else %}text-dark{% endif %}"
+                        href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link text-dark"
+                        href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} – 001xclusiv{% endblock %}
+
+{% block content %}
+<div class="row g-5">
+    <!-- Product Images -->
+    <div class="col-md-7">
+        <div class="row g-2">
+            {% with images=product.images.all %}
+            {% if images %}
+            <!-- Main Image -->
+            <div class="col-12 mb-2">
+                <div class="border rounded-4 overflow-hidden bg-light">
+                    <img src="{{ images.0.image.url }}" alt="{{ images.0.alt_text|default:product.name }}"
+                        class="w-100 object-fit-cover" style="height: 500px;" id="mainImage">
+                </div>
+            </div>
+
+            <!-- Thumbnails -->
+            {% for img in images %}
+            <div class="col-3 col-sm-2">
+                <div class="border rounded-3 overflow-hidden cursor-pointer"
+                    onclick="document.getElementById('mainImage').src='{{ img.image.url }}'">
+                    <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="w-100 object-fit-cover"
+                        style="height: 80px;">
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-12">
+                <div class="border rounded-4 bg-light d-flex align-items-center justify-content-center"
+                    style="height: 500px;">
+                    <span class="text-muted">Sin imágenes</span>
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-md-5">
+        <div class="sticky-top" style="top: 100px;">
+            <div class="mb-2">
+                <span class="badge bg-light text-dark border">{{ product.brand.name }}</span>
+                {% for cat in product.categories.all %}
+                <span class="badge bg-light text-secondary border">{{ cat.name }}</span>
+                {% endfor %}
+            </div>
+
+            <h1 class="fw-bold mb-2">{{ product.name }}</h1>
+
+            <div class="mb-4 d-flex align-items-center">
+                {% if product.discount_price %}
+                <span class="fs-4 text-decoration-line-through text-muted me-2">${{ product.price }}</span>
+                <span class="fs-3 fw-bold text-danger">${{ product.discount_price }}</span>
+                {% else %}
+                <span class="fs-3 fw-bold">${{ product.price }}</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <p class="text-muted">{{ product.description|linebreaks }}</p>
+            </div>
+
+            <!-- Add to Cart Form -->
+            <form action="{% url 'cart:cart_add' product.id %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Talla</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for variant in product.variants.all %}
+                        {% if variant.is_active and variant.stock > 0 %}
+                        <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}"
+                            value="{{ variant.id }}" autocomplete="off" required>
+                        <label class="btn btn-outline-dark" for="size-{{ variant.id }}">{{ variant.size }}</label>
+                        {% else %}
+                        <button type="button" class="btn btn-light text-muted border" disabled>{{ variant.size
+                            }}</button>
+                        {% endif %}
+                        {% empty %}
+                        <p class="text-muted small">No hay tallas disponibles.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill">
+                        Agregar al carrito
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-4 border-top">
+                <div class="d-flex align-items-center small text-muted">
+                    <span class="me-4">SKU: {{ product.sku }}</span>
+                    <span>Stock disponible</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
