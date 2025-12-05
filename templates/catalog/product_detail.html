@@ -59,47 +59,37 @@
                 {% else %}
                 <span class="fs-3 fw-bold">${{ product.price }}</span>
                 {% endif %}
+                <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}" value="{{ variant.id }}"
+                    autocomplete="off" required>
+                <label class="btn btn-outline-dark" for="size-{{ variant.id }}">{{ variant.size }}</label>
+                {% else %}
+                <button type="button" class="btn btn-light text-muted border" disabled>{{ variant.size
+                    }}</button>
+                {% endif %}
+                {% empty %}
+                <p class="text-muted small">No hay tallas disponibles.</p>
+                {% endfor %}
             </div>
+        </div>
 
-            <div class="mb-4">
-                <p class="text-muted">{{ product.description|linebreaks }}</p>
-            </div>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill">
+                Agregar al carrito
+            </button>
+        </div>
+        </form>
 
-            <!-- Add to Cart Form -->
-            <form action="{% url 'cart:cart_add' product.id %}" method="POST">
-                {% csrf_token %}
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">Talla</label>
-                    <div class="d-flex flex-wrap gap-2">
-                        {% for variant in product.variants.all %}
-                        {% if variant.is_active and variant.stock > 0 %}
-                        <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}"
-                            value="{{ variant.id }}" autocomplete="off" required>
-                        <label class="btn btn-outline-dark" for="size-{{ variant.id }}">{{ variant.size }}</label>
-                        {% else %}
-                        <button type="button" class="btn btn-light text-muted border" disabled>{{ variant.size
-                            }}</button>
-                        {% endif %}
-                        {% empty %}
-                        <p class="text-muted small">No hay tallas disponibles.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill">
-                        Agregar al carrito
-                    </button>
-                </div>
-            </form>
-
-            <div class="mt-4 pt-4 border-top">
-                <div class="d-flex align-items-center small text-muted">
-                    <span class="me-4">SKU: {{ product.sku }}</span>
-                    <span>Stock disponible</span>
-                </div>
+        <div class="mt-4 pt-4 border-top">
+            <div class="d-flex align-items-center small text-muted">
+                <span class="me-4">SKU: {{ product.sku }}</span>
+                <span>Stock disponible</span>
             </div>
         </div>
     </div>
 </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/cart_popup.js' %}"></script>
 {% endblock %}

@@ -3,21 +3,40 @@ from django.views.decorators.http import require_POST
 from apps.catalog.models import Product, ProductVariant
 from .cart import Cart
 
+from django.http import JsonResponse
+import json
+
 @require_POST
 def cart_add(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     
-    variant_id = request.POST.get('variant')
+    # Check if it's a JSON request (AJAX)
+    if request.content_type == 'application/json':
+        data = json.loads(request.body)
+        variant_id = data.get('variant')
+        quantity = int(data.get('quantity', 1))
+    else:
+        variant_id = request.POST.get('variant')
+        quantity = int(request.POST.get('quantity', 1))
+
     variant = None
     if variant_id:
         variant = get_object_or_404(ProductVariant, id=variant_id)
 
-    # Simple logic: always add 1 for now, or read from POST
-    quantity = int(request.POST.get('quantity', 1))
-    
     cart.add(product=product, quantity=quantity, variant=variant)
     
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        return JsonResponse({
+            'success': True,
+            'cart_count': len(cart),
+            'product_name': product.name,
+            'product_image': product.images.first().image.url if product.images.exists() else '',
+            'price': float(product.discount_price if product.discount_price else product.price),
+            'variant': variant.size if variant else None,
+            'quantity': quantity
+        })
+
     return redirect('cart:cart_detail')
 
 def cart_remove(request, product_id):

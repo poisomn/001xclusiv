@@ -1,4 +1,5 @@
-/* Global Typography */
+@import url('cart_popup.css');
+
 :root {
     --size-3: 0.75rem;
     --size-5: 1.5rem;
@@ -231,7 +232,7 @@ body {
     translate: 0 50%;
 
     animation: cardUp 1ms ease-out both, cardRotate 1ms ease-out forwards;
-    animation-timeline: view(block);
+    /* animation-timeline: view(block); */
     animation-range: entry 100% contain 50%;
 }
 
@@ -253,7 +254,7 @@ body {
             line to 100% 100%,
             close);
     animation: imageShape 1ms linear forwards;
-    animation-timeline: view(block);
+    /* animation-timeline: view(block); */
     animation-range: entry 60% contain 35%;
 }
 
@@ -276,7 +277,7 @@ body {
     color: var(--gray-8);
 
     animation: reviewUp 1ms ease-out both;
-    animation-timeline: view(block);
+    /* animation-timeline: view(block); */
     animation-range: entry var(--entry) contain 50%;
 }
 
@@ -299,7 +300,7 @@ body {
     box-shadow: var(--shadow-3);
 
     animation: radialProgress 1ms ease-out forwards;
-    animation-timeline: view(block);
+    /* animation-timeline: view(block); */
     animation-range: entry 100% contain 90%;
 }
 
@@ -428,4 +429,64 @@ body {
     to {
         translate: 0 0%;
     }
+}
+
+/* Wishlist Icon on Product Card */
+.product-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.wishlist-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.product-card:hover .wishlist-icon {
+    opacity: 1;
+}
+
+.wishlist-icon:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 1);
+}
+
+.wishlist-icon i {
+    font-size: 1.2rem;
+    color: #111;
+}
+
+.wishlist-icon.active i {
+    color: #e63946;
+    /* Red color for active heart */
+}
+
+/* Slider with Phrases */
+.phrase-slider {
+    background: #f8f9fa;
+    padding: 2rem 0;
+}
+
+.phrase-slider .carousel-item {
+    text-align: center;
+    padding: 2rem;
+}
+
+.phrase-slider .phrase-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-style: italic;
+    color: #333;
 }

@@ -61,46 +61,45 @@
 
     <!-- Product Grid -->
     <div class="col-lg-9">
-        <h1 class="fw-bold mb-4">Catálogo</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold mb-0">Catálogo</h1>
+            {% if user.is_staff %}
+            <a href="{% url 'catalog:create' %}" class="btn btn-black rounded-pill">
+                <i class="bi bi-plus-lg me-1"></i> Agregar Producto
+            </a>
+            {% endif %}
+        </div>
 
         <div class="row g-4">
             {% for product in products %}
             <div class="col-6 col-md-4">
-                <a href="{% url 'catalog:detail' product.slug %}" class="text-decoration-none text-dark d-block h-100">
-                    <div class="mb-2 border rounded-4 overflow-hidden position-relative">
-                        {% with main_image=product.images.all|first %}
-                        {% if main_image %}
-                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
-                            style="width:100%;height:280px;object-fit:cover; transition: transform 0.3s ease;"
-                            onmouseover="this.style.transform='scale(1.05)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                        {% else %}
-                        <div style="width:100%;height:280px;background:#f3f3f3;display:grid;place-items:center;">
-                            <span class="text-muted small">Sin imagen</span>
-                        </div>
-                        {% endif %}
-                        {% endwith %}
-
-                        {% if product.discount_price %}
-                        <span class="position-absolute top-0 end-0 m-2 badge bg-danger rounded-pill">Oferta</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="small text-uppercase text-muted">
-                        {{ product.brand.name|default:"" }}
-                    </div>
-                    <div class="fw-semibold text-truncate">{{ product.name }}</div>
-                    <div class="small mt-1">
-                        {% if product.discount_price %}
-                        <span class="text-decoration-line-through me-1 text-muted">
-                            ${{ product.price }}
-                        </span>
-                        <span class="fw-bold text-danger">${{ product.discount_price }}</span>
-                        {% else %}
-                        <span class="fw-bold">${{ product.price }}</span>
-                        {% endif %}
-                    </div>
-                </a>
+                <div class="product-card-wrapper position-relative">
+                    <a href="{% url 'catalog:detail' product.slug %}"
+                        class="text-decoration-none text-dark d-block h-100">
+                        <div class="mb-2 border rounded-4 overflow-hidden position-relative product-card">
+                            {% with main_image=product.images.all|first %}
+                            {% if main_image %}
+                            <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
+                                style="width:100%;height:280px;object-fit:cover; transition: transform 0.3s ease;"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                            {% else %}
+                            <div style="width:100%;height:280px;background:#f3f3f3;display:grid;place-items:center;">
+                                <span class="text-muted small">Sin imagen</span>
+                            </div>
+                            {% endif %}
+                            <div class="small mt-1">
+                                {% if product.discount_price %}
+                                <span class="text-decoration-line-through me-1 text-muted">
+                                    ${{ product.price }}
+                                </span>
+                                <span class="fw-bold text-danger">${{ product.discount_price }}</span>
+                                {% else %}
+                                <span class="fw-bold">${{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                    </a>
+                </div>
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
@@ -140,4 +139,36 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleWishlist(productId, element) {
+        const url = "{% url 'catalog:toggle_wishlist' 0 %}".replace('0', productId);
+        fetch(url)
+            .then(response => {
+                if (response.status === 403 || response.status === 401) {
+                    window.location.href = "{% url 'accounts:login' %}";
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const icon = element.querySelector('i');
+                if (data.added) {
+                    element.classList.add('active');
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                } else {
+                    element.classList.remove('active');
+                    icon.classList.remove('bi-heart-fill');
+                    icon.classList.add('bi-heart');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
 {% endblock %}

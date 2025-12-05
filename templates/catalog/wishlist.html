@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Lista de Deseados – 001xclusiv{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="fw-bold mb-4">Mi Lista de Deseados</h1>
+
+    {% if wishlist_items %}
+    <div class="row g-4">
+        {% for item in wishlist_items %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card-wrapper position-relative">
+                <a href="{% url 'catalog:detail' item.product.slug %}"
+                    class="text-decoration-none text-dark d-block h-100">
+                    <div class="mb-2 border rounded-4 overflow-hidden position-relative product-card">
+                        {% with main_image=item.product.images.all|first %}
+                        {% if main_image %}
+                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:item.product.name }}"
+                            style="width:100%;height:280px;object-fit:cover; transition: transform 0.3s ease;"
+                            onmouseover="this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                        {% else %}
+                        <div class="fw-semibold text-truncate">{{ item.product.name }}</div>
+                        <div class="small mt-1">
+                            <span class="fw-bold">${{ item.product.final_price }}</span>
+                        </div>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <p class="lead text-muted">Tu lista de deseados está vacía.</p>
+        <a href="{% url 'catalog:list' %}" class="btn btn-dark">Explorar Catálogo</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleWishlist(productId, element) {
+        const url = "{% url 'catalog:toggle_wishlist' 0 %}".replace('0', productId);
+        fetch(url)
+            .then(response => {
+                if (response.status === 403 || response.status === 401) {
+                    window.location.href = "{% url 'accounts:login' %}";
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const icon = element.querySelector('i');
+                if (data.added) {
+                    element.classList.add('active');
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                } else {
+                    element.classList.remove('active');
+                    icon.classList.remove('bi-heart-fill');
+                    icon.classList.add('bi-heart');
+                    // Remove card from view
+                    element.closest('.col-6').remove();
+                    // Check if empty
+                    if (document.querySelectorAll('.col-6').length === 0) {
+                        location.reload();
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+{% endblock %}

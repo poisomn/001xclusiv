@@ -123,8 +123,7 @@
                     Tu tienda online de zapatillas exclusivas, drops y pares limitados.
                 </p>
                 <p>
-                    Pronto verás acá el catálogo conectado a la base de datos, con filtros,
-                    carrito y todo el flow e-commerce pulento.
+                    También tenemos ropa, accesorios. Somos un estilo nuevo ;)
                 </p>
 
                 <a href="{% url 'catalog:list' %}" class="btn btn-light btn-lg mt-3">
@@ -137,46 +136,140 @@
                     <p class="mb-1 text-uppercase small text-muted">Destacados</p>
 
                     {% for product in featured_products %}
-                    <div class="d-flex align-items-center mb-3">
-                        {% with main_image=product.images.all|first %}
-                        {% if main_image %}
-                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
-                            class="me-3 rounded" style="width:64px;height:64px;object-fit:cover;">
-                        {% endif %}
-                        {% endwith %}
-
-                        <div>
-                            <div class="fw-semibold">{{ product.name }}</div>
-                            <div class="small text-muted">
-                                {% if product.discount_price %}
-                                <span class="text-decoration-line-through me-1">
-                                    ${{ product.price }}
-                                </span>
-                                <span class="fw-bold">${{ product.discount_price }}</span>
-                                {% else %}
-                                <span class="fw-bold">${{ product.price }}</span>
-                                {% endif %}
-                            </div>
+                    <div>
+                        <div class="fw-semibold">{{ product.name }}</div>
+                        <div class="small text-muted">
+                            {% if product.discount_price %}
+                            <span class="text-decoration-line-through me-1">
+                                ${{ product.price }}
+                            </span>
+                            <span class="fw-bold">${{ product.discount_price }}</span>
+                            {% else %}
+                            <span class="fw-bold">${{ product.price }}</span>
+                            {% endif %}
                         </div>
                     </div>
-                    {% endfor %}
-
-                    <a href="{% url 'catalog:list' %}" class="btn btn-dark w-100 mt-2">
-                        Ver todo el catálogo
-                    </a>
-                    {% else %}
-                    <p class="mb-1 text-uppercase small text-muted">Mockup</p>
-                    <h5 class="fw-semibold mb-3">Zona de productos destacados</h5>
-                    <p class="text-muted mb-0">
-                        Aún no hay productos destacados. Marca algunos en el admin para
-                        mostrarlos aquí.
-                    </p>
-                    {% endif %}
                 </div>
+                {% endfor %}
+
+                <a href="{% url 'catalog:list' %}" class="btn btn-dark w-100 mt-2">
+                    Ver todo el catálogo
+                </a>
+                {% else %}
+                <p class="mb-1 text-uppercase small text-muted">Mockup</p>
+                <h5 class="fw-semibold mb-3">Zona de productos destacados</h5>
+                <p class="text-muted mb-0">
+                    Aún no hay productos destacados. Marca algunos en el admin para
+                    mostrarlos aquí.
+                </p>
+                {% endif %}
             </div>
+        </div>
 
         </div>
     </figure>
+</section>
+
+<!-- CATEGORY GRID SECTION (Replicating the image) -->
+<section class="container mb-5">
+    <h3 class="fw-bold mb-4">Para todos</h3>
+    <div class="row g-3 mb-5">
+        <!-- Hombre -->
+        <div class="col-md-4">
+            <div class="position-relative rounded-0 overflow-hidden category-card">
+                <img src="{% static 'home/airmutblackhome.jpg' %}" alt="Hombre" class="w-100 h-100 object-fit-cover"
+                    style="min-height: 400px; filter: brightness(0.9);">
+                <div class="position-absolute bottom-0 start-0 p-4">
+                    <a href="{% url 'catalog:list' %}?category=hombre"
+                        class="btn btn-light rounded-pill px-4 fw-bold">Hombre</a>
+                </div>
+            </div>
+        </div>
+        <!-- Mujer -->
+        <div class="col-md-4">
+            <div class="position-relative rounded-0 overflow-hidden category-card">
+                <img src="{% static 'home/airmutblackhome1.jpg' %}" alt="Mujer" class="w-100 h-100 object-fit-cover"
+                    style="min-height: 400px; filter: brightness(0.9);">
+                <div class="position-absolute bottom-0 start-0 p-4">
+                    <a href="{% url 'catalog:list' %}?category=mujer"
+                        class="btn btn-light rounded-pill px-4 fw-bold">Mujer</a>
+                </div>
+            </div>
+        </div>
+        <!-- Niños -->
+        <div class="col-md-4">
+            <div class="position-relative rounded-0 overflow-hidden category-card">
+                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Niños"
+                    class="w-100 h-100 object-fit-cover" style="min-height: 400px; filter: brightness(0.9);">
+                <div class="position-absolute bottom-0 start-0 p-4">
+                    <a href="{% url 'catalog:list' %}?category=ninos"
+                        class="btn btn-light rounded-pill px-4 fw-bold">Niños</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="fw-bold mb-4">Categorías</h3>
+    <div class="row g-3">
+        <!-- Calzado -->
+        <div class="col-md-4">
+            <div class="position-relative rounded-0 overflow-hidden category-card">
+                <img src="{% static 'home/airmutblackhome2.png' %}" alt="Calzado" class="w-100 h-100 object-fit-cover"
+                    style="min-height: 400px; background: #f5f5f5;">
+                <div class="position-absolute bottom-0 start-0 p-4">
+                    <a href="{% url 'catalog:list' %}?category=calzado"
+                        class="btn btn-light rounded-pill px-4 fw-bold">Calzado</a>
+                </div>
+            </div>
+        </div>
+        <!-- Ropa -->
+        <div class="col-md-4">
+            <div class="position-relative rounded-0 overflow-hidden category-card">
+                <img src="{% static 'home/airmutblackhome1.jpg' %}" alt="Ropa" class="w-100 h-100 object-fit-cover"
+                    style="min-height: 400px; filter: brightness(0.9);">
+                <div class="position-absolute bottom-0 start-0 p-4">
+                    <a href="{% url 'catalog:list' %}?category=ropa"
+                        class="btn btn-light rounded-pill px-4 fw-bold">Ropa</a>
+                </div>
+            </div>
+        </div>
+        <!-- Accesorios -->
+        <div class="col-md-4">
+            <div class="position-relative rounded-0 overflow-hidden category-card">
+                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Accesorios"
+                    class="w-100 h-100 object-fit-cover" style="min-height: 400px; filter: brightness(0.9);">
+                <div class="position-absolute bottom-0 start-0 p-4">
+                    <a href="{% url 'catalog:list' %}?category=accesorios"
+                        class="btn btn-light rounded-pill px-4 fw-bold">Accesorios</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PHRASE SLIDER -->
+<section class="phrase-slider mb-5">
+    <div id="phraseCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <p class="phrase-text">"Exclusividad que no te deja indiferente."</p>
+            </div>
+            <div class="carousel-item">
+                <p class="phrase-text">"001xclusiv, drops exclusivos para ti."</p>
+            </div>
+            <div class="carousel-item">
+                <p class="phrase-text">"Deja tu huella, pero una huella distinta."</p>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#phraseCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#phraseCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+        </button>
+    </div>
 </section>
 
 <!-- DRIP SECTION -->
@@ -229,7 +322,7 @@
         <div class="scroll-hero">
             <h2 class="scroll-hero__title">Explora el drip scrolleando</h2>
             <div class="scroll-hero__payoff">
-                Animaciones suaves solo con CSS, para un feel tipo campaña de Nike.
+                Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
             </div>
         </div>
 
@@ -247,11 +340,10 @@
                 <div class="split-h">
                     <div class="grid-center">
                         <div class="panel__content">
-                            <h3>Enrich your product page</h3>
+                            <h3>Enrich your steps. Leave your mark.</h3>
                             <p>
-                                Imagina esta sección mostrando lanzamientos de zapatillas:
-                                cards que entran desde abajo, con un leve giro, perfectas
-                                para destacar drops importantes.
+                                Últimos lanzamientos de zapatillas, accesorios y ropa. <br>
+                                Drops exclusivos para ti. Revisa aquí lo último de nuestra colección xclusiv.
                             </p>
                         </div>
                     </div>
@@ -278,16 +370,13 @@
 
                     <div class="grid-center">
                         <div class="panel__content">
-                            <h3>Animate anything</h3>
+                            <h3>¿Te atreves a ser exclusivo?</h3>
                             <p>
-                                Aquí podrías mostrar una campaña visual, lookbook o editorial
-                                de tu colección, con un recorte que se abre a medida que
-                                scrolléas.
+                                Aquí podrás mostrar por qué tu colección es exclusiva.
                             </p>
                             <p>
-                                Todo esto es puro CSS: <code>clip-path</code>,
-                                <code>animation-timeline</code> y un poco de cariño en los
-                                detalles.
+                                Confianza en la calidad de los productos,
+                                calidad en el servicio al cliente y precios exclusivos para nuestros clientes xclusiv
                             </p>
                         </div>
                     </div>
@@ -317,7 +406,7 @@
             </section>
 
             <section class="section">
-                <h2 class="section__title">Lo que dicen del drip</h2>
+                <h2 class="section__title">Lo que dicen del drip xclusiv</h2>
                 <div class="popup-container">
                     <div class="review">
                         <h3>Cliente anónimo</h3>
@@ -349,45 +438,73 @@
         </div>
     </div>
 </section>
+<!-- GRAVITY ZERO SECTION -->
+<section class="py-5 text-center">
+    <div class="container">
+        <p class="text-uppercase small fw-bold mb-2">XCLUSIV'S</p>
+        <h2 class="display-3 fw-black text-uppercase mb-4" style="font-weight: 900; letter-spacing: -2px;">
+            UN PAR QUE NO TE PUEDES QUEDAR CON GANAS DE TENERLO
+        </h2>
+        <a href="{% url 'catalog:list' %}" class="btn btn-black rounded-pill px-5 py-2 fw-bold">Comprar</a>
+    </div>
+</section>
+
+<!-- SPLIT LIFESTYLE SECTION -->
+<section class="py-5">
+    <div class="container-fluid px-0">
+        <div class="row g-0">
+            <div class="col-md-6 position-relative">
+                <img src="{% static 'home/airmutblackhome1.jpg' %}" alt="Lifestyle 1"
+                    class="w-100 h-100 object-fit-cover" style="min-height: 600px;">
+                <div class="position-absolute bottom-0 start-0 p-5 text-white">
+                    <p class="mb-1 fw-bold">Regalos que elevan su juego</p>
+                    <a href="{% url 'catalog:list' %}" class="btn btn-light rounded-pill px-4 fw-bold">Comprar</a>
+                </div>
+            </div>
+            <div class="col-md-6 position-relative">
+                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Lifestyle 2"
+                    class="w-100 h-100 object-fit-cover" style="min-height: 600px;">
+                <div class="position-absolute bottom-0 start-0 p-5 text-white">
+                    <p class="mb-1 fw-bold">Tu estilo entra en calor</p>
+                    <a href="{% url 'catalog:list' %}" class="btn btn-light rounded-pill px-4 fw-bold">Comprar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
 {% block extra_js %}
+<script src="{% static 'js/gsap-hero.js' %}"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const svg = document.querySelector(".hero-gsap svg");
-        if (!svg || !window.gsap) {
-            console.warn("No encontré el SVG o GSAP no cargó");
-            return;
-        }
+    function toggleWishlist(productId, element) {
+        // Use Django's url tag to get the base path, replacing the placeholder '0' with the actual ID
+        const url = "{% url 'catalog:toggle_wishlist' 0 %}".replace('0', productId);
 
-        const elements = svg.querySelectorAll("*");
-
-        gsap.set(elements, {
-            x: () => gsap.utils.random(-500, 500),
-            y: () => gsap.utils.random(-500, 500),
-            rotation: () => gsap.utils.random(-720, 720),
-            scale: 0,
-            opacity: 0
-        });
-
-        const tl = gsap.timeline({
-            repeat: -1,
-            repeatDelay: 0.65,
-            yoyo: true
-        });
-
-        tl.to(elements, {
-            x: 0,
-            y: 0,
-            scale: 1,
-            opacity: 1,
-            rotation: 0,
-            ease: "power4.inOut",
-            stagger: 0.0125,
-            duration: 0.75
-        });
-
-        svg.addEventListener("mouseenter", () => tl.timeScale(0.15));
-        svg.addEventListener("mouseleave", () => tl.timeScale(1));
-    });
+        fetch(url)
+            .then(response => {
+                if (response.status === 403 || response.status === 401) {
+                    window.location.href = "{% url 'accounts:login' %}";
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const icon = element.querySelector('i');
+                if (data.added) {
+                    element.classList.add('active');
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                } else {
+                    element.classList.remove('active');
+                    icon.classList.remove('bi-heart-fill');
+                    icon.classList.add('bi-heart');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 </script>
 {% endblock %}

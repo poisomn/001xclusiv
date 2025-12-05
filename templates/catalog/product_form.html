@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agregar Producto – 001xclusiv{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="fw-bold">Agregar Nuevo Producto</h1>
+                <a href="{% url 'catalog:list' %}" class="btn btn-outline-dark rounded-pill">Volver al catálogo</a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- Product Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Información del Producto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Slug</label>
+                                {{ form.slug }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">SKU</label>
+                                {{ form.sku }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Marca</label>
+                                {{ form.brand }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Categorías</label>
+                                {{ form.categories }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio Base</label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio Oferta</label>
+                                {{ form.discount_price }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Descripción Corta</label>
+                                {{ form.short_description }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Descripción Larga</label>
+                                {{ form.description }}
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-check-inline">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label">Publicado</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    {{ form.is_featured }}
+                                    <label class="form-check-label">Destacado</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Imágenes</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ image_formset.management_form }}
+                        <div id="image-formset">
+                            {% for form in image_formset %}
+                            <div class="row g-3 mb-3 border-bottom pb-3">
+                                {{ form.id }}
+                                <div class="col-md-4">
+                                    <label class="form-label">Imagen</label>
+                                    {{ form.image }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Alt Text</label>
+                                    {{ form.alt_text }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Orden</label>
+                                    {{ form.ordering }}
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <div class="form-check">
+                                        {{ form.is_main }}
+                                        <label class="form-check-label">Principal</label>
+                                    </div>
+                                    <div class="form-check ms-3">
+                                        {{ form.DELETE }}
+                                        <label class="form-check-label text-danger">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variants -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Variantes (Tallas)</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ variant_formset.management_form }}
+                        <div id="variant-formset">
+                            {% for form in variant_formset %}
+                            <div class="row g-3 mb-3 border-bottom pb-3">
+                                {{ form.id }}
+                                <div class="col-md-4">
+                                    <label class="form-label">Talla</label>
+                                    {{ form.size }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Stock</label>
+                                    {{ form.stock }}
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <div class="form-check">
+                                        {{ form.is_active }}
+                                        <label class="form-check-label">Disponible</label>
+                                    </div>
+                                    <div class="form-check ms-3">
+                                        {{ form.DELETE }}
+                                        <label class="form-check-label text-danger">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-black btn-lg rounded-pill">Guardar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
