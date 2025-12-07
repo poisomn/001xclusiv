@@ -64,47 +64,67 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="fw-bold mb-0">Catálogo</h1>
             {% if user.is_staff %}
-            <a href="{% url 'catalog:create' %}" class="btn btn-black rounded-pill">
+            <a href="{% url 'catalog:create' %}" class="btn-primary">
                 <i class="bi bi-plus-lg me-1"></i> Agregar Producto
             </a>
             {% endif %}
         </div>
 
-        <div class="row g-4">
+        <div class="product-grid">
             {% for product in products %}
-            <div class="col-6 col-md-4">
-                <div class="product-card-wrapper position-relative">
-                    <a href="{% url 'catalog:detail' product.slug %}"
-                        class="text-decoration-none text-dark d-block h-100">
-                        <div class="mb-2 border rounded-4 overflow-hidden position-relative product-card">
-                            {% with main_image=product.images.all|first %}
-                            {% if main_image %}
-                            <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
-                                style="width:100%;height:280px;object-fit:cover; transition: transform 0.3s ease;"
-                                onmouseover="this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.transform='scale(1)'">
+            <div class="product-card">
+                <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
+                    <div class="product-image-container">
+                        {% with main_image=product.images.all|first %}
+                        {% if main_image %}
+                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
+                            class="product-image" loading="lazy">
+                        {% else %}
+                        <div style="width:100%;height:100%;background:var(--gray-50);display:grid;place-items:center;">
+                            <span class="text-muted small">Sin imagen</span>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        <!-- Overlay with Quick Add -->
+                        <div class="product-overlay">
+                            <button class="btn-quick-add"
+                                onclick="event.preventDefault(); event.stopPropagation(); alert('Quick add - implementar modal de tallas');">
+                                <i class="bi bi-cart-plus"></i>
+                                Agregar al Carrito
+                            </button>
+                        </div>
+
+                        <!-- Wishlist Button -->
+                        <button class="btn-wishlist"
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ product.pk }}, this)">
+                            <i class="bi bi-heart"></i>
+                        </button>
+
+                        <!-- Sale Badge -->
+                        {% if product.discount_price %}
+                        <span class="badge-sale">OFERTA</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-details">
+                        <p class="product-brand">{{ product.brand.name|default:"" }}</p>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <div class="product-pricing">
+                            {% if product.discount_price %}
+                            <span class="price-old">${{ product.price }} CLP</span>
+                            <span class="price-new">${{ product.discount_price }} CLP</span>
                             {% else %}
-                            <div style="width:100%;height:280px;background:#f3f3f3;display:grid;place-items:center;">
-                                <span class="text-muted small">Sin imagen</span>
-                            </div>
+                            <span class="price">${{ product.price }} CLP</span>
                             {% endif %}
-                            <div class="small mt-1">
-                                {% if product.discount_price %}
-                                <span class="text-decoration-line-through me-1 text-muted">
-                                    ${{ product.price }}
-                                </span>
-                                <span class="fw-bold text-danger">${{ product.discount_price }}</span>
-                                {% else %}
-                                <span class="fw-bold">${{ product.price }}</span>
-                                {% endif %}
-                            </div>
-                    </a>
-                </div>
+                        </div>
+                    </div>
+                </a>
             </div>
             {% empty %}
-            <div class="col-12 text-center py-5">
+            <div style="grid-column: 1 / -1;" class="text-center py-5">
                 <p class="text-muted">No se encontraron productos.</p>
-                <a href="{% url 'catalog:list' %}" class="btn btn-outline-dark btn-sm">Limpiar filtros</a>
+                <a href="{% url 'catalog:list' %}" class="btn-secondary btn-sm">Limpiar filtros</a>
             </div>
             {% endfor %}
         </div>

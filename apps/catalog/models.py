@@ -62,11 +62,11 @@ class Product(TimeStampedModel):
         blank=True,
     )
 
-    price = models.DecimalField("Precio base", max_digits=10, decimal_places=2)
+    price = models.DecimalField("Precio base", max_digits=10, decimal_places=0)
     discount_price = models.DecimalField(
         "Precio oferta",
         max_digits=10,
-        decimal_places=2,
+        decimal_places=0,
         null=True,
         blank=True,
     )

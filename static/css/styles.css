@@ -1,4 +1,5 @@
 @import url('cart_popup.css');
+@import url('product-card.css');
 
 :root {
     --size-3: 0.75rem;

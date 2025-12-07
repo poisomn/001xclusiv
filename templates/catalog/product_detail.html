@@ -4,89 +4,188 @@
 {% block title %}{{ product.name }} – 001xclusiv{% endblock %}
 
 {% block content %}
-<div class="row g-5">
-    <!-- Product Images -->
-    <div class="col-md-7">
-        <div class="row g-2">
-            {% with images=product.images.all %}
-            {% if images %}
-            <!-- Main Image -->
-            <div class="col-12 mb-2">
-                <div class="border rounded-4 overflow-hidden bg-light">
-                    <img src="{{ images.0.image.url }}" alt="{{ images.0.alt_text|default:product.name }}"
-                        class="w-100 object-fit-cover" style="height: 500px;" id="mainImage">
+<!-- DEBUG MARKER: FIX APPLIED v2 -->
+<div class="container">
+    <div class="row g-5">
+        <!-- Product Images -->
+        <div class="col-md-7">
+            <div class="row g-2">
+                {% with images=product.images.all %}
+                {% if images %}
+                <!-- Main Image -->
+                <div class="col-12 mb-2">
+                    <div class="border rounded-4 overflow-hidden bg-light">
+                        <img src="{{ images.0.image.url }}" alt="{{ images.0.alt_text|default:product.name }}"
+                            class="w-100 object-fit-cover" style="aspect-ratio: 1/1;" id="mainImage">
+                    </div>
                 </div>
-            </div>
 
-            <!-- Thumbnails -->
-            {% for img in images %}
-            <div class="col-3 col-sm-2">
-                <div class="border rounded-3 overflow-hidden cursor-pointer"
-                    onclick="document.getElementById('mainImage').src='{{ img.image.url }}'">
-                    <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="w-100 object-fit-cover"
-                        style="height: 80px;">
+                <!-- Thumbnails -->
+                {% for img in images %}
+                <div class="col-3 col-sm-2">
+                    <div class="border rounded-3 overflow-hidden cursor-pointer"
+                        onclick="document.getElementById('mainImage').src='{{ img.image.url }}'">
+                        <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="w-100 object-fit-cover"
+                            style="height: 80px;">
+                    </div>
                 </div>
-            </div>
-            {% endfor %}
-            {% else %}
-            <div class="col-12">
-                <div class="border rounded-4 bg-light d-flex align-items-center justify-content-center"
-                    style="height: 500px;">
-                    <span class="text-muted">Sin imágenes</span>
-                </div>
-            </div>
-            {% endif %}
-            {% endwith %}
-        </div>
-    </div>
-
-    <!-- Product Info -->
-    <div class="col-md-5">
-        <div class="sticky-top" style="top: 100px;">
-            <div class="mb-2">
-                <span class="badge bg-light text-dark border">{{ product.brand.name }}</span>
-                {% for cat in product.categories.all %}
-                <span class="badge bg-light text-secondary border">{{ cat.name }}</span>
                 {% endfor %}
-            </div>
-
-            <h1 class="fw-bold mb-2">{{ product.name }}</h1>
-
-            <div class="mb-4 d-flex align-items-center">
-                {% if product.discount_price %}
-                <span class="fs-4 text-decoration-line-through text-muted me-2">${{ product.price }}</span>
-                <span class="fs-3 fw-bold text-danger">${{ product.discount_price }}</span>
                 {% else %}
-                <span class="fs-3 fw-bold">${{ product.price }}</span>
+                <div class="col-12">
+                    <div class="border rounded-4 bg-light d-flex align-items-center justify-content-center"
+                        style="aspect-ratio: 1/1;">
+                        <span class="text-muted">Sin imágenes</span>
+                    </div>
+                </div>
                 {% endif %}
-                <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}" value="{{ variant.id }}"
-                    autocomplete="off" required>
-                <label class="btn btn-outline-dark" for="size-{{ variant.id }}">{{ variant.size }}</label>
-                {% else %}
-                <button type="button" class="btn btn-light text-muted border" disabled>{{ variant.size
-                    }}</button>
-                {% endif %}
-                {% empty %}
-                <p class="text-muted small">No hay tallas disponibles.</p>
-                {% endfor %}
+                {% endwith %}
             </div>
         </div>
 
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill">
-                Agregar al carrito
-            </button>
-        </div>
-        </form>
+        <!-- Product Info -->
+        <div class="col-md-5">
+            <div class="sticky-top" style="top: 100px;">
+                <div class="mb-2">
+                    <span class="badge bg-light text-dark border">{{ product.brand.name }}</span>
+                    {% for cat in product.categories.all %}
+                    <span class="badge bg-light text-secondary border">{{ cat.name }}</span>
+                    {% endfor %}
+                </div>
 
-        <div class="mt-4 pt-4 border-top">
-            <div class="d-flex align-items-center small text-muted">
-                <span class="me-4">SKU: {{ product.sku }}</span>
-                <span>Stock disponible</span>
+                <h1 class="fw-bold mb-2">{{ product.name }}</h1>
+
+                <div class="mb-4">
+                    {% if product.discount_price %}
+                    <span class="fs-4 text-decoration-line-through text-muted me-2">${{ product.price }} CLP</span>
+                    <span class="fs-3 fw-bold text-danger">${{ product.discount_price }} CLP</span>
+                    {% else %}
+                    <span class="fs-3 fw-bold">${{ product.price }} CLP</span>
+                    {% endif %}
+                </div>
+
+                <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                    {% csrf_token %}
+
+                    <!-- Variant Selection -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-semibold mb-0">Selecciona tu talla:</label>
+                            <button type="button" class="btn btn-link text-decoration-none p-0 text-dark small"
+                                data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
+                                <i class="bi bi-ruler me-1"></i>Guía de Tallas
+                            </button>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for variant in product.variants.all %}
+                            {% if variant.stock > 0 %}
+                            <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}"
+                                value="{{ variant.id }}" autocomplete="off" required>
+                            <label class="btn btn-outline-dark" for="size-{{ variant.id }}">{{ variant.size }}</label>
+                            {% else %}
+                            <button type="button" class="btn btn-light text-muted border" disabled>{{ variant.size
+                                }}</button>
+                            {% endif %}
+                            {% empty %}
+                            <p class="text-muted small">No hay tallas disponibles.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill">
+                            Agregar al carrito
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-4 pt-4 border-top">
+                    <div class="d-flex align-items-center small text-muted">
+                        <span class="me-4">SKU: {{ product.sku }}</span>
+                        <span>Stock disponible</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+<!-- Size Guide Modal -->
+<div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" id="sizeGuideModalLabel">Guía de Tallas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="text-muted small mb-3">Usa esta tabla para encontrar tu talla perfecta.</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>US</th>
+                                <th>EU</th>
+                                <th>CM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>7</td>
+                                <td>40</td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <td>7.5</td>
+                                <td>40.5</td>
+                                <td>25.5</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>41</td>
+                                <td>26</td>
+                            </tr>
+                            <tr>
+                                <td>8.5</td>
+                                <td>42</td>
+                                <td>26.5</td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>42.5</td>
+                                <td>27</td>
+                            </tr>
+                            <tr>
+                                <td>9.5</td>
+                                <td>43</td>
+                                <td>27.5</td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>44</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>10.5</td>
+                                <td>44.5</td>
+                                <td>28.5</td>
+                            </tr>
+                            <tr>
+                                <td>11</td>
+                                <td>45</td>
+                                <td>29</td>
+                            </tr>
+                            <tr>
+                                <td>12</td>
+                                <td>46</td>
+                                <td>30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

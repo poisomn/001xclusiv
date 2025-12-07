@@ -118,53 +118,77 @@
 
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h1 class="fw-bold mb-3">Bienvenido a 001xclusiv</h1>
-                <p class="lead">
-                    Tu tienda online de zapatillas exclusivas, drops y pares limitados.
-                </p>
-                <p>
-                    También tenemos ropa, accesorios. Somos un estilo nuevo ;)
-                </p>
+                <div class="scroll-hero">
+                    <h2 class="scroll-hero__title">Bienvenido a 001xclusiv</h2>
+                    <div class="scroll-hero__payoff">
+                        Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
+                    </div>
+                    <p>
+                        También tenemos ropa, accesorios. Somos un estilo nuevo ;)
+                    </p>
+                </div>
 
                 <a href="{% url 'catalog:list' %}" class="btn btn-light btn-lg mt-3">
                     Ver catálogo
                 </a>
             </div>
-            <div class="col-md-5 mt-4 mt-md-0">
+            <div class="col-md-4 mt-3 mt-md-0" style="margin-left: 50px;">
                 <div class="p-4 border border-dark rounded-4">
                     {% if featured_products %}
                     <p class="mb-1 text-uppercase small text-muted">Destacados</p>
-
-                    {% for product in featured_products %}
-                    <div>
-                        <div class="fw-semibold">{{ product.name }}</div>
-                        <div class="small text-muted">
-                            {% if product.discount_price %}
-                            <span class="text-decoration-line-through me-1">
-                                ${{ product.price }}
-                            </span>
-                            <span class="fw-bold">${{ product.discount_price }}</span>
-                            {% else %}
-                            <span class="fw-bold">${{ product.price }}</span>
-                            {% endif %}
+                    <div id="featuredCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for product in featured_products %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <a href="{% url 'catalog:detail' product.slug %}"
+                                    class="text-decoration-none text-dark">
+                                    <div class="mb-3 text-center">
+                                        {% with main_image=product.images.all|first %}
+                                        {% if main_image %}
+                                        <div class="mb-2 rounded-3 overflow-hidden">
+                                            <img src="{{ main_image.image.url }}" alt="{{ product.name }}"
+                                                class="w-100 object-fit-cover" style="aspect-ratio: 1/1;">
+                                        </div>
+                                        {% endif %}
+                                        {% endwith %}
+                                        <div class="fw-semibold">{{ product.name }}</div>
+                                        <div class="small text-muted">
+                                            {% if product.discount_price %}
+                                            <span class="text-decoration-line-through me-1">
+                                                ${{ product.price }} CLP
+                                            </span>
+                                            <span class="fw-bold">${{ product.discount_price }} CLP</span>
+                                            {% else %}
+                                            <span class="fw-bold">${{ product.price }} CLP</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            {% endfor %}
                         </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
                     </div>
-                </div>
-                {% endfor %}
 
-                <a href="{% url 'catalog:list' %}" class="btn btn-dark w-100 mt-2">
-                    Ver todo el catálogo
-                </a>
-                {% else %}
-                <p class="mb-1 text-uppercase small text-muted">Mockup</p>
-                <h5 class="fw-semibold mb-3">Zona de productos destacados</h5>
-                <p class="text-muted mb-0">
-                    Aún no hay productos destacados. Marca algunos en el admin para
-                    mostrarlos aquí.
-                </p>
-                {% endif %}
+                    {% else %}
+                    <p class="mb-1 text-uppercase small text-muted">Mockup</p>
+                    <h5 class="fw-semibold mb-3">Zona de productos destacados</h5>
+                    <p class="text-muted mb-0">
+                        Aún no hay productos destacados. Marca algunos en el admin para
+                        mostrarlos aquí.
+                    </p>
+                    {% endif %}
+                </div>
             </div>
-        </div>
 
         </div>
     </figure>
@@ -177,8 +201,8 @@
         <!-- Hombre -->
         <div class="col-md-4">
             <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airmutblackhome.jpg' %}" alt="Hombre" class="w-100 h-100 object-fit-cover"
-                    style="min-height: 400px; filter: brightness(0.9);">
+                <img src="{% static 'home/hombreCate.jpg' %}" alt="Hombre" class="w-100 object-fit-cover"
+                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
                 <div class="position-absolute bottom-0 start-0 p-4">
                     <a href="{% url 'catalog:list' %}?category=hombre"
                         class="btn btn-light rounded-pill px-4 fw-bold">Hombre</a>
@@ -188,8 +212,8 @@
         <!-- Mujer -->
         <div class="col-md-4">
             <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airmutblackhome1.jpg' %}" alt="Mujer" class="w-100 h-100 object-fit-cover"
-                    style="min-height: 400px; filter: brightness(0.9);">
+                <img src="{% static 'home/mujerCate.jpg' %}" alt="Mujer" class="w-100 object-fit-cover"
+                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
                 <div class="position-absolute bottom-0 start-0 p-4">
                     <a href="{% url 'catalog:list' %}?category=mujer"
                         class="btn btn-light rounded-pill px-4 fw-bold">Mujer</a>
@@ -199,8 +223,8 @@
         <!-- Niños -->
         <div class="col-md-4">
             <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Niños"
-                    class="w-100 h-100 object-fit-cover" style="min-height: 400px; filter: brightness(0.9);">
+                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Niños" class="w-100 object-fit-cover"
+                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
                 <div class="position-absolute bottom-0 start-0 p-4">
                     <a href="{% url 'catalog:list' %}?category=ninos"
                         class="btn btn-light rounded-pill px-4 fw-bold">Niños</a>
@@ -214,8 +238,8 @@
         <!-- Calzado -->
         <div class="col-md-4">
             <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airmutblackhome2.png' %}" alt="Calzado" class="w-100 h-100 object-fit-cover"
-                    style="min-height: 400px; background: #f5f5f5;">
+                <img src="{% static 'home/airmutblackhome2.png' %}" alt="Calzado" class="w-100 object-fit-cover"
+                    style="height: 450px; background: #f5f5f5; border-radius: 10px;">
                 <div class="position-absolute bottom-0 start-0 p-4">
                     <a href="{% url 'catalog:list' %}?category=calzado"
                         class="btn btn-light rounded-pill px-4 fw-bold">Calzado</a>
@@ -225,8 +249,8 @@
         <!-- Ropa -->
         <div class="col-md-4">
             <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airmutblackhome1.jpg' %}" alt="Ropa" class="w-100 h-100 object-fit-cover"
-                    style="min-height: 400px; filter: brightness(0.9);">
+                <img src="{% static 'home/ropa.jpg' %}" alt="Ropa" class="w-100 object-fit-cover"
+                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
                 <div class="position-absolute bottom-0 start-0 p-4">
                     <a href="{% url 'catalog:list' %}?category=ropa"
                         class="btn btn-light rounded-pill px-4 fw-bold">Ropa</a>
@@ -236,8 +260,8 @@
         <!-- Accesorios -->
         <div class="col-md-4">
             <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Accesorios"
-                    class="w-100 h-100 object-fit-cover" style="min-height: 400px; filter: brightness(0.9);">
+                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Accesorios" class="w-100 object-fit-cover"
+                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
                 <div class="position-absolute bottom-0 start-0 p-4">
                     <a href="{% url 'catalog:list' %}?category=accesorios"
                         class="btn btn-light rounded-pill px-4 fw-bold">Accesorios</a>
@@ -280,36 +304,37 @@
             <div>
                 <svg viewBox="0 0 100 20" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="gradient">
+                        <linearGradient id="drip-gradient">
                             <stop offset="0%" stop-color="#000" />
                         </linearGradient>
-                        <pattern id="wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
+                        <pattern id="drip-wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
                             <path d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z"
-                                fill="url(#gradient)">
+                                fill="url(#drip-gradient)">
                                 <animateTransform attributeName="transform" begin="0s" dur="1.5s" type="translate"
                                     from="0,0" to="40,0" repeatCount="indefinite" />
                             </path>
                         </pattern>
                     </defs>
                     <text text-anchor="middle" x="50" y="15" font-size="17" fill="white" fill-opacity="0.1">DRIP</text>
-                    <text text-anchor="middle" x="50" y="15" font-size="17" fill="url(#wave)"
+                    <text text-anchor="middle" x="50" y="15" font-size="17" fill="url(#drip-wave)"
                         fill-opacity="1">DRIP</text>
                 </svg>
                 <svg viewBox="0 0 100 20" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <mask id="waveMask">
-                            <pattern id="wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
+                        <mask id="drip-waveMask">
+                            <pattern id="drip-wave-mask-pattern" x="0" y="-0.5" width="100%" height="100%"
+                                patternUnits="userSpaceOnUse">
                                 <path d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z"
                                     fill="white">
                                     <animateTransform attributeName="transform" begin="0s" dur="1.5s" type="translate"
                                         from="0,0" to="40,0" repeatCount="indefinite" />
                                 </path>
                             </pattern>
-                            <rect width="100%" height="100%" fill="url(#wave)" />
+                            <rect width="100%" height="100%" fill="url(#drip-wave-mask-pattern)" />
                         </mask>
                     </defs>
                     <text text-anchor="middle" x="50" y="15" font-size="17" fill="black"
-                        mask="url(#waveMask)">DRIP</text>
+                        mask="url(#drip-waveMask)">DRIP</text>
                 </svg>
             </div>
         </div>
@@ -376,30 +401,9 @@
                             </p>
                             <p>
                                 Confianza en la calidad de los productos,
-                                calidad en el servicio al cliente y precios exclusivos para nuestros clientes xclusiv
+                                calidad en el servicio al cliente y precios exclusivos para nuestros clientes <italic>
+                                    xclusiv</italic>
                             </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section panel">
-                <div class="split-h">
-                    <div class="panel__content">
-                        <h3>Animate custom properties</h3>
-                        <p>
-                            Incluso el círculo puede representar progreso de compra,
-                            puntos, o hype del lanzamiento usando custom properties.
-                        </p>
-                        <p>
-                            Es solo una demo, pero la idea es que sientas que la experiencia
-                            tiene movimiento, no solo una grilla estática.
-                        </p>
-                    </div>
-
-                    <div class="grid-center">
-                        <div class="spinner">
-                            <div class="spinner__progress"></div>
                         </div>
                     </div>
                 </div>
