@@ -1,0 +1,120 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Backoffice - 001xclusiv{% endblock %}
+
+{% block backoffice_content %}
+<div class="backoffice-section-grid">
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Panorama</span>
+                <h2>Estado general</h2>
+            </div>
+        </div>
+        <div class="backoffice-stat-grid">
+            <div class="backoffice-stat-card">
+                <span>Publicados</span>
+                <strong>{{ stats.published_products }}</strong>
+            </div>
+            <div class="backoffice-stat-card">
+                <span>Destacados</span>
+                <strong>{{ stats.featured_products }}</strong>
+            </div>
+            <div class="backoffice-stat-card">
+                <span>Pagados</span>
+                <strong>{{ stats.paid_orders }}</strong>
+            </div>
+            <div class="backoffice-stat-card">
+                <span>Pendientes</span>
+                <strong>{{ stats.pending_orders }}</strong>
+            </div>
+            <div class="backoffice-stat-card">
+                <span>Marcas</span>
+                <strong>{{ stats.brands }}</strong>
+            </div>
+            <div class="backoffice-stat-card">
+                <span>Categorias</span>
+                <strong>{{ stats.categories }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Pedidos</span>
+                <h2>Ultimos pedidos</h2>
+            </div>
+            <a href="{% url 'accounts:backoffice_orders' %}" class="btn-secondary">Ver todos</a>
+        </div>
+        <div class="backoffice-list">
+            {% for order in recent_orders %}
+            <a href="{% url 'accounts:backoffice_order_detail' order.id %}" class="backoffice-list-row">
+                <div>
+                    <strong>#{{ order.id }} · {{ order.full_name }}</strong>
+                    <p>{{ order.email }}</p>
+                </div>
+                <div class="text-end">
+                    <span class="status-chip">{{ order.get_status_display }}</span>
+                    <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
+                </div>
+            </a>
+            {% empty %}
+            <div class="backoffice-empty-state">Aun no hay pedidos registrados.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Stock</span>
+                <h2>Productos a vigilar</h2>
+            </div>
+            <a href="{% url 'accounts:backoffice_products' %}" class="btn-secondary">Gestionar productos</a>
+        </div>
+        <div class="backoffice-list">
+            {% for product in low_stock_products %}
+            <a href="{% url 'accounts:backoffice_product_edit' product.id %}" class="backoffice-list-row">
+                <div>
+                    <strong>{{ product.name }}</strong>
+                    <p>{% if product.brand %}{{ product.brand.name }}{% else %}Sin marca{% endif %}</p>
+                </div>
+                <div class="text-end">
+                    <span class="status-chip {% if product.total_stock == 0 %}is-danger{% endif %}">
+                        {{ product.total_stock }} en stock
+                    </span>
+                </div>
+            </a>
+            {% empty %}
+            <div class="backoffice-empty-state">No hay alertas de stock bajo por ahora.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Clientes</span>
+                <h2>Usuarios con mas pedidos</h2>
+            </div>
+            <a href="{% url 'accounts:backoffice_users' %}" class="btn-secondary">Ver usuarios</a>
+        </div>
+        <div class="backoffice-list">
+            {% for customer in top_customers %}
+            <div class="backoffice-list-row">
+                <div>
+                    <strong>{{ customer.username }}</strong>
+                    <p>{{ customer.email|default:"Sin email" }}</p>
+                </div>
+                <div class="text-end">
+                    <span class="status-chip">{{ customer.order_count }} pedidos</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="backoffice-empty-state">Todavia no hay usuarios con pedidos.</div>
+            {% endfor %}
+        </div>
+    </article>
+</div>
+{% endblock %}

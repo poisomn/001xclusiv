@@ -1,0 +1,113 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Marcas y categorias - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<div class="backoffice-section-grid">
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Categorias</span>
+                <h2>Crear nueva categoria</h2>
+            </div>
+        </div>
+        <form method="post" class="backoffice-form-stack">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="category">
+            <div>
+                <label>Nombre</label>
+                {{ category_form.name }}
+            </div>
+            <div>
+                <label>Slug</label>
+                {{ category_form.slug }}
+            </div>
+            <label class="backoffice-check">
+                {{ category_form.is_active }}
+                <span>Activa</span>
+            </label>
+            <button type="submit" class="btn-accent">Crear categoria</button>
+        </form>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Marcas</span>
+                <h2>Crear nueva marca</h2>
+            </div>
+        </div>
+        <form method="post" class="backoffice-form-stack">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="brand">
+            <div>
+                <label>Nombre</label>
+                {{ brand_form.name }}
+            </div>
+            <div>
+                <label>Slug</label>
+                {{ brand_form.slug }}
+            </div>
+            <label class="backoffice-check">
+                {{ brand_form.is_active }}
+                <span>Activa</span>
+            </label>
+            <button type="submit" class="btn-accent">Crear marca</button>
+        </form>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Listado</span>
+                <h2>Categorias existentes</h2>
+            </div>
+        </div>
+        <div class="backoffice-list">
+            {% for category in categories %}
+            <div class="backoffice-list-row">
+                <div>
+                    <strong>{{ category.name }}</strong>
+                    <p>{{ category.slug }}</p>
+                </div>
+                <div class="text-end">
+                    <span class="status-chip {% if not category.is_active %}is-muted{% endif %}">
+                        {% if category.is_active %}Activa{% else %}Inactiva{% endif %}
+                    </span>
+                    <a href="{% url 'accounts:backoffice_category_edit' category.id %}" class="btn-secondary btn-sm">Editar</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="backoffice-empty-state">Aun no hay categorias creadas.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Listado</span>
+                <h2>Marcas existentes</h2>
+            </div>
+        </div>
+        <div class="backoffice-list">
+            {% for brand in brands %}
+            <div class="backoffice-list-row">
+                <div>
+                    <strong>{{ brand.name }}</strong>
+                    <p>{{ brand.slug }}</p>
+                </div>
+                <div class="text-end">
+                    <span class="status-chip {% if not brand.is_active %}is-muted{% endif %}">
+                        {% if brand.is_active %}Activa{% else %}Inactiva{% endif %}
+                    </span>
+                    <a href="{% url 'accounts:backoffice_brand_edit' brand.id %}" class="btn-secondary btn-sm">Editar</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="backoffice-empty-state">Aun no hay marcas creadas.</div>
+            {% endfor %}
+        </div>
+    </article>
+</div>
+{% endblock %}

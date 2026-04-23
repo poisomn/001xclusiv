@@ -1,125 +1,199 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ product.name }} – 001xclusiv{% endblock %}
+{% block title %}{{ seo_title|default:product.name }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block og_title %}{{ seo_title|default:product.name }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
 
 {% block content %}
-<!-- DEBUG MARKER: FIX APPLIED v2 -->
-<div class="container">
-    <div class="row g-5">
-        <!-- Product Images -->
-        <div class="col-md-7">
-            <div class="row g-2">
-                {% with images=product.images.all %}
-                {% if images %}
-                <!-- Main Image -->
-                <div class="col-12 mb-2">
-                    <div class="border rounded-4 overflow-hidden bg-light">
-                        <img src="{{ images.0.image.url }}" alt="{{ images.0.alt_text|default:product.name }}"
-                            class="w-100 object-fit-cover" style="aspect-ratio: 1/1;" id="mainImage">
-                    </div>
-                </div>
-
-                <!-- Thumbnails -->
-                {% for img in images %}
-                <div class="col-3 col-sm-2">
-                    <div class="border rounded-3 overflow-hidden cursor-pointer"
-                        onclick="document.getElementById('mainImage').src='{{ img.image.url }}'">
-                        <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" class="w-100 object-fit-cover"
-                            style="height: 80px;">
-                    </div>
-                </div>
-                {% endfor %}
+<section class="product-detail-page">
+    <div class="product-detail-shell">
+        <div class="product-gallery-panel">
+            <div class="product-gallery-main">
+                {% if product_images %}
+                <img
+                    id="mainProductImage"
+                    src="{{ product_images.0.image.url }}"
+                    alt="{{ product_images.0.alt_text|default:product.name }}"
+                    class="product-gallery-main__image">
                 {% else %}
-                <div class="col-12">
-                    <div class="border rounded-4 bg-light d-flex align-items-center justify-content-center"
-                        style="aspect-ratio: 1/1;">
-                        <span class="text-muted">Sin imágenes</span>
-                    </div>
-                </div>
+                <div class="product-gallery-main__placeholder">Sin imagenes</div>
                 {% endif %}
-                {% endwith %}
             </div>
+
+            {% if product_images|length > 1 %}
+            <div class="product-gallery-thumbs" aria-label="Miniaturas del producto">
+                {% for image in product_images %}
+                <button
+                    type="button"
+                    class="product-gallery-thumb {% if forloop.first %}is-active{% endif %}"
+                    data-image="{{ image.image.url }}"
+                    data-alt="{{ image.alt_text|default:product.name }}"
+                    aria-label="Ver imagen {{ forloop.counter }}">
+                    <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
-        <!-- Product Info -->
-        <div class="col-md-5">
-            <div class="sticky-top" style="top: 100px;">
-                <div class="mb-2">
-                    <span class="badge bg-light text-dark border">{{ product.brand.name }}</span>
-                    {% for cat in product.categories.all %}
-                    <span class="badge bg-light text-secondary border">{{ cat.name }}</span>
-                    {% endfor %}
+        <div class="product-info-panel">
+            <div class="product-info-panel__sticky">
+                <div class="product-info-head">
+                    <div class="product-info-head__meta">
+                        {% if product.brand %}
+                        <span class="product-meta-pill">{{ product.brand.name }}</span>
+                        {% endif %}
+                        {% for category in product.categories.all %}
+                        <span class="product-meta-pill product-meta-pill--muted">{{ category.name }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <button class="btn-wishlist product-detail-wishlist {% if is_wishlisted %}active{% endif %}"
+                        type="button"
+                        aria-label="Guardar {{ product.name }} en favoritos"
+                        onclick="toggleWishlist('{{ product.id }}', this)">
+                        <i class="bi {% if is_wishlisted %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                    </button>
                 </div>
 
-                <h1 class="fw-bold mb-2">{{ product.name }}</h1>
+                <div class="product-detail-copy">
+                    <span class="section-kicker">Detalle del producto</span>
+                    <h1>{{ product.name }}</h1>
+                    <p class="product-detail-copy__description">
+                        {{ product.short_description|default:product.description|default:"Una seleccion premium con presencia visual y foco en conversión." }}
+                    </p>
+                </div>
 
-                <div class="mb-4">
+                <div class="product-detail-price">
                     {% if product.discount_price %}
-                    <span class="fs-4 text-decoration-line-through text-muted me-2">${{ product.price }} CLP</span>
-                    <span class="fs-3 fw-bold text-danger">${{ product.discount_price }} CLP</span>
+                    <span class="product-detail-price__old">${{ product.price }} CLP</span>
+                    <span class="product-detail-price__current">${{ product.discount_price }} CLP</span>
                     {% else %}
-                    <span class="fs-3 fw-bold">${{ product.price }} CLP</span>
+                    <span class="product-detail-price__current">${{ product.price }} CLP</span>
                     {% endif %}
                 </div>
 
-                <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                <div class="product-purchase-signal">
+                    <i class="bi {% if is_new_drop %}bi-stars{% elif has_in_stock_variants %}bi-lightning-charge{% else %}bi-heart{% endif %}"></i>
+                    <span>{{ purchase_signal }}</span>
+                </div>
+
+                <div class="product-detail-notes">
+                    <div class="product-detail-note">
+                        <i class="bi bi-patch-check"></i>
+                        <span>Producto verificado y curado para 001xclusiv</span>
+                    </div>
+                    <div class="product-detail-note">
+                        <i class="bi bi-truck"></i>
+                        <span>Despacho con seguimiento y comunicacion clara</span>
+                    </div>
+                </div>
+
+                <div class="product-reassurance-grid" aria-label="Beneficios del producto">
+                    {% for item in product_reassurance %}
+                    <article class="product-reassurance-card">
+                        <i class="bi {{ item.icon }}"></i>
+                        <div>
+                            <strong>{{ item.title }}</strong>
+                            <p>{{ item.text }}</p>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <form method="post" action="{% url 'cart:cart_add' product.id %}" class="product-purchase-card js-detail-cart-form">
                     {% csrf_token %}
 
-                    <!-- Variant Selection -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-semibold mb-0">Selecciona tu talla:</label>
-                            <button type="button" class="btn btn-link text-decoration-none p-0 text-dark small"
-                                data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
-                                <i class="bi bi-ruler me-1"></i>Guía de Tallas
+                    <div class="product-variant-selector">
+                        <div class="product-variant-selector__head">
+                            <label class="product-variant-selector__label">Selecciona tu talla</label>
+                            <button type="button" class="product-variant-selector__guide" data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
+                                Guia de tallas
                             </button>
                         </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            {% for variant in product.variants.all %}
+
+                        <div class="product-variant-grid">
+                            {% for variant in available_variants %}
                             {% if variant.stock > 0 %}
-                            <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}"
-                                value="{{ variant.id }}" autocomplete="off" required>
-                            <label class="btn btn-outline-dark" for="size-{{ variant.id }}">{{ variant.size }}</label>
+                            <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}" value="{{ variant.id }}" autocomplete="off" required {% if forloop.first %}checked{% endif %}>
+                            <label class="product-variant-tile" for="size-{{ variant.id }}">
+                                <span>{{ variant.size }}</span>
+                                <small>{{ variant.stock }} disp.</small>
+                            </label>
                             {% else %}
-                            <button type="button" class="btn btn-light text-muted border" disabled>{{ variant.size
-                                }}</button>
+                            <button type="button" class="product-variant-tile is-disabled" disabled>
+                                <span>{{ variant.size }}</span>
+                                <small>Agotado</small>
+                            </button>
                             {% endif %}
                             {% empty %}
-                            <p class="text-muted small">No hay tallas disponibles.</p>
+                            <p class="product-variant-empty">Este producto no tiene variantes activas. Puedes agregarlo directamente al carrito.</p>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-dark btn-lg py-3 rounded-pill">
-                            Agregar al carrito
+                    {% if product.description %}
+                    <div class="product-description-block">
+                        <h2>Descripcion</h2>
+                        <p>{{ product.description }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="product-purchase-card__footer">
+                        <div class="product-purchase-card__sku">
+                            <span>SKU</span>
+                            <strong>{{ product.sku }}</strong>
+                        </div>
+                        <button type="submit" class="btn-accent btn-lg product-purchase-card__button" {% if available_variants and not has_in_stock_variants %}disabled{% endif %}>
+                            <i class="bi bi-bag-plus"></i>
+                            {% if available_variants and not has_in_stock_variants %}Sin stock disponible{% else %}Agregar al carrito{% endif %}
                         </button>
                     </div>
                 </form>
-
-                <div class="mt-4 pt-4 border-top">
-                    <div class="d-flex align-items-center small text-muted">
-                        <span class="me-4">SKU: {{ product.sku }}</span>
-                        <span>Stock disponible</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-</div>
+
+    {% if related_products %}
+    <section class="related-products">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Completa el look</span>
+                <h2>Productos relacionados</h2>
+            </div>
+            <p class="section-heading__text">Sugerencias conectadas por marca o categoria para mantener el descubrimiento vivo hasta el final.</p>
+        </div>
+
+        <div class="product-grid catalog-product-grid related-products__grid">
+            {% for product in related_products %}
+            {% include "catalog/partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</section>
+
+<div class="product-sticky-bar d-md-none">
+    <div class="product-sticky-bar__price">
+        <span>Desde</span>
+        <strong>${{ product.effective_price }} CLP</strong>
+    </div>
+    <button type="button" class="btn-accent product-sticky-bar__button" id="stickyAddToCart" {% if available_variants and not has_in_stock_variants %}disabled{% endif %}>
+        {% if available_variants and not has_in_stock_variants %}Sin stock{% else %}Agregar al carrito{% endif %}
+    </button>
 </div>
 
-<!-- Size Guide Modal -->
 <div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold" id="sizeGuideModalLabel">Guía de Tallas</h5>
+                <h2 class="modal-title fs-5 fw-bold" id="sizeGuideModalLabel">Guia de tallas</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-2">
-                <p class="text-muted small mb-3">Usa esta tabla para encontrar tu talla perfecta.</p>
+                <p class="text-muted small mb-3">Usa esta referencia para elegir tu talla con mas seguridad.</p>
                 <div class="table-responsive">
                     <table class="table table-bordered text-center align-middle mb-0">
                         <thead class="table-light">
@@ -130,56 +204,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>7</td>
-                                <td>40</td>
-                                <td>25</td>
-                            </tr>
-                            <tr>
-                                <td>7.5</td>
-                                <td>40.5</td>
-                                <td>25.5</td>
-                            </tr>
-                            <tr>
-                                <td>8</td>
-                                <td>41</td>
-                                <td>26</td>
-                            </tr>
-                            <tr>
-                                <td>8.5</td>
-                                <td>42</td>
-                                <td>26.5</td>
-                            </tr>
-                            <tr>
-                                <td>9</td>
-                                <td>42.5</td>
-                                <td>27</td>
-                            </tr>
-                            <tr>
-                                <td>9.5</td>
-                                <td>43</td>
-                                <td>27.5</td>
-                            </tr>
-                            <tr>
-                                <td>10</td>
-                                <td>44</td>
-                                <td>28</td>
-                            </tr>
-                            <tr>
-                                <td>10.5</td>
-                                <td>44.5</td>
-                                <td>28.5</td>
-                            </tr>
-                            <tr>
-                                <td>11</td>
-                                <td>45</td>
-                                <td>29</td>
-                            </tr>
-                            <tr>
-                                <td>12</td>
-                                <td>46</td>
-                                <td>30</td>
-                            </tr>
+                            <tr><td>7</td><td>40</td><td>25</td></tr>
+                            <tr><td>7.5</td><td>40.5</td><td>25.5</td></tr>
+                            <tr><td>8</td><td>41</td><td>26</td></tr>
+                            <tr><td>8.5</td><td>42</td><td>26.5</td></tr>
+                            <tr><td>9</td><td>42.5</td><td>27</td></tr>
+                            <tr><td>9.5</td><td>43</td><td>27.5</td></tr>
+                            <tr><td>10</td><td>44</td><td>28</td></tr>
+                            <tr><td>10.5</td><td>44.5</td><td>28.5</td></tr>
+                            <tr><td>11</td><td>45</td><td>29</td></tr>
+                            <tr><td>12</td><td>46</td><td>30</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -190,5 +224,126 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/cart_popup.js' %}"></script>
+<script>
+    function toggleWishlist(productId, element) {
+        const url = "{% url 'catalog:toggle_wishlist' 0 %}".replace('0', productId);
+
+        fetch(url)
+            .then(response => {
+                if (response.status === 403 || response.status === 401) {
+                    window.location.href = "{% url 'accounts:login' %}";
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) {
+                    return;
+                }
+                const icon = element.querySelector('i');
+                element.classList.toggle('active', data.added);
+                icon.classList.toggle('bi-heart', !data.added);
+                icon.classList.toggle('bi-heart-fill', data.added);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function updateCartCount(count) {
+        const cartLink = document.querySelector('a[href="{% url "cart:cart_detail" %}"]');
+        if (!cartLink) {
+            return;
+        }
+
+        let badge = cartLink.querySelector('.badge');
+        if (!badge && count > 0) {
+            badge = document.createElement('span');
+            badge.className = 'badge bg-black text-white rounded-pill ms-1';
+            cartLink.appendChild(badge);
+        }
+
+        if (badge) {
+            badge.textContent = count;
+        }
+    }
+
+    function showDetailToast(message) {
+        let toast = document.getElementById('detail-action-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'detail-action-toast';
+            toast.className = 'home-action-toast';
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+
+        clearTimeout(window.detailToastTimeout);
+        window.detailToastTimeout = setTimeout(() => {
+            toast.classList.remove('is-visible');
+        }, 2600);
+    }
+
+    const mainProductImage = document.getElementById('mainProductImage');
+    const galleryThumbs = document.querySelectorAll('.product-gallery-thumb');
+
+    galleryThumbs.forEach(button => {
+        button.addEventListener('click', () => {
+            if (!mainProductImage) {
+                return;
+            }
+
+            mainProductImage.src = button.dataset.image;
+            mainProductImage.alt = button.dataset.alt;
+            galleryThumbs.forEach(item => item.classList.remove('is-active'));
+            button.classList.add('is-active');
+        });
+    });
+
+    const detailCartForm = document.querySelector('.js-detail-cart-form');
+    if (detailCartForm) {
+        detailCartForm.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const formData = new FormData(detailCartForm);
+            const payload = {};
+            formData.forEach((value, key) => {
+                payload[key] = value;
+            });
+
+            try {
+                const response = await fetch(detailCartForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateCartCount(data.cart_count);
+                    if (window.refreshMiniCartUI) {
+                        window.refreshMiniCartUI(data);
+                        window.openMiniCart();
+                    }
+                    showDetailToast(`${data.product_name} fue agregado al carrito.`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showDetailToast('No pudimos agregar el producto. Intenta otra vez.');
+            }
+        });
+    }
+
+    const stickyAddToCart = document.getElementById('stickyAddToCart');
+    if (stickyAddToCart && detailCartForm) {
+        stickyAddToCart.addEventListener('click', () => detailCartForm.requestSubmit());
+    }
+</script>
 {% endblock %}

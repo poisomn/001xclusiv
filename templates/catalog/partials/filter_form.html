@@ -1,0 +1,82 @@
+<form method="get" class="catalog-filters-form">
+    <div class="catalog-filter-group">
+        <label for="{{ filter_prefix|default:'filters' }}-q" class="catalog-filter-label">Buscar</label>
+        <div class="catalog-search-input">
+            <i class="bi bi-search"></i>
+            <input
+                id="{{ filter_prefix|default:'filters' }}-q"
+                type="text"
+                name="q"
+                value="{{ active_filters.q }}"
+                placeholder="Nombre, SKU o descripcion">
+        </div>
+    </div>
+
+    <div class="catalog-filter-group">
+        <label for="{{ filter_prefix|default:'filters' }}-sort" class="catalog-filter-label">Ordenar por</label>
+        <select id="{{ filter_prefix|default:'filters' }}-sort" name="sort" class="catalog-filter-select">
+            {% for value, label in sort_options %}
+            <option value="{{ value }}" {% if active_filters.sort == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="catalog-filter-group">
+        <span class="catalog-filter-label">Categoria</span>
+        <div class="catalog-filter-pills">
+            <label class="catalog-filter-pill">
+                <input type="radio" name="category" value="" {% if not active_filters.category %}checked{% endif %}>
+                <span>Todas</span>
+            </label>
+            {% for cat in categories %}
+            <label class="catalog-filter-pill">
+                <input type="radio" name="category" value="{{ cat.slug }}" {% if active_filters.category == cat.slug %}checked{% endif %}>
+                <span>{{ cat.name }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="catalog-filter-group">
+        <span class="catalog-filter-label">Marca</span>
+        <div class="catalog-filter-pills">
+            <label class="catalog-filter-pill">
+                <input type="radio" name="brand" value="" {% if not active_filters.brand %}checked{% endif %}>
+                <span>Todas</span>
+            </label>
+            {% for brand in brands %}
+            <label class="catalog-filter-pill">
+                <input type="radio" name="brand" value="{{ brand.slug }}" {% if active_filters.brand == brand.slug %}checked{% endif %}>
+                <span>{{ brand.name }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="catalog-filter-group">
+        <span class="catalog-filter-label">Rango de precio</span>
+        <div class="catalog-filter-range">
+            <input
+                type="number"
+                name="min_price"
+                inputmode="numeric"
+                min="0"
+                step="1000"
+                value="{{ active_filters.min_price }}"
+                placeholder="Min CLP">
+            <input
+                type="number"
+                name="max_price"
+                inputmode="numeric"
+                min="0"
+                step="1000"
+                value="{{ active_filters.max_price }}"
+                placeholder="Max CLP">
+        </div>
+    </div>
+
+    <div class="catalog-filter-actions">
+        <button type="submit" class="btn-accent">Aplicar filtros</button>
+        <a href="{% url 'catalog:list' %}" class="btn-secondary">Limpiar</a>
+    </div>
+</form>

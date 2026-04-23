@@ -64,25 +64,16 @@ class Cart:
         """
         Iterate over the items in the cart and get the products from the database.
         """
-        # We need to fetch products and variants efficiently
-        # This is a bit tricky with the composite key approach.
-        # Let's collect IDs first.
-        
-        cart_keys = list(self.cart.keys())
-        # We can't easily do a single query for all mixed keys.
-        # But we can iterate and fetch. For performance, we could optimize later.
-        
-        for key, item in self.cart.items():
+        for _, raw_item in self.cart.items():
+            item = raw_item.copy()
             item['price'] = Decimal(item['price'])
             item['total_price'] = item['price'] * item['quantity']
-            
-            # Fetch product
+
             try:
                 item['product'] = Product.objects.get(id=item['product_id'])
             except Product.DoesNotExist:
-                continue # Skip if product deleted
-            
-            # Fetch variant if exists
+                continue
+
             if item['variant_id']:
                 try:
                     item['variant'] = ProductVariant.objects.get(id=item['variant_id'])

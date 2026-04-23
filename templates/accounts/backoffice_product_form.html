@@ -1,0 +1,154 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}{% if is_editing %}Editar producto{% else %}Nuevo producto{% endif %} - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<form method="post" enctype="multipart/form-data" class="backoffice-form-stack">
+    {% csrf_token %}
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Producto</span>
+                <h2>{% if is_editing %}Editar {{ product.name }}{% else %}Crear producto{% endif %}</h2>
+            </div>
+            <div class="backoffice-action-row">
+                <a href="{% url 'accounts:backoffice_products' %}" class="btn-secondary">Volver</a>
+                <button type="submit" class="btn-accent">Guardar</button>
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="backoffice-form-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="backoffice-form-grid">
+            <div>
+                <label>Nombre</label>
+                {{ form.name }}
+            </div>
+            <div>
+                <label>Slug</label>
+                {{ form.slug }}
+            </div>
+            <div>
+                <label>SKU</label>
+                {{ form.sku }}
+            </div>
+            <div>
+                <label>Marca</label>
+                {{ form.brand }}
+            </div>
+            <div class="backoffice-form-grid__full">
+                <label>Categorias</label>
+                {{ form.categories }}
+            </div>
+            <div>
+                <label>Precio base</label>
+                {{ form.price }}
+            </div>
+            <div>
+                <label>Precio oferta</label>
+                {{ form.discount_price }}
+            </div>
+            <div class="backoffice-form-grid__full">
+                <label>Descripcion corta</label>
+                {{ form.short_description }}
+            </div>
+            <div class="backoffice-form-grid__full">
+                <label>Descripcion larga</label>
+                {{ form.description }}
+            </div>
+        </div>
+
+        <div class="backoffice-checkbox-row">
+            <label class="backoffice-check">
+                {{ form.is_active }}
+                <span>Publicado</span>
+            </label>
+            <label class="backoffice-check">
+                {{ form.is_featured }}
+                <span>Destacado</span>
+            </label>
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Media</span>
+                <h2>Imagenes del producto</h2>
+            </div>
+        </div>
+        {{ image_formset.management_form }}
+        <div class="backoffice-inline-stack">
+            {% for image_form in image_formset %}
+            <div class="backoffice-inline-card">
+                {{ image_form.id }}
+                <div class="backoffice-form-grid">
+                    <div class="backoffice-form-grid__full">
+                        <label>Imagen</label>
+                        {{ image_form.image }}
+                    </div>
+                    <div>
+                        <label>Texto alternativo</label>
+                        {{ image_form.alt_text }}
+                    </div>
+                    <div>
+                        <label>Orden</label>
+                        {{ image_form.ordering }}
+                    </div>
+                </div>
+                <div class="backoffice-checkbox-row">
+                    <label class="backoffice-check">
+                        {{ image_form.is_main }}
+                        <span>Imagen principal</span>
+                    </label>
+                    <label class="backoffice-check danger">
+                        {{ image_form.DELETE }}
+                        <span>Eliminar</span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Stock</span>
+                <h2>Tallas y disponibilidad</h2>
+            </div>
+        </div>
+        {{ variant_formset.management_form }}
+        <div class="backoffice-inline-stack">
+            {% for variant_form in variant_formset %}
+            <div class="backoffice-inline-card">
+                {{ variant_form.id }}
+                <div class="backoffice-form-grid">
+                    <div>
+                        <label>Talla</label>
+                        {{ variant_form.size }}
+                    </div>
+                    <div>
+                        <label>Stock</label>
+                        {{ variant_form.stock }}
+                    </div>
+                </div>
+                <div class="backoffice-checkbox-row">
+                    <label class="backoffice-check">
+                        {{ variant_form.is_active }}
+                        <span>Disponible</span>
+                    </label>
+                    <label class="backoffice-check danger">
+                        {{ variant_form.DELETE }}
+                        <span>Eliminar</span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+</form>
+{% endblock %}

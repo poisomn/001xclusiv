@@ -1,0 +1,92 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Pedidos - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<article class="backoffice-panel">
+    <div class="backoffice-panel__header">
+        <div>
+            <span class="section-kicker">Operacion</span>
+            <h2>Pedidos</h2>
+        </div>
+    </div>
+
+    <form method="get" class="backoffice-toolbar">
+        <div class="backoffice-search">
+            <i class="bi bi-search"></i>
+            <input type="search" name="q" value="{{ query }}" placeholder="Buscar por cliente o email">
+        </div>
+        <select name="status" class="form-select backoffice-toolbar__select">
+            <option value="">Todos los estados</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if active_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn-secondary">Filtrar</button>
+    </form>
+
+    <div class="backoffice-table-wrap">
+        <table class="backoffice-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Pago</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>
+                        <strong>{{ order.full_name }}</strong>
+                        <p>{{ order.email }}</p>
+                    </td>
+                    <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                    <td><span class="status-chip">{{ order.get_status_display }}</span></td>
+                    <td>
+                        <span class="status-chip {% if not order.is_paid %}is-muted{% endif %}">
+                            {% if order.is_paid %}Pagado{% else %}Pendiente{% endif %}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <div class="backoffice-inline-actions backoffice-inline-actions--tight">
+                            <form method="post" action="{% url 'accounts:backoffice_order_action' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="mark_processing">
+                                <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn-secondary btn-sm">Procesar</button>
+                            </form>
+                            <form method="post" action="{% url 'accounts:backoffice_order_action' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="mark_shipped">
+                                <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn-secondary btn-sm">Enviar</button>
+                            </form>
+                            <form method="post" action="{% url 'accounts:backoffice_order_action' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_paid">
+                                <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn-secondary btn-sm">
+                                    {% if order.is_paid %}Revertir pago{% else %}Marcar pago{% endif %}
+                                </button>
+                            </form>
+                            <a href="{% url 'accounts:backoffice_order_detail' order.id %}" class="btn-secondary btn-sm">Gestionar</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="backoffice-empty-state">No hay pedidos que coincidan con el filtro.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</article>
+{% endblock %}

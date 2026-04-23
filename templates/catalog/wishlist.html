@@ -1,50 +1,102 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Mi Lista de Deseados – 001xclusiv{% endblock %}
+{% block title %}Mi Wishlist - 001xclusiv{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="fw-bold mb-4">Mi Lista de Deseados</h1>
+<section class="wishlist-page">
+    <div class="section-heading">
+        <div>
+            <span class="section-kicker">Guardados para despues</span>
+            <h1>Tu wishlist</h1>
+        </div>
+        <p class="section-heading__text">Revisa tus productos favoritos, quita lo que ya no te haga sentido y mueve al carrito los que ya estas listo para comprar.</p>
+    </div>
 
     {% if wishlist_items %}
-    <div class="row g-4">
+    <div class="wishlist-grid">
         {% for item in wishlist_items %}
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="product-card-wrapper position-relative">
-                <a href="{% url 'catalog:detail' item.product.slug %}"
-                    class="text-decoration-none text-dark d-block h-100">
-                    <div class="mb-2 border rounded-4 overflow-hidden position-relative product-card">
-                        {% with main_image=item.product.images.all|first %}
-                        {% if main_image %}
-                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:item.product.name }}"
-                            style="width:100%;height:280px;object-fit:cover; transition: transform 0.3s ease;"
-                            onmouseover="this.style.transform='scale(1.05)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                        {% else %}
-                        <div class="bg-light d-flex align-items-center justify-content-center"
-                            style="width:100%;height:280px;">
-                            <span class="text-muted">Sin imagen</span>
-                        </div>
-                        {% endif %}
-                        {% endwith %}
+        <article class="wishlist-card" data-wishlist-card="{{ item.product.id }}">
+            <a href="{% url 'catalog:detail' item.product.slug %}" class="wishlist-card__media">
+                {% with main_image=item.product.images.all.0 %}
+                {% if main_image %}
+                <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:item.product.name }}">
+                {% else %}
+                <div class="wishlist-card__placeholder">Sin imagen</div>
+                {% endif %}
+                {% endwith %}
+            </a>
+
+            <div class="wishlist-card__body">
+                <div class="wishlist-card__top">
+                    <div>
+                        <p class="product-brand">{{ item.product.brand.name|default:"Seleccion 001xclusiv" }}</p>
+                        <h2 class="wishlist-card__title">{{ item.product.name }}</h2>
                     </div>
-                    <div class="fw-semibold text-truncate">{{ item.product.name }}</div>
-                    <div class="small mt-1">
-                        <span class="fw-bold">${{ item.product.final_price }}</span>
-                    </div>
-                </a>
+                    <button class="btn-wishlist active wishlist-card__remove" type="button"
+                        aria-label="Quitar {{ item.product.name }} de favoritos"
+                        onclick="toggleWishlist('{{ item.product.id }}', this)">
+                        <i class="bi bi-heart-fill"></i>
+                    </button>
+                </div>
+
+                {% if item.product.short_description %}
+                <p class="wishlist-card__copy">{{ item.product.short_description }}</p>
+                {% endif %}
+
+                <div class="wishlist-card__price-row">
+                    {% if item.product.discount_price %}
+                    <span class="price-old">${{ item.product.price }} CLP</span>
+                    <span class="price-new">${{ item.product.discount_price }} CLP</span>
+                    {% else %}
+                    <span class="price">${{ item.product.price }} CLP</span>
+                    {% endif %}
+                </div>
+
+                <div class="wishlist-card__actions">
+                    {% with variants=item.product.variants.all %}
+                    {% if variants|length == 1 %}
+                    <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="js-ajax-cart-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="variant" value="{{ variants.0.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-accent wishlist-card__button">
+                            <i class="bi bi-bag-plus"></i>
+                            Pasar al carrito
+                        </button>
+                    </form>
+                    {% elif variants|length == 0 %}
+                    <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="js-ajax-cart-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-accent wishlist-card__button">
+                            <i class="bi bi-bag-plus"></i>
+                            Pasar al carrito
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'catalog:detail' item.product.slug %}" class="btn-secondary wishlist-card__button">
+                        <i class="bi bi-grid"></i>
+                        Elegir talla
+                    </a>
+                    {% endif %}
+                    {% endwith %}
+
+                    <a href="{% url 'catalog:detail' item.product.slug %}" class="wishlist-card__link">Ver detalle</a>
+                </div>
             </div>
-        </div>
+        </article>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-5">
-        <p class="lead text-muted">Tu lista de deseados está vacía.</p>
-        <a href="{% url 'catalog:list' %}" class="btn btn-dark">Explorar Catálogo</a>
+    <div class="catalog-empty-state">
+        <span class="section-kicker">Aun no guardas nada</span>
+        <h2>Tu wishlist esta vacia</h2>
+        <p>Explora el catalogo y guarda piezas para compararlas con calma antes de pasar al carrito.</p>
+        <a href="{% url 'catalog:list' %}" class="btn-accent">Explorar catalogo</a>
     </div>
     {% endif %}
-</div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
@@ -55,7 +107,7 @@
             .then(response => {
                 if (response.status === 403 || response.status === 401) {
                     window.location.href = "{% url 'accounts:login' %}";
-                    return;
+                    return null;
                 }
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -63,24 +115,53 @@
                 return response.json();
             })
             .then(data => {
-                const icon = element.querySelector('i');
-                if (data.added) {
-                    element.classList.add('active');
-                    icon.classList.remove('bi-heart');
-                    icon.classList.add('bi-heart-fill');
-                } else {
-                    element.classList.remove('active');
-                    icon.classList.remove('bi-heart-fill');
-                    icon.classList.add('bi-heart');
-                    // Remove card from view
-                    element.closest('.col-6').remove();
-                    // Check if empty
-                    if (document.querySelectorAll('.col-6').length === 0) {
-                        location.reload();
+                if (!data) {
+                    return;
+                }
+
+                if (!data.added) {
+                    const card = element.closest('[data-wishlist-card]');
+                    if (card) {
+                        card.remove();
+                    }
+
+                    if (!document.querySelector('[data-wishlist-card]')) {
+                        window.location.reload();
                     }
                 }
             })
             .catch(error => console.error('Error:', error));
     }
+
+    document.querySelectorAll('.js-ajax-cart-form').forEach(form => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const payload = {};
+            formData.forEach((value, key) => {
+                payload[key] = value;
+            });
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.success && window.refreshMiniCartUI) {
+                    window.refreshMiniCartUI(data);
+                    window.openMiniCart();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
 </script>
 {% endblock %}

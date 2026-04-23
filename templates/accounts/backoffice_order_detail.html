@@ -1,0 +1,75 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Pedido #{{ order.id }} - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<div class="backoffice-section-grid">
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Pedido</span>
+                <h2>#{{ order.id }}</h2>
+            </div>
+            <div class="backoffice-action-row">
+                <a href="{% url 'accounts:order_receipt' order.id %}" class="btn-secondary" target="_blank">Ver comprobante</a>
+                <a href="{% url 'accounts:backoffice_orders' %}" class="btn-secondary">Volver</a>
+            </div>
+        </div>
+
+        <div class="backoffice-order-meta">
+            <div>
+                <span>Cliente</span>
+                <strong>{{ order.full_name }}</strong>
+                <p>{{ order.email }}</p>
+            </div>
+            <div>
+                <span>Envio</span>
+                <strong>{{ order.city }}</strong>
+                <p>{{ order.address }}</p>
+            </div>
+            <div>
+                <span>Total</span>
+                <strong>${{ order.get_total_cost }} CLP</strong>
+                <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
+            </div>
+        </div>
+
+        <div class="backoffice-list">
+            {% for item in order.items.all %}
+            <div class="backoffice-list-row">
+                <div>
+                    <strong>{{ item.product.name }}</strong>
+                    <p>Cantidad: {{ item.quantity }}{% if item.variant %} · Talla {{ item.variant.size }}{% endif %}</p>
+                </div>
+                <div class="text-end">
+                    <strong>${{ item.get_cost }} CLP</strong>
+                    <p>${{ item.price }} CLP c/u</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">Control</span>
+                <h2>Actualizar pedido</h2>
+            </div>
+        </div>
+
+        <form method="post" class="backoffice-form-stack">
+            {% csrf_token %}
+            <div>
+                <label>Estado</label>
+                {{ form.status }}
+            </div>
+            <label class="backoffice-check">
+                {{ form.is_paid }}
+                <span>Marcar como pagado</span>
+            </label>
+            <button type="submit" class="btn-accent">Guardar cambios</button>
+        </form>
+    </article>
+</div>
+{% endblock %}

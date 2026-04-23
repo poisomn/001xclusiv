@@ -1,0 +1,51 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Usuarios - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<article class="backoffice-panel">
+    <div class="backoffice-panel__header">
+        <div>
+            <span class="section-kicker">Usuarios</span>
+            <h2>Cuentas registradas</h2>
+        </div>
+    </div>
+
+    <div class="backoffice-table-wrap">
+        <table class="backoffice-table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Pedidos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listed_user in users %}
+                <tr>
+                    <td>{{ listed_user.username }}</td>
+                    <td>{{ listed_user.email|default:"-" }}</td>
+                    <td>
+                        {% if listed_user.is_superuser %}
+                        <span class="status-chip">Superuser</span>
+                        {% elif listed_user.is_staff %}
+                        <span class="status-chip">Staff</span>
+                        {% else %}
+                        <span class="status-chip is-muted">Cliente</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ listed_user.order_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <div class="backoffice-empty-state">No hay usuarios registrados.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</article>
+{% endblock %}

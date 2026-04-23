@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
+
+{% block content %}
+<section class="info-page">
+    <div class="info-page__hero">
+        <span class="section-kicker">{{ page.hero_kicker }}</span>
+        <h1>{{ page.hero_title }}</h1>
+        <p>{{ page.hero_copy }}</p>
+    </div>
+
+    <div class="info-page__layout">
+        <div class="info-page__main">
+            {% if page.sections %}
+                {% for section in page.sections %}
+                <article class="info-card">
+                    <h2>{{ section.title }}</h2>
+                    <p>{{ section.body }}</p>
+                </article>
+                {% endfor %}
+            {% endif %}
+
+            {% if page.faq_items %}
+                {% for item in page.faq_items %}
+                <article class="info-card info-card--faq">
+                    <h2>{{ item.question }}</h2>
+                    <p>{{ item.answer }}</p>
+                </article>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <aside class="info-page__sidebar">
+            <article class="info-sidebar-card">
+                <span class="section-kicker">001 essentials</span>
+                <h2>Lo importante, a la vista.</h2>
+                <ul class="info-sidebar-list">
+                    {% for item in page.highlights %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </article>
+
+            <article class="info-sidebar-card info-sidebar-card--dark">
+                <span class="section-kicker">Navegacion util</span>
+                <h2>Mas confianza para convertir.</h2>
+                <div class="info-sidebar-links">
+                    <a href="{% url 'core:info_page' 'shipping' %}">Envios</a>
+                    <a href="{% url 'core:info_page' 'returns' %}">Cambios y devoluciones</a>
+                    <a href="{% url 'core:info_page' 'faq' %}">FAQ</a>
+                    <a href="{% url 'core:info_page' 'contact' %}">Contacto</a>
+                </div>
+            </article>
+        </aside>
+    </div>
+</section>
+{% endblock %}

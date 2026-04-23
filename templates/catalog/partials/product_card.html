@@ -1,0 +1,77 @@
+<article class="product-card catalog-product-card">
+    <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
+        <div class="product-image-container">
+            {% with primary_image=product.images.all.0 secondary_image=product.images.all.1 %}
+            {% if primary_image %}
+            <img src="{{ primary_image.image.url }}" alt="{{ primary_image.alt_text|default:product.name }}" class="product-image" loading="lazy">
+            {% if secondary_image %}
+            <img src="{{ secondary_image.image.url }}" alt="{{ secondary_image.alt_text|default:product.name }}" class="product-image product-image--secondary" loading="lazy">
+            {% endif %}
+            {% else %}
+            <div class="product-image product-image--placeholder">
+                <span>Sin imagen</span>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% if product.discount_price %}
+            <span class="badge-sale">Oferta</span>
+            {% endif %}
+
+            <button class="btn-wishlist {% if product.id in wishlist_product_ids %}active{% endif %}"
+                type="button"
+                aria-label="Guardar {{ product.name }} en favoritos"
+                onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ product.pk }}, this)">
+                <i class="bi {% if product.id in wishlist_product_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+            </button>
+        </div>
+
+        <div class="product-details">
+            <p class="product-brand">{{ product.brand.name|default:"Seleccion 001xclusiv" }}</p>
+            <h3 class="product-title">{{ product.name }}</h3>
+            <div class="product-commercial-meta">
+                <span class="product-commercial-tag">{{ product.commercial_tag|default:"Seleccion curada" }}</span>
+                <span class="product-commercial-note">{{ product.commercial_note|default:"Compra con despacho y lectura clara." }}</span>
+            </div>
+            {% if product.short_description %}
+            <p class="catalog-product-card__copy">{{ product.short_description }}</p>
+            {% endif %}
+            <div class="product-pricing">
+                {% if product.discount_price %}
+                <span class="price-old">${{ product.price }} CLP</span>
+                <span class="price-new">${{ product.discount_price }} CLP</span>
+                {% else %}
+                <span class="price">${{ product.price }} CLP</span>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+
+    <div class="catalog-product-card__actions">
+        {% if product.variants.all|length == 1 %}
+        <form method="post" action="{% url 'cart:cart_add' product.id %}" class="js-ajax-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="variant" value="{{ product.variants.all.0.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn-primary catalog-product-card__button">
+                <i class="bi bi-bag-plus"></i>
+                Agregar al carrito
+            </button>
+        </form>
+        {% elif product.variants.all|length == 0 %}
+        <form method="post" action="{% url 'cart:cart_add' product.id %}" class="js-ajax-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn-primary catalog-product-card__button">
+                <i class="bi bi-bag-plus"></i>
+                Agregar al carrito
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'catalog:detail' product.slug %}" class="btn-secondary catalog-product-card__button">
+            <i class="bi bi-grid"></i>
+            Elegir talla
+        </a>
+        {% endif %}
+    </div>
+</article>

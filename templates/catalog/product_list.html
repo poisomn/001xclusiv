@@ -1,162 +1,139 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Catálogo – 001xclusiv{% endblock %}
+{% block title %}{{ seo_title|default:"Catalogo - 001xclusiv" }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Sidebar Filters -->
-    <div class="col-lg-3 mb-4">
-        <h4 class="fw-bold mb-3">Filtros</h4>
+<section class="catalog-page">
+    <div class="catalog-shell">
+        <aside class="catalog-sidebar d-none d-lg-block">
+            <div class="catalog-sidebar__card">
+                <span class="section-kicker">Filtra con criterio</span>
+                <h2>Encuentra tu par ideal</h2>
+                <p>Refina por estilo, marca, rango de precio y orden para aterrizar mas rapido en el producto correcto.</p>
+                {% include "catalog/partials/filter_form.html" with filter_prefix="desktop-filters" %}
+            </div>
+        </aside>
 
-        <div class="mb-4">
-            <h6 class="fw-bold text-uppercase small text-muted">Buscar</h6>
-            <form method="get" class="d-flex">
-                <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="Nombre, SKU..."
-                    value="{{ request.GET.q }}">
-                <button type="submit" class="btn btn-sm btn-dark">Go</button>
-            </form>
-        </div>
+        <div class="catalog-content">
+            <header class="catalog-header">
+                <div>
+                    <span class="section-kicker">Catalogo curado</span>
+                    <h1>Seleccion 001xclusiv</h1>
+                    <p class="catalog-header__text">
+                        {{ results_count }} resultado{{ results_count|pluralize }} con una navegacion mas clara, visual y lista para convertir.
+                    </p>
+                </div>
 
-        <div class="mb-4">
-            <h6 class="fw-bold text-uppercase small text-muted">Categorías</h6>
-            <ul class="list-unstyled">
-                <li>
-                    <a href="{% url 'catalog:list' %}"
-                        class="text-decoration-none {% if not request.GET.category %}fw-bold text-dark{% else %}text-muted{% endif %}">
-                        Todas
-                    </a>
-                </li>
-                {% for cat in categories %}
-                <li>
-                    <a href="?category={{ cat.slug }}"
-                        class="text-decoration-none {% if request.GET.category == cat.slug %}fw-bold text-dark{% else %}text-muted{% endif %}">
-                        {{ cat.name }}
-                    </a>
-                </li>
+                <div class="catalog-header__actions">
+                    <button class="btn-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#catalogFilters" aria-controls="catalogFilters">
+                        <i class="bi bi-sliders"></i>
+                        Filtros
+                    </button>
+
+                    <form method="get" class="catalog-sort-inline">
+                        {% if active_filters.q %}<input type="hidden" name="q" value="{{ active_filters.q }}">{% endif %}
+                        {% if active_filters.category %}<input type="hidden" name="category" value="{{ active_filters.category }}">{% endif %}
+                        {% if active_filters.brand %}<input type="hidden" name="brand" value="{{ active_filters.brand }}">{% endif %}
+                        {% if active_filters.min_price %}<input type="hidden" name="min_price" value="{{ active_filters.min_price }}">{% endif %}
+                        {% if active_filters.max_price %}<input type="hidden" name="max_price" value="{{ active_filters.max_price }}">{% endif %}
+                        <label for="catalog-sort" class="visually-hidden">Ordenar productos</label>
+                        <select id="catalog-sort" name="sort" class="catalog-filter-select" onchange="this.form.submit()">
+                            {% for value, label in sort_options %}
+                            <option value="{{ value }}" {% if active_filters.sort == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </header>
+
+            <div class="catalog-active-filters">
+                {% if active_filters.q %}
+                <span class="catalog-active-chip">Busqueda: {{ active_filters.q }}</span>
+                {% endif %}
+                {% if active_filters.category %}
+                <span class="catalog-active-chip">Categoria: {{ active_filters.category }}</span>
+                {% endif %}
+                {% if active_filters.brand %}
+                <span class="catalog-active-chip">Marca: {{ active_filters.brand }}</span>
+                {% endif %}
+                {% if active_filters.min_price or active_filters.max_price %}
+                <span class="catalog-active-chip">Precio: {{ active_filters.min_price|default:"0" }} - {{ active_filters.max_price|default:"max" }}</span>
+                {% endif %}
+                {% if current_query %}
+                <a href="{% url 'catalog:list' %}" class="catalog-clear-link">Limpiar filtros</a>
+                {% endif %}
+            </div>
+
+            <div class="catalog-reassurance" aria-label="Beneficios del catalogo">
+                {% for item in catalog_reassurance %}
+                <article class="catalog-reassurance-card">
+                    <i class="bi {{ item.icon }}"></i>
+                    <div>
+                        <strong>{{ item.title }}</strong>
+                        <p>{{ item.text }}</p>
+                    </div>
+                </article>
                 {% endfor %}
-            </ul>
-        </div>
+            </div>
 
-        <div class="mb-4">
-            <h6 class="fw-bold text-uppercase small text-muted">Marcas</h6>
-            <ul class="list-unstyled">
-                <li>
-                    <a href="{% url 'catalog:list' %}"
-                        class="text-decoration-none {% if not request.GET.brand %}fw-bold text-dark{% else %}text-muted{% endif %}">
-                        Todas
-                    </a>
-                </li>
-                {% for brand in brands %}
-                <li>
-                    <a href="?brand={{ brand.slug }}"
-                        class="text-decoration-none {% if request.GET.brand == brand.slug %}fw-bold text-dark{% else %}text-muted{% endif %}">
-                        {{ brand.name }}
-                    </a>
-                </li>
+            <div class="product-grid catalog-product-grid">
+                {% for product in products %}
+                {% include "catalog/partials/product_card.html" %}
+                {% empty %}
+                <div class="catalog-empty-state">
+                    <span class="section-kicker">Sin coincidencias</span>
+                    <h2>No encontramos productos con esos filtros</h2>
+                    <p>Prueba ampliando el rango de precio o limpiando la busqueda para volver a explorar la coleccion completa.</p>
+                    <a href="{% url 'catalog:list' %}" class="btn-accent">Ver todo el catalogo</a>
+                </div>
                 {% endfor %}
-            </ul>
-        </div>
-    </div>
+            </div>
 
-    <!-- Product Grid -->
-    <div class="col-lg-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold mb-0">Catálogo</h1>
-            {% if user.is_staff %}
-            <a href="{% url 'catalog:create' %}" class="btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> Agregar Producto
-            </a>
+            {% if is_paginated %}
+            <nav class="catalog-pagination" aria-label="Paginacion del catalogo">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                            &laquo;
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in paginator.page_range %}
+                    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                        <a class="page-link" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                            &raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
             {% endif %}
         </div>
+    </div>
+</section>
 
-        <div class="product-grid">
-            {% for product in products %}
-            <div class="product-card">
-                <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
-                    <div class="product-image-container">
-                        {% with main_image=product.images.all|first %}
-                        {% if main_image %}
-                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}"
-                            class="product-image" loading="lazy">
-                        {% else %}
-                        <div style="width:100%;height:100%;background:var(--gray-50);display:grid;place-items:center;">
-                            <span class="text-muted small">Sin imagen</span>
-                        </div>
-                        {% endif %}
-                        {% endwith %}
-
-                        <!-- Overlay with Quick Add -->
-                        <div class="product-overlay">
-                            <button class="btn-quick-add"
-                                onclick="event.preventDefault(); event.stopPropagation(); alert('Quick add - implementar modal de tallas');">
-                                <i class="bi bi-cart-plus"></i>
-                                Agregar al Carrito
-                            </button>
-                        </div>
-
-                        <!-- Wishlist Button -->
-                        <button class="btn-wishlist"
-                            onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ product.pk }}, this)">
-                            <i class="bi bi-heart"></i>
-                        </button>
-
-                        <!-- Sale Badge -->
-                        {% if product.discount_price %}
-                        <span class="badge-sale">OFERTA</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="product-details">
-                        <p class="product-brand">{{ product.brand.name|default:"" }}</p>
-                        <h3 class="product-title">{{ product.name }}</h3>
-                        <div class="product-pricing">
-                            {% if product.discount_price %}
-                            <span class="price-old">${{ product.price }} CLP</span>
-                            <span class="price-new">${{ product.discount_price }} CLP</span>
-                            {% else %}
-                            <span class="price">${{ product.price }} CLP</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </a>
-            </div>
-            {% empty %}
-            <div style="grid-column: 1 / -1;" class="text-center py-5">
-                <p class="text-muted">No se encontraron productos.</p>
-                <a href="{% url 'catalog:list' %}" class="btn-secondary btn-sm">Limpiar filtros</a>
-            </div>
-            {% endfor %}
+<div class="offcanvas offcanvas-end catalog-offcanvas" tabindex="-1" id="catalogFilters" aria-labelledby="catalogFiltersLabel">
+    <div class="offcanvas-header">
+        <div>
+            <span class="section-kicker">Filtros</span>
+            <h2 class="offcanvas-title" id="catalogFiltersLabel">Ajusta tu busqueda</h2>
         </div>
-
-        {% if is_paginated %}
-        <nav class="mt-5 d-flex justify-content-center">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link text-dark"
-                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}">&laquo;</a>
-                </li>
-                {% endif %}
-
-                {% for num in paginator.page_range %}
-                <li class="page-item {% if num == page_obj.number %}active{% endif %}">
-                    <a class="page-link {% if num == page_obj.number %}bg-dark border-dark text-white{% else %}text-dark{% endif %}"
-                        href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}">
-                        {{ num }}
-                    </a>
-                </li>
-                {% endfor %}
-
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link text-dark"
-                        href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}">&raquo;</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% include "catalog/partials/filter_form.html" with filter_prefix="mobile-filters" %}
     </div>
 </div>
 {% endblock %}
@@ -165,11 +142,12 @@
 <script>
     function toggleWishlist(productId, element) {
         const url = "{% url 'catalog:toggle_wishlist' 0 %}".replace('0', productId);
+
         fetch(url)
             .then(response => {
                 if (response.status === 403 || response.status === 401) {
                     window.location.href = "{% url 'accounts:login' %}";
-                    return;
+                    return null;
                 }
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -177,18 +155,88 @@
                 return response.json();
             })
             .then(data => {
-                const icon = element.querySelector('i');
-                if (data.added) {
-                    element.classList.add('active');
-                    icon.classList.remove('bi-heart');
-                    icon.classList.add('bi-heart-fill');
-                } else {
-                    element.classList.remove('active');
-                    icon.classList.remove('bi-heart-fill');
-                    icon.classList.add('bi-heart');
+                if (!data) {
+                    return;
                 }
+                const icon = element.querySelector('i');
+                element.classList.toggle('active', data.added);
+                icon.classList.toggle('bi-heart', !data.added);
+                icon.classList.toggle('bi-heart-fill', data.added);
             })
             .catch(error => console.error('Error:', error));
     }
+
+    function updateCartCount(count) {
+        const cartLink = document.querySelector('a[href="{% url "cart:cart_detail" %}"]');
+        if (!cartLink) {
+            return;
+        }
+
+        let badge = cartLink.querySelector('.badge');
+        if (!badge && count > 0) {
+            badge = document.createElement('span');
+            badge.className = 'badge bg-black text-white rounded-pill ms-1';
+            cartLink.appendChild(badge);
+        }
+
+        if (badge) {
+            badge.textContent = count;
+        }
+    }
+
+    function showCatalogToast(message) {
+        let toast = document.getElementById('catalog-action-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'catalog-action-toast';
+            toast.className = 'home-action-toast';
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+
+        clearTimeout(window.catalogToastTimeout);
+        window.catalogToastTimeout = setTimeout(() => {
+            toast.classList.remove('is-visible');
+        }, 2600);
+    }
+
+    document.querySelectorAll('.js-ajax-cart-form').forEach(form => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const payload = {};
+            formData.forEach((value, key) => {
+                payload[key] = value;
+            });
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateCartCount(data.cart_count);
+                    if (window.refreshMiniCartUI) {
+                        window.refreshMiniCartUI(data);
+                        window.openMiniCart();
+                    }
+                    showCatalogToast(`${data.product_name} fue agregado al carrito.`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showCatalogToast('No pudimos agregar el producto. Intenta otra vez.');
+            }
+        });
+    });
 </script>
 {% endblock %}

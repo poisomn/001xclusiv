@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="backoffice-page">
+    <div class="backoffice-hero">
+        <div>
+            <span class="section-kicker">Panel interno</span>
+            <h1>Backoffice 001xclusiv</h1>
+            <p>Gestiona catalogo, pedidos, usuarios y estructura comercial sin salir de la app.</p>
+        </div>
+        <div class="backoffice-metric-strip">
+            <div>
+                <span>Productos</span>
+                <strong>{{ backoffice_metrics.products }}</strong>
+            </div>
+            <div>
+                <span>Pedidos</span>
+                <strong>{{ backoffice_metrics.orders }}</strong>
+            </div>
+            <div>
+                <span>Pendientes</span>
+                <strong>{{ backoffice_metrics.pending_orders }}</strong>
+            </div>
+            <div>
+                <span>Usuarios</span>
+                <strong>{{ backoffice_metrics.users }}</strong>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="backoffice-flash-stack">
+        {% for message in messages %}
+        <div class="backoffice-flash backoffice-flash--{{ message.tags|default:'info' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="backoffice-layout">
+        <aside class="backoffice-sidebar">
+            <div class="backoffice-sidebar__inner">
+                {% for item in backoffice_nav %}
+                <a href="{% url item.url_name %}" class="backoffice-nav-link {% if backoffice_section == item.key %}is-active{% endif %}">
+                    <i class="bi {{ item.icon }}"></i>
+                    <span>{{ item.label }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <div class="backoffice-main">
+            {% block backoffice_content %}{% endblock %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Comprobante Pedido #{{ order.id }} - 001xclusiv{% endblock %}
+
+{% block content %}
+<section class="account-page">
+    <div class="receipt-toolbar">
+        <div>
+            <span class="section-kicker">Comprobante de pedido</span>
+            <h1>Pedido #{{ order.id }}</h1>
+        </div>
+        <div class="receipt-toolbar__actions">
+            <button type="button" class="btn-accent" onclick="window.print()">
+                <i class="bi bi-printer"></i>
+                Imprimir / Guardar PDF
+            </button>
+            <a href="{% url 'accounts:order_detail' order.id %}" class="btn-secondary">Volver al detalle</a>
+        </div>
+    </div>
+
+    <article class="order-receipt">
+        <header class="order-receipt__header">
+            <div class="order-receipt__brand">
+                <img
+                    src="{% static 'home/logoByN.webp' %}"
+                    alt="Logo 001xclusiv"
+                    class="order-receipt__logo"
+                >
+                <div>
+                    <p class="product-brand">001xclusiv</p>
+                    <h2>Comprobante de pedido</h2>
+                    <p>Este documento acredita la generacion del pedido. El comprobante de pago se incorporara en una fase posterior.</p>
+                </div>
+            </div>
+            <div class="order-receipt__summary">
+                <div><span>Pedido</span><strong>#{{ order.id }}</strong></div>
+                <div><span>Fecha</span><strong>{{ order.created_at|date:"d M Y, H:i" }}</strong></div>
+                <div><span>Estado</span><strong>{{ order.get_status_display }}</strong></div>
+            </div>
+        </header>
+
+        <section class="order-receipt__section">
+            <div>
+                <h3>Cliente</h3>
+                <p>{{ order.full_name }}</p>
+                <p>{{ order.email }}</p>
+            </div>
+            <div>
+                <h3>Despacho</h3>
+                <p>{{ order.address }}</p>
+                <p>{{ order.city }}</p>
+                <p>{{ order.postal_code }}</p>
+            </div>
+        </section>
+
+        <section class="order-receipt__section order-receipt__section--stack">
+            <h3>Detalle de productos</h3>
+            <div class="order-receipt__items">
+                {% for item in order.items.all %}
+                <div class="order-receipt__item">
+                    <div>
+                        <strong>{{ item.product.name }}</strong>
+                        <p>
+                            Cantidad: {{ item.quantity }}
+                            {% if item.variant %} | Talla: {{ item.variant.size }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <strong>${{ item.get_cost }} CLP</strong>
+                        <p>${{ item.price }} CLP c/u</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <footer class="order-receipt__footer">
+            <div>
+                <span>Total del pedido</span>
+                <strong>${{ order.get_total_cost }} CLP</strong>
+            </div>
+            <p>Documento generado desde tu cuenta 001xclusiv.</p>
+        </footer>
+    </article>
+</section>
+{% endblock %}

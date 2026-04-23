@@ -1,105 +1,174 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Carrito – 001xclusiv{% endblock %}
+{% block title %}Carrito - 001xclusiv{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12 mb-4">
-        <h1 class="fw-bold">Tu Carrito</h1>
+<section class="cart-page">
+    <div class="section-heading">
+        <div>
+            <span class="section-kicker">Checkout prep</span>
+            <h1>Tu carrito</h1>
+        </div>
+        <p class="section-heading__text">Ajusta cantidades, revisa tallas y llega al checkout con un resumen mas claro y limpio.</p>
     </div>
 
-    <div class="col-lg-8">
-        {% if cart %}
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="table-responsive">
-                <table class="table table-borderless align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th scope="col" class="ps-4 py-3">Producto</th>
-                            <th scope="col" class="py-3">Precio</th>
-                            <th scope="col" class="py-3">Cantidad</th>
-                            <th scope="col" class="py-3 text-end pe-4">Total</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart %}
-                        <tr class="border-bottom">
-                            <td class="ps-4 py-3">
-                                <div class="d-flex align-items-center">
-                                    {% with image=item.product.images.all|first %}
-                                    {% if image %}
-                                    <img src="{{ image.image.url }}" alt="{{ item.product.name }}"
-                                        class="rounded-3 me-3 object-fit-cover" style="width: 64px; height: 64px;">
-                                    {% else %}
-                                    <div class="rounded-3 me-3 bg-light d-flex align-items-center justify-content-center"
-                                        style="width: 64px; height: 64px;">
-                                        <span class="small text-muted">Img</span>
-                                    </div>
-                                    {% endif %}
-                                    {% endwith %}
-                                    <div>
-                                        <a href="{% url 'catalog:detail' item.product.slug %}"
-                                            class="text-decoration-none text-dark fw-semibold">
-                                            {{ item.product.name }}
-                                        </a>
-                                        {% if item.variant %}
-                                        <div class="small text-muted">Talla: {{ item.variant.size }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-3">${{ item.price }}</td>
-                            <td class="py-3">
-                                <span class="badge bg-light text-dark border">{{ item.quantity }}</span>
-                            </td>
-                            <td class="py-3 text-end pe-4 fw-bold">${{ item.total_price }}</td>
-                            <td class="py-3 text-end">
-                                <a href="{% url 'cart:cart_remove' item.product.id %}{% if item.variant %}?variant_id={{ item.variant.id }}{% endif %}"
-                                    class="text-danger text-decoration-none small">
-                                    Eliminar
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% else %}
-        <div class="text-center py-5">
-            <p class="lead text-muted mb-4">Tu carrito está vacío.</p>
-            <a href="{% url 'catalog:list' %}" class="btn btn-dark rounded-pill px-4">Ir al catálogo</a>
-        </div>
-        {% endif %}
-    </div>
+    <div class="cart-layout">
+        <div class="cart-main">
+            {% if cart %}
+            <div class="cart-list">
+                {% for item in cart %}
+                <article class="cart-item" data-cart-item="{{ item.product.id }}{% if item.variant %}-{{ item.variant.id }}{% endif %}">
+                    <a href="{% url 'catalog:detail' item.product.slug %}" class="cart-item__media">
+                        {% with image=item.product.images.all.0 %}
+                        {% if image %}
+                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                        <div class="cart-item__placeholder">Img</div>
+                        {% endif %}
+                        {% endwith %}
+                    </a>
 
-    <div class="col-lg-4 mt-4 mt-lg-0">
-        <div class="card border rounded-4 bg-light p-4">
-            <h5 class="fw-bold mb-4">Resumen</h5>
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Subtotal</span>
-                <span class="fw-bold">${{ cart.get_total_price }}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-4">
-                <span class="text-muted">Envío</span>
-                <span class="text-muted small">Calculado en el checkout</span>
-            </div>
-            <hr>
-            <div class="d-flex justify-content-between mb-4 fs-5">
-                <span class="fw-bold">Total</span>
-                <span class="fw-bold">${{ cart.get_total_price }}</span>
-            </div>
+                    <div class="cart-item__body">
+                        <div class="cart-item__copy">
+                            <p class="product-brand">{{ item.product.brand.name|default:"Seleccion 001xclusiv" }}</p>
+                            <h2 class="cart-item__title">
+                                <a href="{% url 'catalog:detail' item.product.slug %}">{{ item.product.name }}</a>
+                            </h2>
+                            {% if item.variant %}
+                            <p class="cart-item__variant">Talla seleccionada: {{ item.variant.size }}</p>
+                            {% endif %}
+                        </div>
 
-            <div class="d-grid">
-                {% if cart %}
-                <a href="{% url 'checkout:index' %}" class="btn btn-dark btn-lg rounded-pill">Proceder al pago</a>
-                {% else %}
-                <button class="btn btn-dark btn-lg rounded-pill" disabled>Proceder al pago</button>
-                {% endif %}
+                        <div class="cart-item__controls">
+                            <form method="post" action="{% url 'cart:cart_update' item.product.id %}" class="cart-quantity-form js-cart-update-form">
+                                {% csrf_token %}
+                                {% if item.variant %}
+                                <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
+                                {% endif %}
+                                <label for="qty-{{ forloop.counter }}" class="visually-hidden">Cantidad</label>
+                                <input id="qty-{{ forloop.counter }}" type="number" name="quantity" min="1" value="{{ item.quantity }}">
+                                <button type="submit" class="btn-secondary btn-sm">Actualizar</button>
+                            </form>
+
+                            <a href="{% url 'cart:cart_remove' item.product.id %}{% if item.variant %}?variant_id={{ item.variant.id }}{% endif %}"
+                                class="cart-item__remove js-cart-remove-link">
+                                Quitar
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="cart-item__price">
+                        <span class="cart-item__unit">${{ item.price }} CLP</span>
+                        <strong>${{ item.total_price }} CLP</strong>
+                    </div>
+                </article>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="catalog-empty-state">
+                <span class="section-kicker">Sin productos</span>
+                <h2>Tu carrito esta vacio</h2>
+                <p>Explora el catalogo y agrega piezas para activar tu resumen de compra.</p>
+                <a href="{% url 'catalog:list' %}" class="btn-accent">Ir al catalogo</a>
+            </div>
+            {% endif %}
         </div>
+
+        <aside class="cart-summary">
+            <div class="cart-summary__card">
+                <span class="section-kicker">Resumen</span>
+                <h2>Compra lista</h2>
+
+                <div class="cart-summary__rows">
+                    <div class="cart-summary__row">
+                        <span>Subtotal</span>
+                        <strong id="cartSubtotal">${{ cart.get_total_price }} CLP</strong>
+                    </div>
+                    <div class="cart-summary__row">
+                        <span>Envio</span>
+                        <span>Se calcula en checkout</span>
+                    </div>
+                    <div class="cart-summary__row cart-summary__row--total">
+                        <span>Total estimado</span>
+                        <strong id="cartTotal">${{ cart.get_total_price }} CLP</strong>
+                    </div>
+                </div>
+
+                <div class="cart-summary__actions">
+                    {% if cart %}
+                    <a href="{% url 'checkout:index' %}" class="btn-accent">Proceder al pago</a>
+                    {% else %}
+                    <button class="btn-accent" disabled>Proceder al pago</button>
+                    {% endif %}
+                    <a href="{% url 'catalog:list' %}" class="btn-secondary">Seguir explorando</a>
+                </div>
+            </div>
+        </aside>
     </div>
-</div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function applyCartSummary(data) {
+        const subtotal = document.getElementById('cartSubtotal');
+        const total = document.getElementById('cartTotal');
+        if (subtotal) subtotal.textContent = data.subtotal_formatted;
+        if (total) total.textContent = data.subtotal_formatted;
+    }
+
+    document.querySelectorAll('.js-cart-update-form').forEach(form => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    applyCartSummary(data);
+                    if (window.refreshMiniCartUI) {
+                        window.refreshMiniCartUI(data);
+                    }
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+
+    document.querySelectorAll('.js-cart-remove-link').forEach(link => {
+        link.addEventListener('click', async event => {
+            event.preventDefault();
+
+            try {
+                const response = await fetch(link.href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (window.refreshMiniCartUI) {
+                        window.refreshMiniCartUI(data);
+                    }
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+</script>
 {% endblock %}

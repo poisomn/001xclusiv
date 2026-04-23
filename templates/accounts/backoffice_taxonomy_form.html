@@ -1,0 +1,32 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}{{ title }} - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<article class="backoffice-panel backoffice-panel--narrow">
+    <div class="backoffice-panel__header">
+        <div>
+            <span class="section-kicker">Edicion</span>
+            <h2>{{ title }}</h2>
+        </div>
+        <a href="{% url 'accounts:backoffice_taxonomy' %}" class="btn-secondary">Volver</a>
+    </div>
+
+    <form method="post" class="backoffice-form-stack">
+        {% csrf_token %}
+        <div>
+            <label>Nombre</label>
+            {{ form.name }}
+        </div>
+        <div>
+            <label>Slug</label>
+            {{ form.slug }}
+        </div>
+        <label class="backoffice-check">
+            {{ form.is_active }}
+            <span>{{ object_label|capfirst }} activa</span>
+        </label>
+        <button type="submit" class="btn-accent">Guardar {{ object_label }}</button>
+    </form>
+</article>
+{% endblock %}

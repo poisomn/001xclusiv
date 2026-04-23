@@ -84,10 +84,11 @@
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
+    width: auto;
+    height: auto;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
     border: none;
     display: flex;
     align-items: center;
@@ -96,7 +97,6 @@
     z-index: 10;
     opacity: 0;
     transition: all var(--transition-base);
-    backdrop-filter: blur(4px);
 }
 
 .product-card:hover .btn-wishlist {
@@ -104,18 +104,21 @@
 }
 
 .btn-wishlist:hover {
-    background: var(--white);
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .btn-wishlist i {
-    font-size: 1.1rem;
-    color: var(--black);
-    transition: color var(--transition-fast);
+    font-size: 1.7rem;
+    color: var(--accent-secondary);
+    line-height: 1;
+    filter:
+        drop-shadow(0 2px 4px rgba(255, 255, 255, 0.9))
+        drop-shadow(0 6px 16px rgba(17, 17, 17, 0.22));
+    transition: color var(--transition-fast), transform var(--transition-fast), filter var(--transition-fast);
 }
 
 .btn-wishlist.active i {
-    color: var(--accent-primary);
+    color: var(--accent-hover);
 }
 
 /* Sale Badge */
@@ -123,7 +126,7 @@
     position: absolute;
     top: var(--space-3);
     left: var(--space-3);
-    background: var(--accent-primary);
+    background: var(--accent-gradient);
     color: var(--white);
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-sm);
@@ -163,6 +166,33 @@
     min-height: 2.4em;
 }
 
+.product-commercial-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.product-commercial-tag {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 1.8rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(17, 17, 17, 0.06);
+    color: var(--black);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.product-commercial-note {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+    line-height: 1.45;
+}
+
 .product-link {
     text-decoration: none;
     color: inherit;
@@ -196,7 +226,7 @@
 }
 
 .price-new {
-    color: var(--accent-primary);
+    color: var(--accent-hover);
 }
 
 /* Product Grid */

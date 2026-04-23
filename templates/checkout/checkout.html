@@ -1,119 +1,178 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Checkout – 001xclusiv{% endblock %}
+{% block title %}{{ seo_title|default:"Checkout - 001xclusiv" }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12 mb-4">
-        <h1 class="fw-bold">Finalizar Compra</h1>
-    </div>
-
-    <div class="col-lg-7 mb-4 mb-lg-0">
-        <div class="card border-0 shadow-sm rounded-4 p-4">
-            <h4 class="fw-bold mb-4">Datos de Envío</h4>
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Nombre Completo</label>
-                    {{ form.full_name }}
-                    {% if form.full_name.errors %}
-                    <div class="text-danger small">{{ form.full_name.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Email</label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                    <div class="text-danger small">{{ form.email.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Dirección</label>
-                    {{ form.address }}
-                    {% if form.address.errors %}
-                    <div class="text-danger small">{{ form.address.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Ciudad</label>
-                        {{ form.city }}
-                        {% if form.city.errors %}
-                        <div class="text-danger small">{{ form.city.errors }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Código Postal</label>
-                        {{ form.postal_code }}
-                        {% if form.postal_code.errors %}
-                        <div class="text-danger small">{{ form.postal_code.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-dark btn-lg rounded-pill">Confirmar Pedido</button>
-                </div>
-            </form>
+<section class="checkout-page">
+    <div class="section-heading">
+        <div>
+            <span class="section-kicker">Checkout MVP</span>
+            <h1>Finaliza tu compra</h1>
         </div>
+        <p class="section-heading__text">Un ultimo paso claro, limpio y confiable para convertir tu seleccion en un pedido real.</p>
     </div>
 
-    <div class="col-lg-5">
-        <div class="card border rounded-4 bg-light p-4 sticky-top" style="top: 100px;">
-            <h5 class="fw-bold mb-4">Resumen del Pedido</h5>
+    <div class="checkout-steps" aria-label="Pasos del checkout">
+        {% for step in checkout_steps %}
+        <div class="checkout-step {% if forloop.first %}is-active{% endif %}">
+            <span>{{ forloop.counter }}</span>
+            <strong>{{ step }}</strong>
+        </div>
+        {% endfor %}
+    </div>
 
-            <div class="mb-4">
-                {% for item in cart %}
-                <div class="d-flex align-items-center mb-3">
-                    <div class="position-relative me-3">
-                        {% with image=item.product.images.all|first %}
-                        {% if image %}
-                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}"
-                            class="rounded-3 object-fit-cover" style="width: 64px; height: 64px;">
-                        {% else %}
-                        <div class="rounded-3 bg-white d-flex align-items-center justify-content-center border"
-                            style="width: 64px; height: 64px;">
-                            <span class="small text-muted">Img</span>
+    <div class="checkout-layout">
+        <div class="checkout-form-panel">
+            <div class="checkout-card">
+                <div class="checkout-card__header">
+                    <span class="section-kicker">Datos de entrega</span>
+                    <h2>Informacion del pedido</h2>
+                    <p>Completa tus datos para preparar el despacho y enviarte la confirmacion de compra.</p>
+                </div>
+
+                <form method="post" class="checkout-form" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="checkout-alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div class="checkout-form__grid">
+                        <div class="checkout-field checkout-field--full">
+                            <label for="{{ form.full_name.id_for_label }}">Nombre completo</label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}
+                            <div class="checkout-field__error">{{ form.full_name.errors|striptags }}</div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                        {% endwith %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">
-                            {{ item.quantity }}
-                        </span>
+
+                        <div class="checkout-field checkout-field--full">
+                            <label for="{{ form.email.id_for_label }}">Correo electronico</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="checkout-field__error">{{ form.email.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="checkout-field checkout-field--full">
+                            <label for="{{ form.address.id_for_label }}">Direccion</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="checkout-field__error">{{ form.address.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="checkout-field">
+                            <label for="{{ form.city.id_for_label }}">Ciudad o comuna</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}
+                            <div class="checkout-field__error">{{ form.city.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="checkout-field">
+                            <label for="{{ form.postal_code.id_for_label }}">Codigo postal</label>
+                            {{ form.postal_code }}
+                            {% if form.postal_code.errors %}
+                            <div class="checkout-field__error">{{ form.postal_code.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0 fw-semibold small">{{ item.product.name }}</h6>
-                        {% if item.variant %}
-                        <small class="text-muted">Talla: {{ item.variant.size }}</small>
-                        {% endif %}
+
+                    <div class="checkout-trust">
+                        {% for item in checkout_reassurance %}
+                        <article class="checkout-trust__item">
+                            <i class="bi {{ item.icon }}"></i>
+                            <div>
+                                <strong>{{ item.title }}</strong>
+                                <span>{{ item.text }}</span>
+                            </div>
+                        </article>
+                        {% endfor %}
                     </div>
-                    <div class="fw-bold small">${{ item.total_price }}</div>
-                </div>
-                {% endfor %}
-            </div>
 
-            <hr>
-
-            <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Subtotal</span>
-                <span class="fw-bold">${{ cart.get_total_price }}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-4">
-                <span class="text-muted">Envío</span>
-                <span class="text-success fw-bold">Gratis</span>
-            </div>
-
-            <hr>
-
-            <div class="d-flex justify-content-between fs-5">
-                <span class="fw-bold">Total</span>
-                <span class="fw-bold">${{ cart.get_total_price }}</span>
+                    <div class="checkout-submit">
+                        <button type="submit" class="btn-accent btn-lg checkout-submit__button">
+                            <i class="bi bi-bag-check"></i>
+                            Confirmar pedido
+                        </button>
+                        <p>Al confirmar, registraremos tu pedido y te llevaremos a la pagina de confirmacion.</p>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <aside class="checkout-summary-panel">
+            <div class="checkout-summary-card">
+                <div class="checkout-summary-card__header">
+                    <span class="section-kicker">Resumen final</span>
+                    <h2>Tu pedido</h2>
+                </div>
+
+                <div class="checkout-summary-items">
+                    {% for item in cart %}
+                    <article class="checkout-summary-item">
+                        <div class="checkout-summary-item__media">
+                            {% with image=item.product.images.all.0 %}
+                            {% if image %}
+                            <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                            <div class="checkout-summary-item__placeholder">Img</div>
+                            {% endif %}
+                            {% endwith %}
+                            <span class="checkout-summary-item__qty">{{ item.quantity }}</span>
+                        </div>
+
+                        <div class="checkout-summary-item__copy">
+                            <strong>{{ item.product.name }}</strong>
+                            {% if item.variant %}
+                            <span>Talla {{ item.variant.size }}</span>
+                            {% endif %}
+                            <span>{{ item.product.brand.name|default:"Seleccion 001xclusiv" }}</span>
+                        </div>
+
+                        <strong class="checkout-summary-item__price">${{ item.total_price }} CLP</strong>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <div class="checkout-summary-totals">
+                    <div class="checkout-summary-row">
+                        <span>Subtotal</span>
+                        <strong>${{ cart.get_total_price }} CLP</strong>
+                    </div>
+                    <div class="checkout-summary-row">
+                        <span>Envio</span>
+                        <strong>Gratis</strong>
+                    </div>
+                    <div class="checkout-summary-row checkout-summary-row--total">
+                        <span>Total</span>
+                        <strong>${{ cart.get_total_price }} CLP</strong>
+                    </div>
+                </div>
+
+                <div class="checkout-summary-meta">
+                    <div>
+                        <i class="bi bi-patch-check"></i>
+                        <span>Compra protegida y confirmacion de pedido</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-headset"></i>
+                        <span>Soporte post-compra y seguimiento claro</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-stars"></i>
+                        <span>Seleccion curada para mantener el look consistente</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
-</div>
+</section>
 {% endblock %}

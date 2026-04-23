@@ -1,495 +1,657 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}001xclusiv – Home{% endblock %}
+{% block title %}{{ seo_title|default:"001xclusiv - Home" }}{% endblock %}
+{% block meta_description %}{{ seo_description }}{% endblock %}
+{% block og_title %}{{ seo_title }}{% endblock %}
+{% block og_description %}{{ seo_description }}{% endblock %}
 
 {% block content %}
-<section class="hero-gsap mb-5">
-    <figure class="hero-gsap-figure">
+<div class="home-page">
+    <div class="home-scroll-progress" aria-hidden="true">
+        <span class="home-scroll-progress__bar"></span>
+    </div>
 
-        <figure> <svg x="0px" y="0px" viewBox="0 0 883 105.2" xml:space="preserve" overflow="visible">
-                <polygon points="359.9,49.6 359.8,49.7 359.9,49.8 " />
-                <polygon points="28,0 10.8,0 28,9 " />
-                <polygon points="28,12.6 0,46 0,51.9 28,48.9 " />
-                <polygon points="0.8,105 28,105 28,74.7 20.3,69.7 " />
-                <polygon points="28,9 10.8,0 0,0 0,46 28,12.6 " />
-                <polygon points="0,51.9 0,57.3 20,69.8 20,69.8 20,69.8 28,74.7 28,48.9 " />
-                <polygon points="0,57.3 0,105 0.8,105 20.1,69.7 " />
-                <polygon points="89.7,40.6 61,25.9 38,46 38,47.8 91,41.9 " />
-                <polygon points="89.7,40.6 68.4,19.4 61,25.9 " />
-                <polygon points="99,41 126,37.9 126,30.3 99,0 99,0 " />
-                <polygon points="38,47.8 38,48.9 103.1,63.5 98.9,49.8 91,41.9 " />
-                <polygon points="68.4,19.3 49.2,0 38,0 38,14.1 61,25.8 " />
-                <polygon points="38,48.9 38,80.9 66,98.3 66,55.5 115.2,105 115.8,105 103.1,63.4 " />
-                <polygon points="61,25.9 38,14.1 38,46 " />
-                <polygon points="38,105 66,105 66,98.3 38,80.9 " />
-                <polygon points="126,0 99,0 126,30.3 " />
-                <polygon points="99,49.8 102.9,63.5 126,68.7 126,59.4 99,45.3 " />
-                <polygon points="99,41 99,45.3 126,59.4 126,37.9 " />
-                <polygon points="115.8,105 126,105 126,68.7 102.8,63.4 " />
-                <path
-                    d="M225.8,74.2l-12.6,24.5c7.5,4.1,16.1,6.5,25.3,6.5c2.2,0,4.3-0.1,6.4-0.4L237,77.7C233,77.5,229.1,76.2,225.8,74.2z" />
-                <path
-                    d="M213.8,55.7l-20.8,23c4.8,8.4,11.8,15.4,20.3,20.1l12.6-24.5C219.3,70.3,214.7,63.5,213.8,55.7z" />
-                <path
-                    d="M238.5,77.8c-0.5,0-1,0-1.4,0l7.8,27.1c8.7-1,16.7-4.2,23.6-8.9l-14.6-23.3C249.5,75.8,244.3,77.8,238.5,77.8z" />
-                <path d="M251.5,31.3c6.7,4.1,11.3,11.2,11.9,19.4l27.5,1.5c-0.1-12.4-4.6-23.9-12-32.8L251.5,31.3z" />
-                <path
-                    d="M263.6,52.7c0,8-3.8,15.2-9.8,19.8l14.6,23.3c13.6-9.4,22.6-25.2,22.6-43c0-0.2,0-0.4,0-0.6l-27.5-1.5 C263.5,51.4,263.6,52,263.6,52.7z" />
-                <path
-                    d="M227.3,30.3L212.7,7.1c-8.5,4.9-15.6,12.1-20.3,20.8L218.3,38C220.6,34.8,223.7,32.1,227.3,30.3z" />
-                <path
-                    d="M213.6,52.7c0-5.5,1.8-10.6,4.7-14.7l-25.9-10.2c-4,7.5-6.3,16-6.3,25c0,9.4,2.5,18.2,6.8,25.8l20.8-23 C213.6,54.7,213.6,53.7,213.6,52.7z" />
-                <path
-                    d="M238.5,27.7c3.6,0,7,0.8,10.1,2.1l12.5-24.4c-6.8-3.3-14.5-5.1-22.6-5.1c-9.4,0-18.2,2.5-25.8,6.8l14.6,23.3 C230.7,28.6,234.5,27.7,238.5,27.7z" />
-                <path
-                    d="M251.5,31.3L279,19.4c-4.9-5.9-11-10.7-17.9-14.1l-12.5,24.4C249.6,30.2,250.6,30.7,251.5,31.3z" />
-                <polygon points="387,105 360,50 360,89.1 376.1,105 " />
-                <polygon points="387,29.5 360.8,0 360,0 360,49.6 387,30.8 " />
-                <polygon points="387,0 360.8,0 387,29.5 " />
-                <polygon points="359.9,49.8 359.8,49.7 336.6,65.6 360,89.1 360,50 " />
-                <polygon
-                    points="336.1,26 335.6,26.1 330.8,59.8 335.6,26.1 308.8,27.1 335.6,26.1 335.6,25.5 310.2,0 299,0 299,8.2 327,61.4 327,55.5 336.8,65.6 359.9,49.7 " />
-                <polygon points="360,50 360,50 360,50 387,105 387,105 387,30.8 360,49.6 360,49.8 " />
-                <polygon points="299,105 326.1,105 310.9,78.9 326.1,105 327,105 327,69.5 299,86.5 " />
-                <polygon points="299,52.7 299,86.5 327,69.5 327,65.1 299,36.4 " />
-                <polygon points="336.1,26 335.6,25.6 335.6,26.1 " />
-                <polygon points="299,8.2 299,36.4 327,65.1 327,61.4 " />
-                <polygon points="425,36 425,27.8 399.8,0 397,0 397,49.5 397,49.5 " />
-                <polygon points="425,76 397,76 397,105.2 425,80.3 " />
-                <polygon points="432.5,63 438.1,40 425,40 425,36 397.4,49.5 425,66.1 425,63 " />
-                <polygon points="425,66.1 397,49.5 397,49.5 397,76 425,76 " />
-                <polygon points="425,23 444.3,23 437.3,0 399.8,0 425,27.8 " />
-                <polygon points="397.4,49.5 397.4,49.5 397.4,49.5 " />
-                <polygon points="432.5,63 456.7,63 449.5,40 438.1,40 " />
-                <polygon points="463,23 463,0 437.3,0 444.3,23 " />
-                <polygon points="458,63 458,40 449.5,40 456.7,63 " />
-                <polygon points="463,83 425,83 425,80.3 397.4,105 462,105 420.9,83.8 462,105 463,105 " />
-                <path d="M591.6,68.8c8.7-7.1,14.3-17.9,14.3-29.9c0-4.8-0.9-9.3-2.5-13.5l-20.6,13.3L591.6,68.8z" />
-                <path d="M582.8,38.6L582.8,38.6C582.7,38.6,582.7,38.6,582.8,38.6L582.8,38.6z" />
-                <path d="M567.8,77c0.5,0,1.1,0.4,1.6,0.4L564.8,54h-8.7l-13.9,21l8.8,11.1V77H567.8z" />
-                <path
-                    d="M556.1,54H551V23h16.6c2.6,0,5.1,0.9,7.3,2.1l12.8-19.2C581.7,2.2,574.7,0,567.2,0h-33.8l27.2,16.7l27-10.7l-27,10.8l0,0 l0,0l-37.7,15v17.9L542,75L556.1,54z" />
-                <path
-                    d="M582.7,38.9c0,8.4-6.7,15.1-15.1,15.1h-2.9l4.6,23.5c8.4-0.4,16.1-3.6,22.2-8.6L582.7,38.9L582.7,38.9z" />
-                <polygon points="523,103.4 523,105 551,105 551,86.1 542.2,74.8 " />
-                <polygon points="523,49.7 523,103.4 542,74.8 " />
-                <polygon points="533.4,0 523,0 523,31.8 560.7,16.7 " />
-                <path
-                    d="M582.7,38.6L582.7,38.6l20.6-13.2c-3-8-8.6-14.8-15.8-19.2l-12.8,19.2C579.6,27.8,582.7,32.8,582.7,38.6z" />
-                <polygon points="609,65.6 609,105 615.3,105 628.8,75.8 615.3,105 637,105 637,96.9 619.9,53.5 " />
-                <polygon points="620.1,53.5 637,96.9 637,59.8 637,34.4 " />
-                <polygon points="637,0 617.8,0 637,21.8 " />
-                <polygon points="637,34.4 637,21.8 617.8,0 609,0 609,25.8 619.9,53.5 " />
-                <polygon points="609,25.8 609,65.6 619.7,53.5 " />
-                <polygon points="686.5,83 674,83 674,63 695.6,63 690.1,40 683.5,40 664.3,83.1 677,105 681.6,105 " />
-                <polygon points="647,53.2 647,105 654.5,105 664.4,83.2 " />
-                <polygon points="683.5,40 674,40 674,34.9 646.6,53 646.8,53 664.3,83.1 " />
-                <polygon points="712,23 712,0 701.3,0 691.2,23 " />
-                <polygon points="654.5,105 677,105 664.3,83.1 " />
-                <polygon points="674,23 675.1,23 652.4,0 647,0 647,53.2 674,34.9 " />
-                <polygon points="686.1,23 680.7,0 652.4,0 675.1,23 " />
-                <polygon points="712,105 712,83 700.1,83 705.4,105 " />
-                <polygon points="708,63 708,40 690.1,40 695.6,63 " />
-                <polygon points="681.6,105 705.4,105 700.1,83 686.5,83 " />
-                <polygon points="691.2,23 701.3,0 680.7,0 686.1,23 " />
-                <path
-                    d="M770.6,77.4c-8,0-14.8-3.3-19.2-8.6l-2.6,31.8c6.4,2.9,13.4,4.6,20.8,4.7l17.5-33.8C783,75.2,777.2,77.4,770.6,77.4z" />
-                <path d="M746,53.7l-26.2,12.4c4,15.3,14.8,27.9,29,34.4l2.6-31.8C748.2,64.7,746.2,59.6,746,53.7z" />
-                <path
-                    d="M787.2,71.4l-17.5,33.8c0.3,0,0.6,0,0.9,0c14.6,0,27.7-6,37.2-15.5l-19.6-19.3C787.9,70.7,787.6,71,787.2,71.4z" />
-                <path
-                    d="M770.6,28.1c7.1,0,13.3,2.5,17.6,6.9l0,0L777.7,0.7c-2.3-0.3-4.7-0.5-7.1-0.5c-4.8,0-9.4,0.6-13.7,1.8l-2.6,31.8 C758.5,30.2,764.2,28.1,770.6,28.1z" />
-                <path d="M807.6,15.5c-7.9-7.9-18.3-13.2-29.9-14.8l10.6,34.2L807.6,15.5z" />
-                <path
-                    d="M746,52.7c0-7.4,2.8-13.8,7.5-18.2l-30.3-4.2c-3.2,6.8-5,14.4-5,22.4c0,4.6,0.6,9.1,1.7,13.4L746,53.7 C746,53.3,746,53,746,52.7z" />
-                <path d="M754.3,33.8l2.6-31.8c-14.9,4-27.2,14.5-33.7,28.3l30.3,4.2C753.7,34.3,754,34,754.3,33.8z" />
-                <polygon points="845,40 845,39 818,39 818,66.2 848.9,40 " />
-                <polygon points="845,63 859.1,63 850.7,40 848.9,40 818,66.2 818,74.6 845,78.3 " />
-                <polygon points="845,83 845,78.3 818,74.6 818,105 839.2,105 847.7,83 " />
-                <polygon points="879,63 879,40 850.7,40 859.1,63 " />
-                <polygon points="839.2,105 865.9,105 880.8,83 847.7,83 " />
-                <polygon points="873.2,23 883,23 883,0 860.4,0 860.4,0 " />
-                <polygon points="883,105 883,83 880.8,83 865.9,105 " />
-                <polygon points="860.4,0.2 860.4,0.2 860.4,0.2 " />
-                <polygon points="845,23 873.2,23 860.6,0.2 818,32.2 818,39 845,39 " />
-                <polygon points="860.4,0 818,0 818,32.2 860.4,0 " />
-            </svg> </figure>
+    <section class="hero-gsap hero-gsap--landing">
+        <figure class="hero-gsap-figure w-100 mb-0">
+            <figure class="mb-4">
+                <svg x="0px" y="0px" viewBox="0 0 883 105.2" xml:space="preserve" overflow="visible"
+                    aria-label="In one piece">
+                    <polygon points="359.9,49.6 359.8,49.7 359.9,49.8 " />
+                    <polygon points="28,0 10.8,0 28,9 " />
+                    <polygon points="28,12.6 0,46 0,51.9 28,48.9 " />
+                    <polygon points="0.8,105 28,105 28,74.7 20.3,69.7 " />
+                    <polygon points="28,9 10.8,0 0,0 0,46 28,12.6 " />
+                    <polygon points="0,51.9 0,57.3 20,69.8 20,69.8 20,69.8 28,74.7 28,48.9 " />
+                    <polygon points="0,57.3 0,105 0.8,105 20.1,69.7 " />
+                    <polygon points="89.7,40.6 61,25.9 38,46 38,47.8 91,41.9 " />
+                    <polygon points="89.7,40.6 68.4,19.4 61,25.9 " />
+                    <polygon points="99,41 126,37.9 126,30.3 99,0 99,0 " />
+                    <polygon points="38,47.8 38,48.9 103.1,63.5 98.9,49.8 91,41.9 " />
+                    <polygon points="68.4,19.3 49.2,0 38,0 38,14.1 61,25.8 " />
+                    <polygon points="38,48.9 38,80.9 66,98.3 66,55.5 115.2,105 115.8,105 103.1,63.4 " />
+                    <polygon points="61,25.9 38,14.1 38,46 " />
+                    <polygon points="38,105 66,105 66,98.3 38,80.9 " />
+                    <polygon points="126,0 99,0 126,30.3 " />
+                    <polygon points="99,49.8 102.9,63.5 126,68.7 126,59.4 99,45.3 " />
+                    <polygon points="99,41 99,45.3 126,59.4 126,37.9 " />
+                    <polygon points="115.8,105 126,105 126,68.7 102.8,63.4 " />
+                    <path
+                        d="M225.8,74.2l-12.6,24.5c7.5,4.1,16.1,6.5,25.3,6.5c2.2,0,4.3-0.1,6.4-0.4L237,77.7C233,77.5,229.1,76.2,225.8,74.2z" />
+                    <path
+                        d="M213.8,55.7l-20.8,23c4.8,8.4,11.8,15.4,20.3,20.1l12.6-24.5C219.3,70.3,214.7,63.5,213.8,55.7z" />
+                    <path
+                        d="M238.5,77.8c-0.5,0-1,0-1.4,0l7.8,27.1c8.7-1,16.7-4.2,23.6-8.9l-14.6-23.3C249.5,75.8,244.3,77.8,238.5,77.8z" />
+                    <path d="M251.5,31.3c6.7,4.1,11.3,11.2,11.9,19.4l27.5,1.5c-0.1-12.4-4.6-23.9-12-32.8L251.5,31.3z" />
+                    <path
+                        d="M263.6,52.7c0,8-3.8,15.2-9.8,19.8l14.6,23.3c13.6-9.4,22.6-25.2,22.6-43c0-0.2,0-0.4,0-0.6l-27.5-1.5 C263.5,51.4,263.6,52,263.6,52.7z" />
+                    <path
+                        d="M227.3,30.3L212.7,7.1c-8.5,4.9-15.6,12.1-20.3,20.8L218.3,38C220.6,34.8,223.7,32.1,227.3,30.3z" />
+                    <path
+                        d="M213.6,52.7c0-5.5,1.8-10.6,4.7-14.7l-25.9-10.2c-4,7.5-6.3,16-6.3,25c0,9.4,2.5,18.2,6.8,25.8l20.8-23 C213.6,54.7,213.6,53.7,213.6,52.7z" />
+                    <path
+                        d="M238.5,27.7c3.6,0,7,0.8,10.1,2.1l12.5-24.4c-6.8-3.3-14.5-5.1-22.6-5.1c-9.4,0-18.2,2.5-25.8,6.8l14.6,23.3 C230.7,28.6,234.5,27.7,238.5,27.7z" />
+                    <path
+                        d="M251.5,31.3L279,19.4c-4.9-5.9-11-10.7-17.9-14.1l-12.5,24.4C249.6,30.2,250.6,30.7,251.5,31.3z" />
+                    <polygon points="387,105 360,50 360,89.1 376.1,105 " />
+                    <polygon points="387,29.5 360.8,0 360,0 360,49.6 387,30.8 " />
+                    <polygon points="387,0 360.8,0 387,29.5 " />
+                    <polygon points="359.9,49.8 359.8,49.7 336.6,65.6 360,89.1 360,50 " />
+                    <polygon
+                        points="336.1,26 335.6,26.1 330.8,59.8 335.6,26.1 308.8,27.1 335.6,26.1 335.6,25.5 310.2,0 299,0 299,8.2 327,61.4 327,55.5 336.8,65.6 359.9,49.7 " />
+                    <polygon points="360,50 360,50 360,50 387,105 387,105 387,30.8 360,49.6 360,49.8 " />
+                    <polygon points="299,105 326.1,105 310.9,78.9 326.1,105 327,105 327,69.5 299,86.5 " />
+                    <polygon points="299,52.7 299,86.5 327,69.5 327,65.1 299,36.4 " />
+                    <polygon points="336.1,26 335.6,25.6 335.6,26.1 " />
+                    <polygon points="299,8.2 299,36.4 327,65.1 327,61.4 " />
+                    <polygon points="425,36 425,27.8 399.8,0 397,0 397,49.5 397,49.5 " />
+                    <polygon points="425,76 397,76 397,105.2 425,80.3 " />
+                    <polygon points="432.5,63 438.1,40 425,40 425,36 397.4,49.5 425,66.1 425,63 " />
+                    <polygon points="425,66.1 397,49.5 397,49.5 397,76 425,76 " />
+                    <polygon points="425,23 444.3,23 437.3,0 399.8,0 425,27.8 " />
+                    <polygon points="397.4,49.5 397.4,49.5 397.4,49.5 " />
+                    <polygon points="432.5,63 456.7,63 449.5,40 438.1,40 " />
+                    <polygon points="463,23 463,0 437.3,0 444.3,23 " />
+                    <polygon points="458,63 458,40 449.5,40 456.7,63 " />
+                    <polygon points="463,83 425,83 425,80.3 397.4,105 462,105 420.9,83.8 462,105 463,105 " />
+                    <path d="M591.6,68.8c8.7-7.1,14.3-17.9,14.3-29.9c0-4.8-0.9-9.3-2.5-13.5l-20.6,13.3L591.6,68.8z" />
+                    <path d="M582.8,38.6L582.8,38.6C582.7,38.6,582.7,38.6,582.8,38.6L582.8,38.6z" />
+                    <path d="M567.8,77c0.5,0,1.1,0.4,1.6,0.4L564.8,54h-8.7l-13.9,21l8.8,11.1V77H567.8z" />
+                    <path
+                        d="M556.1,54H551V23h16.6c2.6,0,5.1,0.9,7.3,2.1l12.8-19.2C581.7,2.2,574.7,0,567.2,0h-33.8l27.2,16.7l27-10.7l-27,10.8l0,0 l0,0l-37.7,15v17.9L542,75L556.1,54z" />
+                    <path
+                        d="M582.7,38.9c0,8.4-6.7,15.1-15.1,15.1h-2.9l4.6,23.5c8.4-0.4,16.1-3.6,22.2-8.6L582.7,38.9L582.7,38.9z" />
+                    <polygon points="523,103.4 523,105 551,105 551,86.1 542.2,74.8 " />
+                    <polygon points="523,49.7 523,103.4 542,74.8 " />
+                    <polygon points="533.4,0 523,0 523,31.8 560.7,16.7 " />
+                    <path
+                        d="M582.7,38.6L582.7,38.6l20.6-13.2c-3-8-8.6-14.8-15.8-19.2l-12.8,19.2C579.6,27.8,582.7,32.8,582.7,38.6z" />
+                    <polygon points="609,65.6 609,105 615.3,105 628.8,75.8 615.3,105 637,105 637,96.9 619.9,53.5 " />
+                    <polygon points="620.1,53.5 637,96.9 637,59.8 637,34.4 " />
+                    <polygon points="637,0 617.8,0 637,21.8 " />
+                    <polygon points="637,34.4 637,21.8 617.8,0 609,0 609,25.8 619.9,53.5 " />
+                    <polygon points="609,25.8 609,65.6 619.7,53.5 " />
+                    <polygon points="686.5,83 674,83 674,63 695.6,63 690.1,40 683.5,40 664.3,83.1 677,105 681.6,105 " />
+                    <polygon points="647,53.2 647,105 654.5,105 664.4,83.2 " />
+                    <polygon points="683.5,40 674,40 674,34.9 646.6,53 646.8,53 664.3,83.1 " />
+                    <polygon points="712,23 712,0 701.3,0 691.2,23 " />
+                    <polygon points="654.5,105 677,105 664.3,83.1 " />
+                    <polygon points="674,23 675.1,23 652.4,0 647,0 647,53.2 674,34.9 " />
+                    <polygon points="686.1,23 680.7,0 652.4,0 675.1,23 " />
+                    <polygon points="712,105 712,83 700.1,83 705.4,105 " />
+                    <polygon points="708,63 708,40 690.1,40 695.6,63 " />
+                    <polygon points="681.6,105 705.4,105 700.1,83 686.5,83 " />
+                    <polygon points="691.2,23 701.3,0 680.7,0 686.1,23 " />
+                    <path
+                        d="M770.6,77.4c-8,0-14.8-3.3-19.2-8.6l-2.6,31.8c6.4,2.9,13.4,4.6,20.8,4.7l17.5-33.8C783,75.2,777.2,77.4,770.6,77.4z" />
+                    <path d="M746,53.7l-26.2,12.4c4,15.3,14.8,27.9,29,34.4l2.6-31.8C748.2,64.7,746.2,59.6,746,53.7z" />
+                    <path
+                        d="M787.2,71.4l-17.5,33.8c0.3,0,0.6,0,0.9,0c14.6,0,27.7-6,37.2-15.5l-19.6-19.3C787.9,70.7,787.6,71,787.2,71.4z" />
+                    <path
+                        d="M770.6,28.1c7.1,0,13.3,2.5,17.6,6.9l0,0L777.7,0.7c-2.3-0.3-4.7-0.5-7.1-0.5c-4.8,0-9.4,0.6-13.7,1.8l-2.6,31.8 C758.5,30.2,764.2,28.1,770.6,28.1z" />
+                    <path d="M807.6,15.5c-7.9-7.9-18.3-13.2-29.9-14.8l10.6,34.2L807.6,15.5z" />
+                    <path
+                        d="M746,52.7c0-7.4,2.8-13.8,7.5-18.2l-30.3-4.2c-3.2,6.8-5,14.4-5,22.4c0,4.6,0.6,9.1,1.7,13.4L746,53.7 C746,53.3,746,53,746,52.7z" />
+                    <path d="M754.3,33.8l2.6-31.8c-14.9,4-27.2,14.5-33.7,28.3l30.3,4.2C753.7,34.3,754,34,754.3,33.8z" />
+                    <polygon points="845,40 845,39 818,39 818,66.2 848.9,40 " />
+                    <polygon points="845,63 859.1,63 850.7,40 848.9,40 818,66.2 818,74.6 845,78.3 " />
+                    <polygon points="845,83 845,78.3 818,74.6 818,105 839.2,105 847.7,83 " />
+                    <polygon points="879,63 879,40 850.7,40 859.1,63 " />
+                    <polygon points="839.2,105 865.9,105 880.8,83 847.7,83 " />
+                    <polygon points="873.2,23 883,23 883,0 860.4,0 860.4,0 " />
+                    <polygon points="883,105 883,83 880.8,83 865.9,105 " />
+                    <polygon points="860.4,0.2 860.4,0.2 860.4,0.2 " />
+                    <polygon points="845,23 873.2,23 860.6,0.2 818,32.2 818,39 845,39 " />
+                    <polygon points="860.4,0 818,0 818,32.2 860.4,0 " />
+                </svg>
+            </figure>
 
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <div class="scroll-hero">
-                    <h2 class="scroll-hero__title">Bienvenido a 001xclusiv</h2>
-                    <div class="scroll-hero__payoff">
-                        Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
+            <div class="row align-items-center hero-gsap__content">
+                <div class="col-lg-7">
+                    <div class="scroll-hero home-legacy-copy align-items-start">
+                        <span class="section-kicker">Streetwear curado para destacar</span>
+                        <h1 class="scroll-hero__title home-legacy-copy__title">Bienvenido a 001xclusiv</h1>
+                        <div class="scroll-hero__payoff text-start">
+                            Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
+                        </div>
+                        <p class="home-legacy-copy__text">
+                            Tambien tenemos ropa, accesorios y una seleccion con personalidad. Una home con movimiento
+                            para que la marca se sienta viva desde el primer scroll.
+                        </p>
                     </div>
-                    <p>
-                        También tenemos ropa, accesorios. Somos un estilo nuevo ;)
-                    </p>
+
+                    <div class="home-hero__actions home-legacy-copy__actions">
+                        <a href="{% url 'catalog:list' %}" class="btn-primary btn-lg">Ver catalogo</a>
+                        <a href="#best-sellers" class="btn-secondary btn-lg">Explorar destacados</a>
+                    </div>
+
+                    <div class="home-hero__stats home-legacy-copy__stats">
+                        <div class="hero-stat">
+                            <strong>{{ featured_products|length }}</strong>
+                            <span>productos destacados</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>{{ featured_categories|length }}</strong>
+                            <span>categorias activas</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>24/7</strong>
+                            <span>acompanamiento y soporte</span>
+                        </div>
+                    </div>
                 </div>
 
-                <a href="{% url 'catalog:list' %}" class="btn btn-light btn-lg mt-3">
-                    Ver catálogo
-                </a>
-            </div>
-            <div class="col-md-4 mt-3 mt-md-0" style="margin-left: 50px;">
-                <div class="p-4 border border-dark rounded-4">
-                    {% if featured_products %}
-                    <p class="mb-1 text-uppercase small text-muted">Destacados</p>
-                    <div id="featuredCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            {% for product in featured_products %}
-                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <a href="{% url 'catalog:detail' product.slug %}"
-                                    class="text-decoration-none text-dark">
-                                    <div class="mb-3 text-center">
-                                        {% with main_image=product.images.all|first %}
-                                        {% if main_image %}
-                                        <div class="mb-2 rounded-3 overflow-hidden">
-                                            <img src="{{ main_image.image.url }}" alt="{{ product.name }}"
-                                                class="w-100 object-fit-cover" style="aspect-ratio: 1/1;">
-                                        </div>
-                                        {% endif %}
-                                        {% endwith %}
-                                        <div class="fw-semibold">{{ product.name }}</div>
-                                        <div class="small text-muted">
-                                            {% if product.discount_price %}
-                                            <span class="text-decoration-line-through me-1">
-                                                ${{ product.price }} CLP
-                                            </span>
-                                            <span class="fw-bold">${{ product.discount_price }} CLP</span>
-                                            {% else %}
-                                            <span class="fw-bold">${{ product.price }} CLP</span>
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    {% with hero_product=featured_products.0 %}
+                    <div class="hero-spotlight hero-spotlight--legacy">
+                        <div class="hero-spotlight__card hero-spotlight__card--static">
+                            {% if hero_product %}
+                            <p class="hero-spotlight__eyebrow">Destacados</p>
+                            <div id="featuredCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    {% for product in featured_products|slice:":4" %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <a href="{% url 'catalog:detail' product.slug %}"
+                                            class="text-decoration-none text-dark d-block">
+                                            {% with image=product.images.all.0 %}
+                                            {% if image %}
+                                            <div class="mb-3 rounded-4 overflow-hidden hero-spotlight__carousel-media">
+                                                <img src="{{ image.image.url }}" alt="{{ product.name }}"
+                                                    class="w-100 object-fit-cover">
+                                            </div>
                                             {% endif %}
-                                        </div>
+                                            {% endwith %}
+                                            <h2>{{ product.name }}</h2>
+                                            <p class="hero-spotlight__meta">
+                                                {% if product.brand %}{{ product.brand.name }}{% else %}Seleccion
+                                                001xclusiv{% endif %}
+                                            </p>
+                                            <div class="hero-spotlight__price">
+                                                {% if product.discount_price %}
+                                                <span class="price-old">${{ product.price }} CLP</span>
+                                                <span class="price-new">${{ product.discount_price }} CLP</span>
+                                                {% else %}
+                                                <span class="price">${{ product.price }} CLP</span>
+                                                {% endif %}
+                                            </div>
+                                        </a>
                                     </div>
-                                </a>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel"
+                                    data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Anterior</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel"
+                                    data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Siguiente</span>
+                                </button>
                             </div>
-                            {% endfor %}
+                            {% else %}
+                            <p class="hero-spotlight__eyebrow">Destacados</p>
+                            <h2>Zona de productos destacados</h2>
+                            <p class="hero-spotlight__meta">Cuando cargues productos en admin, este espacio los mostrara
+                                automaticamente.</p>
+                            {% endif %}
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel"
-                            data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Anterior</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel"
-                            data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Siguiente</span>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </figure>
+    </section>
+
+    <section class="trust-bar" aria-label="Beneficios de compra">
+        <article class="trust-pill">
+            <i class="bi bi-truck"></i>
+            <div>
+                <strong>Envio gratis</strong>
+                <span>En compras destacadas y promos seleccionadas</span>
+            </div>
+        </article>
+        <article class="trust-pill">
+            <i class="bi bi-shield-check"></i>
+            <div>
+                <strong>Pagos seguros</strong>
+                <span>Checkout claro y protegido para tu compra</span>
+            </div>
+        </article>
+        <article class="trust-pill">
+            <i class="bi bi-headset"></i>
+            <div>
+                <strong>Soporte 24/7</strong>
+                <span>Acompanamiento antes y despues de tu pedido</span>
+            </div>
+        </article>
+    </section>
+
+    <section class="home-section home-immersive-band ambient-surface ambient-surface--light" data-ambient>
+        <div class="home-immersive-band__copy">
+            <span class="section-kicker">001xclusiv's principles</span>
+            <h2>No es solo una prenda, es tu presencia. Eres tú.</h2>
+            <p>
+                Acá no vienes a ver productos, vienes a armar tu estilo. Cada pieza tiene peso, cada drop que tiramos
+                tiene intención, hacerte ver xclusiv.
+            </p>
+        </div>
+
+        <div class="home-immersive-band__metrics">
+            {% for metric in immersive_metrics %}
+            <article class="immersive-metric-card">
+                <strong>{{ metric.value }}</strong>
+                <span>{{ metric.label }}</span>
+                <p>{{ metric.description }}</p>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="editorial-feature-grid">
+            <div class="editorial-manifesto">
+                <span class="section-kicker">Bienvenido al universo</span>
+                <h2>001xclusiv mezcla curaduria, calle y una lectura mas visual del e-commerce.</h2>
+                <p>
+                    El scroll ahora no solo empuja al catalogo: presenta contexto, textura y una razon para quedarse.
+                    Eso ayuda a que el producto se sienta mejor, incluso antes de llegar al detalle.
+                </p>
+                <div class="editorial-manifesto__actions">
+                    <a href="{% url 'catalog:list' %}?sort=newest" class="btn-accent">Ver nuevos drops</a>
+                    <a href="#home-journey" class="btn-secondary">Seguir explorando</a>
+                </div>
+            </div>
+
+            <div class="editorial-feature-grid__cards">
+                {% for panel in editorial_panels %}
+                <a href="{% url 'catalog:list' %}?{{ panel.query }}" class="editorial-visual-card">
+                    <div class="parallax-shell">
+                        <img src="{% static panel.image %}" alt="{{ panel.title }}" class="parallax-image">
+                    </div>
+                    <div class="editorial-visual-card__overlay"></div>
+                    <div class="editorial-visual-card__content">
+                        <span>{{ panel.eyebrow }}</span>
+                        <h3>{{ panel.title }}</h3>
+                        <p>{{ panel.copy }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Navega por estilo</span>
+                <h2>Categorias destacadas</h2>
+            </div>
+            <a href="{% url 'catalog:list' %}" class="section-link">Ver todo el catalogo</a>
+        </div>
+
+        <div class="category-showcase">
+            {% for item in featured_categories %}
+            <a href="{% url 'catalog:list' %}?category={{ item.category.slug }}" class="category-showcase__card">
+                <div class="parallax-shell">
+                    <img src="{% static item.image %}" alt="{{ item.category.name }}" class="parallax-image">
+                </div>
+                <div class="category-showcase__overlay"></div>
+                <div class="category-showcase__content">
+                    <span>{{ item.eyebrow }}</span>
+                    <h3>{{ item.category.name }}</h3>
+                    <p>{{ item.category.active_products }} productos activos</p>
+                </div>
+            </a>
+            {% empty %}
+            <a href="{% url 'catalog:list' %}" class="category-showcase__card">
+                <div class="parallax-shell">
+                    <img src="{% static 'home/airmutblackhome2.png' %}" alt="Catalogo" class="parallax-image">
+                </div>
+                <div class="category-showcase__overlay"></div>
+                <div class="category-showcase__content">
+                    <span>Curado para ti</span>
+                    <h3>Catalogo completo</h3>
+                    <p>Explora lo ultimo en 001xclusiv</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-section home-section--alt">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Visual pacing</span>
+                <h2>Un home con capas, no solo con bloques.</h2>
+            </div>
+            <p class="section-heading__text">
+                Entre categorias y producto sumamos una franja editorial que hace respirar la experiencia y eleva la
+                percepcion de marca.
+            </p>
+        </div>
+
+        <div class="home-lookbook-grid">
+            <article class="home-lookbook-card home-lookbook-card--tall">
+                <div class="parallax-shell">
+                    <img src="{% static 'home/airmutblackhome.jpg' %}" alt="Seleccion streetwear 001xclusiv"
+                        class="parallax-image">
+                </div>
+                <div class="home-lookbook-card__overlay"></div>
+                <div class="home-lookbook-card__content">
+                    <span>Atmosfera</span>
+                    <h3>Streetwear con presencia editorial.</h3>
+                </div>
+            </article>
+            <article class="home-lookbook-card">
+                <div class="parallax-shell">
+                    <img src="{% static 'home/airforcehome.jpg' %}" alt="Sneakers destacados" class="parallax-image">
+                </div>
+                <div class="home-lookbook-card__overlay"></div>
+                <div class="home-lookbook-card__content">
+                    <span>Producto</span>
+                    <h3>El drop entra mejor cuando el contexto acompana.</h3>
+                </div>
+            </article>
+            <article class="home-lookbook-card">
+                <div class="parallax-shell">
+                    <img src="{% static 'home/ropa.jpg' %}" alt="Ropa y accesorios 001xclusiv" class="parallax-image">
+                </div>
+                <div class="home-lookbook-card__overlay"></div>
+                <div class="home-lookbook-card__content">
+                    <span>Look completo</span>
+                    <h3>No es solo calzado: es seleccion completa.</h3>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="home-section" id="best-sellers">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Lo mas buscado</span>
+                <h2>Productos estrella</h2>
+            </div>
+            <p class="section-heading__text">Una seleccion lista para convertir: piezas con mejor presencia, precio
+                claro y acceso directo a carrito o detalle.</p>
+        </div>
+
+        <div class="product-grid home-product-grid">
+            {% for product in featured_products %}
+            <article class="product-card home-product-card">
+                <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
+                    <div class="product-image-container">
+                        {% with primary_image=product.images.all.0 secondary_image=product.images.all.1 %}
+                        {% if primary_image %}
+                        <img src="{{ primary_image.image.url }}" alt="{{ primary_image.alt_text|default:product.name }}"
+                            class="product-image">
+                        {% if secondary_image %}
+                        <img src="{{ secondary_image.image.url }}"
+                            alt="{{ secondary_image.alt_text|default:product.name }}"
+                            class="product-image product-image--secondary">
+                        {% endif %}
+                        {% else %}
+                        <div class="product-image product-image--placeholder">
+                            <span>Sin imagen</span>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        {% if product.discount_price %}
+                        <span class="badge-sale">Oferta</span>
+                        {% endif %}
+
+                        <button class="btn-wishlist {% if product.id in wishlist_product_ids %}active{% endif %}"
+                            type="button" aria-label="Guardar {{ product.name }} en favoritos"
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ product.pk }}, this)">
+                            <i
+                                class="bi {% if product.id in wishlist_product_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
                         </button>
                     </div>
 
+                    <div class="product-details">
+                        <p class="product-brand">{{ product.brand.name|default:"Seleccion 001xclusiv" }}</p>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        {% if product.short_description %}
+                        <p class="home-product-card__copy">{{ product.short_description }}</p>
+                        {% endif %}
+                        <div class="product-pricing">
+                            {% if product.discount_price %}
+                            <span class="price-old">${{ product.price }} CLP</span>
+                            <span class="price-new">${{ product.discount_price }} CLP</span>
+                            {% else %}
+                            <span class="price">${{ product.price }} CLP</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+
+                <div class="home-product-card__actions">
+                    {% if product.variants.all|length == 1 %}
+                    <form method="post" action="{% url 'cart:cart_add' product.id %}" class="js-ajax-cart-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="variant" value="{{ product.variants.all.0.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-primary home-product-card__button">
+                            <i class="bi bi-bag-plus"></i>
+                            Agregar al carrito
+                        </button>
+                    </form>
+                    {% elif product.variants.all|length == 0 %}
+                    <form method="post" action="{% url 'cart:cart_add' product.id %}" class="js-ajax-cart-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-primary home-product-card__button">
+                            <i class="bi bi-bag-plus"></i>
+                            Agregar al carrito
+                        </button>
+                    </form>
                     {% else %}
-                    <p class="mb-1 text-uppercase small text-muted">Mockup</p>
-                    <h5 class="fw-semibold mb-3">Zona de productos destacados</h5>
-                    <p class="text-muted mb-0">
-                        Aún no hay productos destacados. Marca algunos en el admin para
-                        mostrarlos aquí.
-                    </p>
+                    <a href="{% url 'catalog:detail' product.slug %}" class="btn-secondary home-product-card__button">
+                        <i class="bi bi-grid"></i>
+                        Elegir talla
+                    </a>
                     {% endif %}
                 </div>
-            </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
 
-        </div>
-    </figure>
-</section>
-
-<!-- CATEGORY GRID SECTION (Replicating the image) -->
-<section class="container mb-5">
-    <h3 class="fw-bold mb-4">Para todos</h3>
-    <div class="row g-3 mb-5">
-        <!-- Hombre -->
-        <div class="col-md-4">
-            <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/hombreCate.jpg' %}" alt="Hombre" class="w-100 object-fit-cover"
-                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
-                <div class="position-absolute bottom-0 start-0 p-4">
-                    <a href="{% url 'catalog:list' %}?category=hombre"
-                        class="btn btn-light rounded-pill px-4 fw-bold">Hombre</a>
-                </div>
-            </div>
-        </div>
-        <!-- Mujer -->
-        <div class="col-md-4">
-            <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/mujerCate.jpg' %}" alt="Mujer" class="w-100 object-fit-cover"
-                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
-                <div class="position-absolute bottom-0 start-0 p-4">
-                    <a href="{% url 'catalog:list' %}?category=mujer"
-                        class="btn btn-light rounded-pill px-4 fw-bold">Mujer</a>
-                </div>
-            </div>
-        </div>
-        <!-- Niños -->
-        <div class="col-md-4">
-            <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Niños" class="w-100 object-fit-cover"
-                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
-                <div class="position-absolute bottom-0 start-0 p-4">
-                    <a href="{% url 'catalog:list' %}?category=ninos"
-                        class="btn btn-light rounded-pill px-4 fw-bold">Niños</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <h3 class="fw-bold mb-4">Categorías</h3>
-    <div class="row g-3">
-        <!-- Calzado -->
-        <div class="col-md-4">
-            <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airmutblackhome2.png' %}" alt="Calzado" class="w-100 object-fit-cover"
-                    style="height: 450px; background: #f5f5f5; border-radius: 10px;">
-                <div class="position-absolute bottom-0 start-0 p-4">
-                    <a href="{% url 'catalog:list' %}?category=calzado"
-                        class="btn btn-light rounded-pill px-4 fw-bold">Calzado</a>
-                </div>
-            </div>
-        </div>
-        <!-- Ropa -->
-        <div class="col-md-4">
-            <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/ropa.jpg' %}" alt="Ropa" class="w-100 object-fit-cover"
-                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
-                <div class="position-absolute bottom-0 start-0 p-4">
-                    <a href="{% url 'catalog:list' %}?category=ropa"
-                        class="btn btn-light rounded-pill px-4 fw-bold">Ropa</a>
-                </div>
-            </div>
-        </div>
-        <!-- Accesorios -->
-        <div class="col-md-4">
-            <div class="position-relative rounded-0 overflow-hidden category-card">
-                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Accesorios" class="w-100 object-fit-cover"
-                    style="height: 450px; filter: brightness(0.9); border-radius: 10px;">
-                <div class="position-absolute bottom-0 start-0 p-4">
-                    <a href="{% url 'catalog:list' %}?category=accesorios"
-                        class="btn btn-light rounded-pill px-4 fw-bold">Accesorios</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- PHRASE SLIDER -->
-<section class="phrase-slider mb-5">
-    <div id="phraseCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <p class="phrase-text">"Exclusividad que no te deja indiferente."</p>
-            </div>
-            <div class="carousel-item">
-                <p class="phrase-text">"001xclusiv, drops exclusivos para ti."</p>
-            </div>
-            <div class="carousel-item">
-                <p class="phrase-text">"Deja tu huella, pero una huella distinta."</p>
-            </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#phraseCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Anterior</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#phraseCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Siguiente</span>
-        </button>
-    </div>
-</section>
-
-<!-- DRIP SECTION -->
-<section class="drip-section mt-5">
-    <div class="drip-container">
-        <!-- Giant DRIP -->
-        <div class="drip-original">
+    <section class="home-section home-section--alt" id="home-journey">
+        <div class="section-heading">
             <div>
-                <svg viewBox="0 0 100 20" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="drip-gradient">
-                            <stop offset="0%" stop-color="#000" />
-                        </linearGradient>
-                        <pattern id="drip-wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
-                            <path d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z"
-                                fill="url(#drip-gradient)">
-                                <animateTransform attributeName="transform" begin="0s" dur="1.5s" type="translate"
-                                    from="0,0" to="40,0" repeatCount="indefinite" />
-                            </path>
-                        </pattern>
-                    </defs>
-                    <text text-anchor="middle" x="50" y="15" font-size="17" fill="white" fill-opacity="0.1">DRIP</text>
-                    <text text-anchor="middle" x="50" y="15" font-size="17" fill="url(#drip-wave)"
-                        fill-opacity="1">DRIP</text>
-                </svg>
-                <svg viewBox="0 0 100 20" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <mask id="drip-waveMask">
-                            <pattern id="drip-wave-mask-pattern" x="0" y="-0.5" width="100%" height="100%"
-                                patternUnits="userSpaceOnUse">
-                                <path d="M-40 9 Q-30 7 -20 9 T0 9 T20 9 T40 9 T60 9 T80 9 T100 9 T120 9 V20 H-40z"
-                                    fill="white">
-                                    <animateTransform attributeName="transform" begin="0s" dur="1.5s" type="translate"
-                                        from="0,0" to="40,0" repeatCount="indefinite" />
-                                </path>
-                            </pattern>
-                            <rect width="100%" height="100%" fill="url(#drip-wave-mask-pattern)" />
-                        </mask>
-                    </defs>
-                    <text text-anchor="middle" x="50" y="15" font-size="17" fill="black"
-                        mask="url(#drip-waveMask)">DRIP</text>
-                </svg>
+                <span class="section-kicker">Recien llegados</span>
+                <h2>Novedades del catalogo</h2>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- SCROLL EXPERIENCE (Always visible now) -->
-<section class="scroll-experience py-5" style="margin-top: 1px;">
-    <div class="scroll-container">
-        <div class="scroll-hero">
-            <h2 class="scroll-hero__title">Explora el drip scrolleando</h2>
-            <div class="scroll-hero__payoff">
-                Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
-            </div>
+            <p class="section-heading__text">Akí va air todo los drop nuevos que lleguen a la tienda..</p>
         </div>
 
-        <div class="divider-v">
-            <section class="section">
-                <div class="calendar-container">
-                    <div class="calendar-wide">
-                        <img src="{% static 'home/airmutblackhome.jpg' %}" class="calendar"
-                            alt="Air More Up Tempo Low Triple Black">
+        <div class="arrival-grid">
+            {% for product in new_arrivals %}
+            <article class="arrival-card">
+                <a href="{% url 'catalog:detail' product.slug %}" class="arrival-card__media">
+                    <div class="parallax-shell">
+                        {% with image=product.images.all.0 %}
+                        {% if image %}
+                        <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}"
+                            class="parallax-image">
+                        {% else %}
+                        <img src="{% static 'home/airforcelv8black.jpg' %}" alt="{{ product.name }}"
+                            class="parallax-image">
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </a>
+                <div class="arrival-card__content">
+                    <span class="arrival-card__badge">New arrival</span>
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.short_description|default:"Diseno seleccionado para destacar en la nueva coleccion."
+                        }}</p>
+                    <div class="arrival-card__footer">
+                        <strong>${{ product.final_price }} CLP</strong>
+                        <a href="{% url 'catalog:detail' product.slug %}" class="section-link">Ver producto</a>
                     </div>
                 </div>
-            </section>
-
-            <section class="section panel">
-                <div class="split-h">
-                    <div class="grid-center">
-                        <div class="panel__content">
-                            <h3>Enrich your steps. Leave your mark.</h3>
-                            <p>
-                                Últimos lanzamientos de zapatillas, accesorios y ropa. <br>
-                                Drops exclusivos para ti. Revisa aquí lo último de nuestra colección xclusiv.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="calendar-container">
-                            <div class="calendar-wide">
-                                <img src="{% static 'home/airmutblackhome2.png' %}" class="calendar"
-                                    style="width: 100%; height: auto;" size="100%"
-                                    alt="Air More Up Tempo Low Triple Black">
-                            </div>
-                        </div>
-                    </div>
+            </article>
+            {% empty %}
+            <article class="arrival-card arrival-card--empty">
+                <div class="arrival-card__content">
+                    <span class="arrival-card__badge">New arrival</span>
+                    <h3>Pronto tendremos nuevos drops</h3>
+                    <p>Cuando subas mas productos, esta seccion se alimentara automaticamente con los mas recientes.</p>
                 </div>
-            </section>
-
-            <section class="section panel panel--no-overflow">
-                <div class="split-h">
-                    <div>
-                        <div class="cover-image">
-                            <img src="{% static 'home/20251204_072107000_iOS.jpg' %}" alt="Awesome image" />
-                        </div>
-                    </div>
-
-                    <div class="grid-center">
-                        <div class="panel__content">
-                            <h3>¿Te atreves a ser exclusivo?</h3>
-                            <p>
-                                Aquí podrás mostrar por qué tu colección es exclusiva.
-                            </p>
-                            <p>
-                                Confianza en la calidad de los productos,
-                                calidad en el servicio al cliente y precios exclusivos para nuestros clientes <italic>
-                                    xclusiv</italic>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section">
-                <h2 class="section__title">Lo que dicen del drip xclusiv</h2>
-                <div class="popup-container">
-                    <div class="review">
-                        <h3>Cliente anónimo</h3>
-                        <p>
-                            “Llegó todo impecable, el sitio se siente fluido y moderno.
-                            Da la sensación de estar comprando en una tienda global.”
-                        </p>
-                    </div>
-
-                    <div class="review">
-                        <h3>Marcus – Sneakerhead</h3>
-                        <p>
-                            “La experiencia de scroll se siente como ver un lookbook animado.
-                            Es adictivo recorrer la página.”
-                        </p>
-                    </div>
-
-                    <div class="review">
-                        <h3>Jennifer – Ops</h3>
-                        <p>
-                            “Nos ayuda a contar la historia de cada drop, no solo a mostrar
-                            fotos. Eso marca la diferencia.”
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="scroll-footer"></footer>
+            </article>
+            {% endfor %}
         </div>
-    </div>
-</section>
-<!-- GRAVITY ZERO SECTION -->
-<section class="py-5 text-center">
-    <div class="container">
-        <p class="text-uppercase small fw-bold mb-2">XCLUSIV'S</p>
-        <h2 class="display-3 fw-black text-uppercase mb-4" style="font-weight: 900; letter-spacing: -2px;">
-            UN PAR QUE NO TE PUEDES QUEDAR CON GANAS DE TENERLO
-        </h2>
-        <a href="{% url 'catalog:list' %}" class="btn btn-black rounded-pill px-5 py-2 fw-bold">Comprar</a>
-    </div>
-</section>
+    </section>
 
-<!-- SPLIT LIFESTYLE SECTION -->
-<section class="py-5">
-    <div class="container-fluid px-0">
-        <div class="row g-0">
-            <div class="col-md-6 position-relative">
-                <img src="{% static 'home/airmutblackhome1.jpg' %}" alt="Lifestyle 1"
-                    class="w-100 h-100 object-fit-cover" style="min-height: 600px;">
-                <div class="position-absolute bottom-0 start-0 p-5 text-white">
-                    <p class="mb-1 fw-bold">Regalos que elevan su juego</p>
-                    <a href="{% url 'catalog:list' %}" class="btn btn-light rounded-pill px-4 fw-bold">Comprar</a>
-                </div>
+    <section class="home-section">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Journey</span>
+                <h2>Como deberia sentirse este home al recorrerlo completo.</h2>
             </div>
-            <div class="col-md-6 position-relative">
-                <img src="{% static 'home/airforcelv8blackbrown.jpg' %}" alt="Lifestyle 2"
-                    class="w-100 h-100 object-fit-cover" style="min-height: 600px;">
-                <div class="position-absolute bottom-0 start-0 p-5 text-white">
-                    <p class="mb-1 fw-bold">Tu estilo entra en calor</p>
-                    <a href="{% url 'catalog:list' %}" class="btn btn-light rounded-pill px-4 fw-bold">Comprar</a>
+            <p class="section-heading__text">
+                La idea es que cada tramo tenga una funcion distinta: atrapar, orientar, inspirar y finalmente empujar
+                la compra.
+            </p>
+        </div>
+
+        <div class="home-journey">
+            {% for item in journey_steps %}
+            <article class="home-journey__step">
+                <span class="home-journey__index">{{ item.step }}</span>
+                <div>
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.text }}</p>
                 </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-section home-brand-promise ambient-surface ambient-surface--light" data-ambient>
+        <div class="home-brand-promise__intro">
+            <span class="section-kicker">Brand promise</span>
+            <h2>Una landing larga sirve cuando cada scroll refuerza deseo, claridad y confianza.</h2>
+            <p>
+                El objetivo es que quien entra por primera vez entienda rapido el tono de la marca y tambien encuentre
+                puertas directas para comprar cuando ya este listo.
+            </p>
+        </div>
+
+        <div class="home-brand-promise__grid">
+            {% for promise in brand_promises %}
+            <article class="promise-card">
+                <h3>{{ promise.title }}</h3>
+                <p>{{ promise.text }}</p>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Confianza real</span>
+                <h2>Lo que ya transmite la marca</h2>
             </div>
         </div>
-    </div>
-</section>
 
+        <div class="testimonial-grid">
+            {% for testimonial in testimonials %}
+            <article class="testimonial-card">
+                <div class="testimonial-card__rating">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <p>"{{ testimonial.quote }}"</p>
+                <div class="testimonial-card__author">
+                    <strong>{{ testimonial.author }}</strong>
+                    <span>{{ testimonial.role }}</span>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-cinematic-cta">
+        <div class="home-cinematic-cta__media">
+            <div class="parallax-shell">
+                <img src="{% static 'home/airmutblackhome3.jpg' %}" alt="001xclusiv cinematic banner"
+                    class="parallax-image">
+            </div>
+            <div class="home-cinematic-cta__overlay"></div>
+        </div>
+        <div class="home-cinematic-cta__content">
+            <span class="section-kicker">Final frame</span>
+            <h2>Si llegaste hasta aqui, la marca ya hizo su trabajo. Ahora toca entrar al drop.</h2>
+            <p>
+                Este ultimo bloque funciona como cierre visual del scroll largo y deja una llamada fuerte a explorar el
+                catalogo completo.
+            </p>
+            <div class="home-cinematic-cta__actions">
+                <a href="{% url 'catalog:list' %}" class="btn-accent">Entrar al catalogo</a>
+                <a href="#newsletter-form" class="btn-secondary">Recibir novedades</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="newsletter-cta ambient-surface ambient-surface--dark" data-ambient>
+        <div class="newsletter-cta__content">
+            <span class="section-kicker">Cierra con intencion</span>
+            <h2>Recibe lanzamientos, descuentos y acceso temprano a nuevos drops.</h2>
+            <p>Este bloque deja al home preparado para capturar interes incluso cuando el usuario todavia no decide
+                comprar hoy.</p>
+        </div>
+
+        <form class="newsletter-form" id="newsletter-form">
+            <label for="newsletter-email" class="visually-hidden">Correo electronico</label>
+            <input type="email" id="newsletter-email" name="email" placeholder="tuemail@ejemplo.com" required>
+            <button type="submit" class="btn-accent">Quiero acceso</button>
+        </form>
+
+        <p class="newsletter-cta__note" id="newsletter-feedback">Promesa simple: nada de spam, solo novedades con
+            sentido.</p>
+    </section>
+</div>
 {% endblock %}
+
 {% block extra_js %}
 <script src="{% static 'js/gsap-hero.js' %}"></script>
 <script>
     function toggleWishlist(productId, element) {
-        // Use Django's url tag to get the base path, replacing the placeholder '0' with the actual ID
         const url = "{% url 'catalog:toggle_wishlist' 0 %}".replace('0', productId);
 
         fetch(url)
             .then(response => {
                 if (response.status === 403 || response.status === 401) {
                     window.location.href = "{% url 'accounts:login' %}";
-                    return;
+                    return null;
                 }
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -497,18 +659,98 @@
                 return response.json();
             })
             .then(data => {
-                const icon = element.querySelector('i');
-                if (data.added) {
-                    element.classList.add('active');
-                    icon.classList.remove('bi-heart');
-                    icon.classList.add('bi-heart-fill');
-                } else {
-                    element.classList.remove('active');
-                    icon.classList.remove('bi-heart-fill');
-                    icon.classList.add('bi-heart');
+                if (!data) {
+                    return;
                 }
+                const icon = element.querySelector('i');
+                element.classList.toggle('active', data.added);
+                icon.classList.toggle('bi-heart', !data.added);
+                icon.classList.toggle('bi-heart-fill', data.added);
             })
             .catch(error => console.error('Error:', error));
     }
+
+    function updateCartCount(count) {
+        const cartLink = document.querySelector('a[href="{% url "cart:cart_detail" %}"]');
+        if (!cartLink) {
+            return;
+        }
+
+        let badge = cartLink.querySelector('.badge');
+        if (!badge && count > 0) {
+            badge = document.createElement('span');
+            badge.className = 'badge bg-black text-white rounded-pill ms-1';
+            cartLink.appendChild(badge);
+        }
+
+        if (badge) {
+            badge.textContent = count;
+        }
+    }
+
+    function showHomeToast(message) {
+        let toast = document.getElementById('home-action-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'home-action-toast';
+            toast.className = 'home-action-toast';
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+
+        clearTimeout(window.homeToastTimeout);
+        window.homeToastTimeout = setTimeout(() => {
+            toast.classList.remove('is-visible');
+        }, 2600);
+    }
+
+    document.querySelectorAll('.js-ajax-cart-form').forEach(form => {
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const payload = {};
+            formData.forEach((value, key) => {
+                payload[key] = value;
+            });
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateCartCount(data.cart_count);
+                    if (window.refreshMiniCartUI) {
+                        window.refreshMiniCartUI(data);
+                        window.openMiniCart();
+                    }
+                    showHomeToast(`${data.product_name} fue agregado al carrito.`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showHomeToast('No pudimos agregar el producto. Intenta otra vez.');
+            }
+        });
+    });
+
+    const newsletterForm = document.getElementById('newsletter-form');
+    const newsletterFeedback = document.getElementById('newsletter-feedback');
+
+    newsletterForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const emailField = document.getElementById('newsletter-email');
+        newsletterFeedback.textContent = `Gracias. ${emailField.value} quedo listo para recibir novedades del MVP.`;
+        newsletterForm.reset();
+    });
 </script>
 {% endblock %}

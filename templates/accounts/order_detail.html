@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pedido #{{ order.id }} - 001xclusiv{% endblock %}
+
+{% block content %}
+<section class="account-page">
+    <div class="section-heading">
+        <div>
+            <span class="section-kicker">Detalle de pedido</span>
+            <h1>Pedido #{{ order.id }}</h1>
+        </div>
+        <p class="section-heading__text">Vista completa del pedido, con estado, productos, despacho y acceso al comprobante.</p>
+    </div>
+
+    <div class="account-order-detail-layout">
+        <div class="account-order-detail-main">
+            <div class="account-order-detail-card">
+                <div class="account-order-detail-card__header">
+                    <div>
+                        <p class="product-brand">Resumen general</p>
+                        <h2>{{ order.created_at|date:"d M Y, H:i" }}</h2>
+                    </div>
+                    <span class="account-order-status
+                        {% if order.status == 'delivered' %}is-delivered
+                        {% elif order.status == 'shipped' %}is-shipped
+                        {% elif order.status == 'cancelled' %}is-cancelled
+                        {% else %}is-pending{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="account-order-detail-grid">
+                    <div>
+                        <span>Total</span>
+                        <strong>${{ order.get_total_cost }} CLP</strong>
+                    </div>
+                    <div>
+                        <span>Pago</span>
+                        <strong>{% if order.is_paid %}Pagado{% else %}Pendiente{% endif %}</strong>
+                    </div>
+                    <div>
+                        <span>Items</span>
+                        <strong>{{ order.items.count }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-order-detail-card">
+                <h2>Productos del pedido</h2>
+                <div class="account-order-detail-items">
+                    {% for item in order.items.all %}
+                    <article class="account-order-detail-item">
+                        {% with image=item.product.images.all.0 %}
+                        {% if image %}
+                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}" class="account-order-detail-item__image">
+                        {% else %}
+                        <div class="account-order-detail-item__image account-order-detail-item__image--placeholder">Img</div>
+                        {% endif %}
+                        {% endwith %}
+
+                        <div class="account-order-detail-item__copy">
+                            <strong>{{ item.product.name }}</strong>
+                            {% if item.variant %}
+                            <span>Talla {{ item.variant.size }}</span>
+                            {% endif %}
+                            <span>{{ item.quantity }} x ${{ item.price }} CLP</span>
+                        </div>
+
+                        <strong class="account-order-detail-item__total">${{ item.get_cost }} CLP</strong>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <aside class="account-order-detail-side">
+            <div class="account-order-detail-card">
+                <h2>Despacho</h2>
+                <div class="account-order-shipping">
+                    <p><strong>Nombre:</strong> {{ order.full_name }}</p>
+                    <p><strong>Email:</strong> {{ order.email }}</p>
+                    <p><strong>Direccion:</strong> {{ order.address }}</p>
+                    <p><strong>Ciudad:</strong> {{ order.city }}</p>
+                    <p><strong>Codigo postal:</strong> {{ order.postal_code }}</p>
+                </div>
+            </div>
+
+            <div class="account-order-detail-card">
+                <h2>Acciones</h2>
+                <div class="account-order-detail-actions">
+                    <a href="{% url 'accounts:order_receipt' order.id %}" class="btn-accent">Ver comprobante</a>
+                    <a href="{% url 'accounts:profile' %}" class="btn-secondary">Volver al historial</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}
