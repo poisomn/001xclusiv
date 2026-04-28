@@ -131,13 +131,7 @@
                     {% for item in cart %}
                     <article class="checkout-summary-item">
                         <div class="checkout-summary-item__media">
-                            {% with image=item.product.images.all.0 %}
-                            {% if image %}
-                            <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
-                            {% else %}
-                            <div class="checkout-summary-item__placeholder">Img</div>
-                            {% endif %}
-                            {% endwith %}
+                            <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
                             <span class="checkout-summary-item__qty">{{ item.quantity }}</span>
                         </div>
 

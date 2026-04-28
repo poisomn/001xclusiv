@@ -1,8 +1,10 @@
+from types import SimpleNamespace
+
+from django.conf import settings
 from django.db import models
 
 
 class TimeStampedModel(models.Model):
-    """Base con fechas de creación / actualización."""
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -42,12 +44,9 @@ class Product(TimeStampedModel):
     name = models.CharField("Nombre", max_length=150)
     slug = models.SlugField(max_length=180, unique=True)
     sku = models.CharField("SKU", max_length=30, unique=True)
-    short_description = models.CharField(
-        "Descripción corta",
-        max_length=255,
-        blank=True,
-    )
+    short_description = models.CharField("Descripción corta", max_length=255, blank=True)
     description = models.TextField("Descripción larga", blank=True)
+    image_url = models.URLField("Imagen principal", blank=True)
 
     brand = models.ForeignKey(
         Brand,
@@ -56,11 +55,7 @@ class Product(TimeStampedModel):
         null=True,
         blank=True,
     )
-    categories = models.ManyToManyField(
-        Category,
-        related_name="products",
-        blank=True,
-    )
+    categories = models.ManyToManyField(Category, related_name="products", blank=True)
 
     price = models.DecimalField("Precio base", max_digits=10, decimal_places=0)
     discount_price = models.DecimalField(
@@ -84,17 +79,54 @@ class Product(TimeStampedModel):
 
     @property
     def final_price(self):
-        """Retorna precio con descuento si existe, si no el normal."""
         return self.discount_price or self.price
+
+    @property
+    def placeholder_image_url(self):
+        return settings.PRODUCT_IMAGE_PLACEHOLDER_URL
+
+    @property
+    def primary_product_image(self):
+        return self.images.filter(is_main=True).first() or self.images.order_by("ordering", "id").first()
+
+    @property
+    def primary_image_url(self):
+        main_image = self.primary_product_image
+        if main_image and main_image.image_url:
+            return main_image.image_url
+        if self.image_url:
+            return self.image_url
+        return self.placeholder_image_url
+
+    @property
+    def secondary_image_url(self):
+        ordered_images = list(self.images.order_by("ordering", "id")[:2])
+        if len(ordered_images) > 1 and ordered_images[1].image_url:
+            return ordered_images[1].image_url
+        return ""
+
+    @property
+    def gallery_images(self):
+        images = list(self.images.order_by("ordering", "id"))
+        if images:
+            return images
+        if self.image_url:
+            return [
+                SimpleNamespace(
+                    image_url=self.image_url,
+                    alt_text=self.name,
+                    is_main=True,
+                    ordering=0,
+                    display_url=self.image_url,
+                    image=SimpleNamespace(url=self.image_url),
+                )
+            ]
+        return []
 
 
 class ProductImage(TimeStampedModel):
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="images",
-    )
-    image = models.ImageField(upload_to="products/")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    image_url = models.URLField("URL de imagen")
     alt_text = models.CharField("Texto alternativo", max_length=255, blank=True)
     is_main = models.BooleanField("Imagen principal", default=False)
     ordering = models.PositiveIntegerField(default=0)
@@ -106,6 +138,14 @@ class ProductImage(TimeStampedModel):
 
     def __str__(self):
         return f"Imagen de {self.product.name}"
+
+    @property
+    def display_url(self):
+        return self.image_url or self.product.placeholder_image_url
+
+    @property
+    def image(self):
+        return SimpleNamespace(url=self.display_url)
 
 
 SHOE_SIZE_CHOICES = [
@@ -124,11 +164,7 @@ SHOE_SIZE_CHOICES = [
 
 
 class ProductVariant(TimeStampedModel):
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="variants",
-    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     size = models.CharField("Talla", max_length=5, choices=SHOE_SIZE_CHOICES)
     stock = models.PositiveIntegerField("Stock", default=0)
     is_active = models.BooleanField("Disponible", default=True)
@@ -144,16 +180,8 @@ class ProductVariant(TimeStampedModel):
 
 
 class Wishlist(TimeStampedModel):
-    user = models.ForeignKey(
-        "auth.User",
-        on_delete=models.CASCADE,
-        related_name="wishlist",
-    )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="wishlisted_by",
-    )
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="wishlist")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="wishlisted_by")
 
     class Meta:
         verbose_name = "Lista de deseados"

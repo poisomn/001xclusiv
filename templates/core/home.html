@@ -173,14 +173,10 @@
                                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
                                         <a href="{% url 'catalog:detail' product.slug %}"
                                             class="text-decoration-none text-dark d-block">
-                                            {% with image=product.images.all.0 %}
-                                            {% if image %}
                                             <div class="mb-3 rounded-4 overflow-hidden hero-spotlight__carousel-media">
-                                                <img src="{{ image.image.url }}" alt="{{ product.name }}"
+                                                <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
                                                     class="w-100 object-fit-cover">
                                             </div>
-                                            {% endif %}
-                                            {% endwith %}
                                             <h2>{{ product.name }}</h2>
                                             <p class="hero-spotlight__meta">
                                                 {% if product.brand %}{{ product.brand.name }}{% else %}Seleccion
@@ -401,21 +397,13 @@
             <article class="product-card home-product-card">
                 <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
                     <div class="product-image-container">
-                        {% with primary_image=product.images.all.0 secondary_image=product.images.all.1 %}
-                        {% if primary_image %}
-                        <img src="{{ primary_image.image.url }}" alt="{{ primary_image.alt_text|default:product.name }}"
+                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
                             class="product-image">
-                        {% if secondary_image %}
-                        <img src="{{ secondary_image.image.url }}"
-                            alt="{{ secondary_image.alt_text|default:product.name }}"
+                        {% if product.secondary_image_url %}
+                        <img src="{{ product.secondary_image_url }}"
+                            alt="{{ product.name }}"
                             class="product-image product-image--secondary">
                         {% endif %}
-                        {% else %}
-                        <div class="product-image product-image--placeholder">
-                            <span>Sin imagen</span>
-                        </div>
-                        {% endif %}
-                        {% endwith %}
 
                         {% if product.discount_price %}
                         <span class="badge-sale">Oferta</span>
@@ -492,15 +480,8 @@
             <article class="arrival-card">
                 <a href="{% url 'catalog:detail' product.slug %}" class="arrival-card__media">
                     <div class="parallax-shell">
-                        {% with image=product.images.all.0 %}
-                        {% if image %}
-                        <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}"
+                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
                             class="parallax-image">
-                        {% else %}
-                        <img src="{% static 'home/airforcelv8black.jpg' %}" alt="{{ product.name }}"
-                            class="parallax-image">
-                        {% endif %}
-                        {% endwith %}
                     </div>
                 </a>
                 <div class="arrival-card__content">

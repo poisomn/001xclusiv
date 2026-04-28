@@ -127,13 +127,7 @@
                 {% if cart %}
                     {% for item in cart %}
                     <article class="mini-cart-item">
-                        {% with image=item.product.images.all.0 %}
-                        {% if image %}
-                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}" class="mini-cart-item__image">
-                        {% else %}
-                        <div class="mini-cart-item__image mini-cart-item__image--placeholder">Img</div>
-                        {% endif %}
-                        {% endwith %}
+                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="mini-cart-item__image">
                         <div class="mini-cart-item__copy">
                             <strong>{{ item.product.name }}</strong>
                             {% if item.variant %}<span>Talla {{ item.variant.size }}</span>{% endif %}

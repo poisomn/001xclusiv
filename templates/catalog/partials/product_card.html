@@ -1,18 +1,10 @@
 <article class="product-card catalog-product-card">
     <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
         <div class="product-image-container">
-            {% with primary_image=product.images.all.0 secondary_image=product.images.all.1 %}
-            {% if primary_image %}
-            <img src="{{ primary_image.image.url }}" alt="{{ primary_image.alt_text|default:product.name }}" class="product-image" loading="lazy">
-            {% if secondary_image %}
-            <img src="{{ secondary_image.image.url }}" alt="{{ secondary_image.alt_text|default:product.name }}" class="product-image product-image--secondary" loading="lazy">
+            <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+            {% if product.secondary_image_url %}
+            <img src="{{ product.secondary_image_url }}" alt="{{ product.name }}" class="product-image product-image--secondary" loading="lazy">
             {% endif %}
-            {% else %}
-            <div class="product-image product-image--placeholder">
-                <span>Sin imagen</span>
-            </div>
-            {% endif %}
-            {% endwith %}
 
             {% if product.discount_price %}
             <span class="badge-sale">Oferta</span>

@@ -3,7 +3,7 @@
 {% block title %}{% if is_editing %}Editar producto{% else %}Nuevo producto{% endif %} - Backoffice{% endblock %}
 
 {% block backoffice_content %}
-<form method="post" enctype="multipart/form-data" class="backoffice-form-stack">
+<form method="post" class="backoffice-form-stack">
     {% csrf_token %}
 
     <article class="backoffice-panel">
@@ -59,6 +59,10 @@
                 <label>Descripcion larga</label>
                 {{ form.description }}
             </div>
+            <div class="backoffice-form-grid__full">
+                <label>Imagen principal URL</label>
+                {{ form.image_url }}
+            </div>
         </div>
 
         <div class="backoffice-checkbox-row">
@@ -87,8 +91,8 @@
                 {{ image_form.id }}
                 <div class="backoffice-form-grid">
                     <div class="backoffice-form-grid__full">
-                        <label>Imagen</label>
-                        {{ image_form.image }}
+                        <label>URL de imagen</label>
+                        {{ image_form.image_url }}
                     </div>
                     <div>
                         <label>Texto alternativo</label>

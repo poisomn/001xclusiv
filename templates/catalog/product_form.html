@@ -12,7 +12,7 @@
                 <a href="{% url 'catalog:list' %}" class="btn btn-outline-dark rounded-pill">Volver al catálogo</a>
             </div>
 
-            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <form method="post" class="needs-validation" novalidate>
                 {% csrf_token %}
 
                 <!-- Product Info -->
@@ -59,6 +59,10 @@
                                 {{ form.description }}
                             </div>
                             <div class="col-12">
+                                <label class="form-label">Imagen principal URL</label>
+                                {{ form.image_url }}
+                            </div>
+                            <div class="col-12">
                                 <div class="form-check form-check-inline">
                                     {{ form.is_active }}
                                     <label class="form-check-label">Publicado</label>
@@ -84,8 +88,8 @@
                             <div class="row g-3 mb-3 border-bottom pb-3">
                                 {{ form.id }}
                                 <div class="col-md-4">
-                                    <label class="form-label">Imagen</label>
-                                    {{ form.image }}
+                                    <label class="form-label">URL de imagen</label>
+                                    {{ form.image_url }}
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Alt Text</label>

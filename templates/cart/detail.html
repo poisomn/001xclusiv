@@ -20,13 +20,7 @@
                 {% for item in cart %}
                 <article class="cart-item" data-cart-item="{{ item.product.id }}{% if item.variant %}-{{ item.variant.id }}{% endif %}">
                     <a href="{% url 'catalog:detail' item.product.slug %}" class="cart-item__media">
-                        {% with image=item.product.images.all.0 %}
-                        {% if image %}
-                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
-                        {% else %}
-                        <div class="cart-item__placeholder">Img</div>
-                        {% endif %}
-                        {% endwith %}
+                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
                     </a>
 
                     <div class="cart-item__body">

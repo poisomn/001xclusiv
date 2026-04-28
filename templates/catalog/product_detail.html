@@ -14,11 +14,15 @@
                 {% if product_images %}
                 <img
                     id="mainProductImage"
-                    src="{{ product_images.0.image.url }}"
+                    src="{{ product_images.0.display_url|default:product.primary_image_url }}"
                     alt="{{ product_images.0.alt_text|default:product.name }}"
                     class="product-gallery-main__image">
                 {% else %}
-                <div class="product-gallery-main__placeholder">Sin imagenes</div>
+                <img
+                    id="mainProductImage"
+                    src="{{ product.primary_image_url }}"
+                    alt="{{ product.name }}"
+                    class="product-gallery-main__image">
                 {% endif %}
             </div>
 
@@ -28,10 +32,10 @@
                 <button
                     type="button"
                     class="product-gallery-thumb {% if forloop.first %}is-active{% endif %}"
-                    data-image="{{ image.image.url }}"
+                    data-image="{{ image.display_url|default:image.image.url }}"
                     data-alt="{{ image.alt_text|default:product.name }}"
                     aria-label="Ver imagen {{ forloop.counter }}">
-                    <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
+                    <img src="{{ image.display_url|default:image.image.url }}" alt="{{ image.alt_text|default:product.name }}">
                 </button>
                 {% endfor %}
             </div>

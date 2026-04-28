@@ -50,13 +50,7 @@
                 <div class="account-order-detail-items">
                     {% for item in order.items.all %}
                     <article class="account-order-detail-item">
-                        {% with image=item.product.images.all.0 %}
-                        {% if image %}
-                        <img src="{{ image.image.url }}" alt="{{ item.product.name }}" class="account-order-detail-item__image">
-                        {% else %}
-                        <div class="account-order-detail-item__image account-order-detail-item__image--placeholder">Img</div>
-                        {% endif %}
-                        {% endwith %}
+                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="account-order-detail-item__image">
 
                         <div class="account-order-detail-item__copy">
                             <strong>{{ item.product.name }}</strong>

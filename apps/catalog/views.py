@@ -298,7 +298,7 @@ class ProductDetailView(DetailView):
         enrich_product_cards(related_products)
 
         context["related_products"] = related_products
-        context["product_images"] = product.images.all()
+        context["product_images"] = product.gallery_images
         available_variants = list(product.variants.filter(is_active=True))
         has_in_stock_variants = any(variant.stock > 0 for variant in available_variants)
         total_stock = sum(variant.stock for variant in available_variants)

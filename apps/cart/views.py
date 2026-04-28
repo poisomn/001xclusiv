@@ -14,13 +14,12 @@ def _format_clp(value):
 def _serialize_cart(cart):
     items = []
     for item in cart:
-        image = item["product"].images.first()
         items.append(
             {
                 "product_id": item["product"].id,
                 "product_name": item["product"].name,
                 "product_slug": item["product"].slug,
-                "product_image": image.image.url if image else "",
+                "product_image": item["product"].primary_image_url,
                 "variant": item["variant"].size if item["variant"] else None,
                 "variant_id": item["variant"].id if item["variant"] else None,
                 "quantity": item["quantity"],
@@ -67,7 +66,7 @@ def cart_add(request, product_id):
         return JsonResponse({
             'success': True,
             'product_name': product.name,
-            'product_image': product.images.first().image.url if product.images.exists() else '',
+            'product_image': product.primary_image_url,
             'price': float(product.discount_price if product.discount_price else product.price),
             'variant': variant.size if variant else None,
             'quantity': quantity,

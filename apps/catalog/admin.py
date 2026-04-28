@@ -9,7 +9,7 @@ from .models import Brand, Category, Product, ProductImage, ProductVariant
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ("image", "alt_text", "is_main", "ordering")
+    fields = ("image_url", "alt_text", "is_main", "ordering")
 
 
 class ProductVariantInline(admin.TabularInline):
@@ -51,7 +51,7 @@ class ProductAdmin(admin.ModelAdmin):
             "fields": ("name", "slug", "sku", "brand", "categories"),
         }),
         ("Precio y contenido", {
-            "fields": ("price", "discount_price", "short_description", "description"),
+            "fields": ("price", "discount_price", "short_description", "description", "image_url"),
         }),
         ("Estado", {
             "fields": ("is_active", "is_featured"),
@@ -71,7 +71,7 @@ class ProductAdmin(admin.ModelAdmin):
             return "Sin imagen"
         return format_html(
             '<img src="{}" alt="{}" style="width:52px;height:52px;object-fit:cover;border-radius:12px;border:1px solid rgba(17,17,17,.08);" />',
-            main_image.image.url,
+            obj.primary_image_url,
             obj.name,
         )
 
@@ -84,7 +84,7 @@ class ProductAdmin(admin.ModelAdmin):
             return "Sin imagen principal."
         return format_html(
             '<img src="{}" alt="{}" style="width:140px;height:140px;object-fit:cover;border-radius:20px;border:1px solid rgba(17,17,17,.08);" />',
-            main_image.image.url,
+            obj.primary_image_url,
             obj.name,
         )
 
@@ -166,7 +166,7 @@ class ProductImageAdmin(admin.ModelAdmin):
     def preview(self, obj):
         return format_html(
             '<img src="{}" alt="{}" style="width:52px;height:52px;object-fit:cover;border-radius:12px;border:1px solid rgba(17,17,17,.08);" />',
-            obj.image.url,
+            obj.display_url,
             obj.alt_text or obj.product.name,
         )
 

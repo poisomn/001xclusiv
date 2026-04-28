@@ -7,7 +7,7 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             'name', 'slug', 'sku', 'brand', 'categories',
-            'price', 'discount_price', 'short_description', 'description',
+            'price', 'discount_price', 'short_description', 'description', 'image_url',
             'is_active', 'is_featured'
         ]
         widgets = {
@@ -20,6 +20,7 @@ class ProductForm(forms.ModelForm):
             'discount_price': forms.NumberInput(attrs={'class': 'form-control'}),
             'short_description': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'image_url': forms.URLInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -27,11 +28,11 @@ class ProductForm(forms.ModelForm):
 ProductImageFormSet = inlineformset_factory(
     Product,
     ProductImage,
-    fields=['image', 'alt_text', 'is_main', 'ordering'],
+    fields=['image_url', 'alt_text', 'is_main', 'ordering'],
     extra=1,
     can_delete=True,
     widgets={
-        'image': forms.FileInput(attrs={'class': 'form-control'}),
+        'image_url': forms.URLInput(attrs={'class': 'form-control'}),
         'alt_text': forms.TextInput(attrs={'class': 'form-control'}),
         'is_main': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         'ordering': forms.NumberInput(attrs={'class': 'form-control'}),

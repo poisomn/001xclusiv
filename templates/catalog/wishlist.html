@@ -18,13 +18,7 @@
         {% for item in wishlist_items %}
         <article class="wishlist-card" data-wishlist-card="{{ item.product.id }}">
             <a href="{% url 'catalog:detail' item.product.slug %}" class="wishlist-card__media">
-                {% with main_image=item.product.images.all.0 %}
-                {% if main_image %}
-                <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:item.product.name }}">
-                {% else %}
-                <div class="wishlist-card__placeholder">Sin imagen</div>
-                {% endif %}
-                {% endwith %}
+                <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
             </a>
 
             <div class="wishlist-card__body">
