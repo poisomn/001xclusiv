@@ -1,0 +1,13 @@
+Hola {{ order.full_name }},
+
+Tu orden #{{ order.id }} fue creada correctamente.
+
+Resumen:
+{% for item in order.items.all %}
+- {{ item.quantity }} x {{ item.product.name }}{% if item.variant %} (Talla {{ item.variant.size }}){% endif %}: ${{ item.get_cost }} CLP
+{% endfor %}
+
+Total: ${{ order.total_amount }} CLP
+Estado: {{ order.get_status_display }}
+
+Gracias por comprar en 001xclusiv.

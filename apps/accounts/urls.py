@@ -21,6 +21,7 @@ urlpatterns = [
     path('backoffice/brands/<int:brand_id>/edit/', views.BackofficeBrandEditView.as_view(), name='backoffice_brand_edit'),
     path('backoffice/users/', views.BackofficeUserListView.as_view(), name='backoffice_users'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('orders/', views.ProfileView.as_view(), name='my_orders'),
     path('profile/orders/<int:order_id>/', views.OrderDetailView.as_view(), name='order_detail'),
     path('profile/orders/<int:order_id>/receipt/', views.OrderReceiptView.as_view(), name='order_receipt'),
 ]

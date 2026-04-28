@@ -13,12 +13,12 @@
         </div>
         <div class="backoffice-stat-grid">
             <div class="backoffice-stat-card">
-                <span>Publicados</span>
-                <strong>{{ stats.published_products }}</strong>
+                <span>Total ventas</span>
+                <strong>${{ stats.total_sales }} CLP</strong>
             </div>
             <div class="backoffice-stat-card">
-                <span>Destacados</span>
-                <strong>{{ stats.featured_products }}</strong>
+                <span>Pedidos</span>
+                <strong>{{ stats.order_count }}</strong>
             </div>
             <div class="backoffice-stat-card">
                 <span>Pagados</span>
@@ -29,12 +29,12 @@
                 <strong>{{ stats.pending_orders }}</strong>
             </div>
             <div class="backoffice-stat-card">
-                <span>Marcas</span>
-                <strong>{{ stats.brands }}</strong>
+                <span>Ticket promedio</span>
+                <strong>${{ stats.average_ticket }} CLP</strong>
             </div>
             <div class="backoffice-stat-card">
-                <span>Categorias</span>
-                <strong>{{ stats.categories }}</strong>
+                <span>Clientes unicos</span>
+                <strong>{{ stats.unique_customers }}</strong>
             </div>
         </div>
     </article>
@@ -61,6 +61,29 @@
             </a>
             {% empty %}
             <div class="backoffice-empty-state">Aun no hay pedidos registrados.</div>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="backoffice-panel">
+        <div class="backoffice-panel__header">
+            <div>
+                <span class="section-kicker">KPIs</span>
+                <h2>Ventas por dia</h2>
+            </div>
+        </div>
+        <div class="backoffice-list">
+            {% for day in sales_by_day %}
+            <div class="backoffice-list-row">
+                <div>
+                    <strong>{{ day.day|date:"d M Y" }}</strong>
+                </div>
+                <div class="text-end">
+                    <span class="status-chip">${{ day.total }} CLP</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="backoffice-empty-state">Todavia no hay ventas pagadas para graficar.</div>
             {% endfor %}
         </div>
     </article>

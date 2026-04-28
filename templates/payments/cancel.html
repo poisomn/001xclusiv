@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Pago cancelado - 001xclusiv{% endblock %}
+
+{% block content %}
+<section class="checkout-success-page">
+    <div class="checkout-success-hero">
+        <div class="checkout-success-badge">
+            <i class="bi bi-x-circle"></i>
+        </div>
+        <span class="section-kicker">Pago cancelado</span>
+        <h1>No se completo el pago</h1>
+        {% if order %}
+        <p>La orden <strong>#{{ order.id }}</strong> quedo marcada como cancelada.</p>
+        {% else %}
+        <p>No se encontro una orden pendiente para actualizar.</p>
+        {% endif %}
+    </div>
+
+    <div class="checkout-success-actions">
+        <a href="{% url 'cart:cart_detail' %}" class="btn-accent">Volver al carrito</a>
+        <a href="{% url 'checkout:index' %}" class="btn-secondary">Intentar nuevamente</a>
+    </div>
+</section>
+{% endblock %}

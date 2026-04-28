@@ -30,7 +30,7 @@
                 <div>
                     <p class="product-brand">001xclusiv</p>
                     <h2>Comprobante de pedido</h2>
-                    <p>Este documento acredita la generacion del pedido. El comprobante de pago se incorporara en una fase posterior.</p>
+                    <p>Este documento acredita la generacion del pedido y su estado de pago actual.</p>
                 </div>
             </div>
             <div class="order-receipt__summary">
@@ -78,7 +78,7 @@
         <footer class="order-receipt__footer">
             <div>
                 <span>Total del pedido</span>
-                <strong>${{ order.get_total_cost }} CLP</strong>
+                <strong>${{ order.total_amount }} CLP</strong>
             </div>
             <p>Documento generado desde tu cuenta 001xclusiv.</p>
         </footer>

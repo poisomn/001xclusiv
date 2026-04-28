@@ -98,11 +98,23 @@
                     </div>
 
                     <div class="checkout-submit">
+                        <div class="checkout-alert">
+                            <strong>Resumen antes de pagar:</strong> {{ cart|length }} producto(s) por un total de <strong>${{ checkout_total }} CLP</strong>.
+                        </div>
+                        <div class="checkout-field checkout-field--full">
+                            <label class="backoffice-check" for="{{ form.confirm_checkout.id_for_label }}">
+                                {{ form.confirm_checkout }}
+                                <span>¿Deseas continuar al pago?</span>
+                            </label>
+                            {% if form.confirm_checkout.errors %}
+                            <div class="checkout-field__error">{{ form.confirm_checkout.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
                         <button type="submit" class="btn-accent btn-lg checkout-submit__button">
                             <i class="bi bi-bag-check"></i>
-                            Confirmar pedido
+                            Continuar a Flow
                         </button>
-                        <p>Al confirmar, registraremos tu pedido y te llevaremos a la pagina de confirmacion.</p>
+                        <p>Al confirmar, registraremos tu pedido y te redirigiremos a Flow para completar el pago.</p>
                     </div>
                 </form>
             </div>

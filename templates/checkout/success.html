@@ -10,8 +10,8 @@
             <i class="bi bi-check2-circle"></i>
         </div>
         <span class="section-kicker">Pedido confirmado</span>
-        <h1>Gracias por tu compra</h1>
-        <p>Tu pedido <strong>#{{ order.id }}</strong> ya fue registrado. El siguiente paso es prepararlo y mantenerte informado sobre el estado del despacho.</p>
+        <h1>Pago confirmado</h1>
+        <p>Tu pedido <strong>#{{ order.id }}</strong> fue registrado y marcado como pagado correctamente.</p>
     </div>
 
     <div class="checkout-success-layout">
@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <span>Total</span>
-                    <strong>${{ order.get_total_cost }} CLP</strong>
+                    <strong>${{ order.total_amount }} CLP</strong>
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
                 <h3>Que sigue ahora</h3>
                 <ul>
                     <li>Revisaremos el pedido y lo dejaremos en preparacion.</li>
-                    <li>Si tienes cuenta, podras ver el pedido en tu perfil.</li>
+                    <li>Si tienes cuenta, podras ver el pedido en Mis pedidos.</li>
                     <li>Si necesitas ayuda, puedes continuar navegando y luego escribirnos.</li>
                 </ul>
             </div>

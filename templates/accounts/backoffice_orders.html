@@ -32,6 +32,7 @@
                     <th>ID</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
+                    <th>Total</th>
                     <th>Estado</th>
                     <th>Pago</th>
                     <th></th>
@@ -46,33 +47,30 @@
                         <p>{{ order.email }}</p>
                     </td>
                     <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                    <td>${{ order.total_amount }} CLP</td>
                     <td><span class="status-chip">{{ order.get_status_display }}</span></td>
                     <td>
-                        <span class="status-chip {% if not order.is_paid %}is-muted{% endif %}">
-                            {% if order.is_paid %}Pagado{% else %}Pendiente{% endif %}
-                        </span>
+                        <span class="status-chip {% if order.payment_status != 'paid' %}is-muted{% endif %}">{{ order.get_payment_status_display }}</span>
                     </td>
                     <td class="text-end">
                         <div class="backoffice-inline-actions backoffice-inline-actions--tight">
                             <form method="post" action="{% url 'accounts:backoffice_order_action' order.id %}">
                                 {% csrf_token %}
-                                <input type="hidden" name="action" value="mark_processing">
+                                <input type="hidden" name="action" value="mark_pending">
                                 <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
-                                <button type="submit" class="btn-secondary btn-sm">Procesar</button>
+                                <button type="submit" class="btn-secondary btn-sm">Pendiente</button>
                             </form>
                             <form method="post" action="{% url 'accounts:backoffice_order_action' order.id %}">
                                 {% csrf_token %}
-                                <input type="hidden" name="action" value="mark_shipped">
+                                <input type="hidden" name="action" value="mark_paid">
                                 <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
-                                <button type="submit" class="btn-secondary btn-sm">Enviar</button>
+                                <button type="submit" class="btn-secondary btn-sm">Pagado</button>
                             </form>
                             <form method="post" action="{% url 'accounts:backoffice_order_action' order.id %}">
                                 {% csrf_token %}
-                                <input type="hidden" name="action" value="toggle_paid">
+                                <input type="hidden" name="action" value="mark_cancelled">
                                 <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
-                                <button type="submit" class="btn-secondary btn-sm">
-                                    {% if order.is_paid %}Revertir pago{% else %}Marcar pago{% endif %}
-                                </button>
+                                <button type="submit" class="btn-secondary btn-sm">Cancelar</button>
                             </form>
                             <a href="{% url 'accounts:backoffice_order_detail' order.id %}" class="btn-secondary btn-sm">Gestionar</a>
                         </div>
@@ -80,7 +78,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">
+                    <td colspan="7">
                         <div class="backoffice-empty-state">No hay pedidos que coincidan con el filtro.</div>
                     </td>
                 </tr>

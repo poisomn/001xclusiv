@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from apps.cart.cart import Cart
-from apps.orders.models import Order, OrderItem
+from apps.orders.models import Order
+from apps.orders.services import FLOW_PAYMENT_URL, build_order_from_cart
 from .forms import CheckoutForm
 
 CHECKOUT_REASSURANCE = [
@@ -36,6 +37,7 @@ class CheckoutView(View):
             'checkout_reassurance': CHECKOUT_REASSURANCE,
             'seo_title': "Checkout seguro - 001xclusiv",
             'seo_description': "Finaliza tu compra en 001xclusiv con un checkout mas claro, resumen final y confirmacion de pedido.",
+            "checkout_total": cart.get_total_price(),
         }
 
     def get(self, request):
@@ -64,22 +66,8 @@ class CheckoutView(View):
         form = CheckoutForm(request.POST)
 
         if form.is_valid():
-            order = form.save(commit=False)
-            if request.user.is_authenticated:
-                order.user = request.user
-            order.save()
-
-            for item in cart:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item['product'],
-                    variant=item['variant'],
-                    price=item['price'],
-                    quantity=item['quantity']
-                )
-
-            cart.clear()
-            return redirect('checkout:success', order_id=order.id)
+            order = build_order_from_cart(request, form)
+            return redirect(FLOW_PAYMENT_URL)
 
         return render(request, 'checkout/checkout.html', self.get_context(cart, form))
 

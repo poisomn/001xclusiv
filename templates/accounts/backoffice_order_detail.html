@@ -29,7 +29,7 @@
             </div>
             <div>
                 <span>Total</span>
-                <strong>${{ order.get_total_cost }} CLP</strong>
+                <strong>${{ order.total_amount }} CLP</strong>
                 <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
             </div>
         </div>
@@ -63,6 +63,14 @@
             <div>
                 <label>Estado</label>
                 {{ form.status }}
+            </div>
+            <div>
+                <label>Estado de pago</label>
+                {{ form.payment_status }}
+            </div>
+            <div>
+                <label>Payment ID</label>
+                {{ form.payment_id }}
             </div>
             <label class="backoffice-check">
                 {{ form.is_paid }}

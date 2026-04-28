@@ -101,8 +101,8 @@ class BackofficeAccessTests(TestCase):
         self.client.login(username="admin", password="pass12345")
         response = self.client.post(
             reverse("accounts:backoffice_order_action", args=[self.order.id]),
-            {"action": "mark_shipped", "next_url": reverse("accounts:backoffice_orders")},
+            {"action": "mark_paid", "next_url": reverse("accounts:backoffice_orders")},
         )
         self.order.refresh_from_db()
         self.assertRedirects(response, reverse("accounts:backoffice_orders"))
-        self.assertEqual(self.order.status, "shipped")
+        self.assertEqual(self.order.status, "paid")

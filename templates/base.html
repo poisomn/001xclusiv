@@ -72,6 +72,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3">
                             <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Mi Cuenta</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:my_orders' %}">Mis pedidos</a></li>
                             {% if user.is_staff or user.is_superuser %}
                             <li><a class="dropdown-item" href="{% url 'accounts:backoffice_dashboard' %}">Backoffice</a></li>
                             {% endif %}
@@ -190,6 +191,7 @@
                     <a href="{% url 'core:info_page' 'about' %}">Sobre 001xclusiv</a>
                     {% if user.is_authenticated %}
                     <a href="{% url 'accounts:profile' %}">Mi cuenta</a>
+                    <a href="{% url 'accounts:my_orders' %}">Mis pedidos</a>
                     {% else %}
                     <a href="{% url 'accounts:login' %}">Login</a>
                     {% endif %}

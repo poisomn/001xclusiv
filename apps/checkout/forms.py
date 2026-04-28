@@ -4,6 +4,14 @@ from apps.orders.models import Order
 
 
 class CheckoutForm(forms.ModelForm):
+    confirm_checkout = forms.BooleanField(
+        required=True,
+        label="Deseas continuar al pago",
+        error_messages={
+            "required": "Debes confirmar para continuar al pago.",
+        },
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         placeholders = {
@@ -22,6 +30,9 @@ class CheckoutForm(forms.ModelForm):
         }
 
         for name, field in self.fields.items():
+            if name == "confirm_checkout":
+                field.widget.attrs.update({"class": "form-check-input"})
+                continue
             field.widget.attrs.update(
                 {
                     "class": "form-control checkout-input",

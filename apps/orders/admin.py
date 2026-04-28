@@ -4,53 +4,51 @@ from django.utils.html import format_html
 
 from .models import Order, OrderItem
 
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    raw_id_fields = ['product']
+    raw_id_fields = ["product"]
+    autocomplete_fields = ["variant"]
     extra = 0
-    autocomplete_fields = ['variant']
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
-        'id',
-        'full_name',
-        'email',
-        'city',
-        'order_total',
-        'is_paid',
-        'status',
-        'created_at',
-        'receipt_link',
+        "id",
+        "user",
+        "full_name",
+        "total_amount",
+        "status",
+        "payment_status",
+        "created_at",
+        "receipt_link",
     ]
-    list_filter = ['is_paid', 'created_at', 'updated_at', 'status', 'city']
-    search_fields = ['id', 'full_name', 'email']
-    list_editable = ['status', 'is_paid']
-    readonly_fields = ['created_at', 'updated_at', 'order_total']
+    list_filter = ["status", "payment_status", "is_paid", "created_at"]
+    search_fields = ["id", "full_name", "email", "payment_id"]
+    list_editable = ["status", "payment_status"]
+    readonly_fields = ["created_at", "updated_at", "total_amount"]
     save_on_top = True
     inlines = [OrderItemInline]
     fieldsets = (
-        ('Cliente', {
-            'fields': ('user', 'full_name', 'email'),
-        }),
-        ('Despacho', {
-            'fields': ('address', 'city', 'postal_code'),
-        }),
-        ('Estado de orden', {
-            'fields': ('status', 'is_paid', 'order_total'),
-        }),
-        ('Trazabilidad', {
-            'fields': ('created_at', 'updated_at'),
-        }),
+        ("Cliente", {"fields": ("user", "full_name", "email")}),
+        ("Despacho", {"fields": ("address", "city", "postal_code")}),
+        (
+            "Pago",
+            {"fields": ("total_amount", "status", "payment_status", "payment_id", "is_paid")},
+        ),
+        ("Trazabilidad", {"fields": ("created_at", "updated_at")}),
     )
 
-    @admin.display(description='Total')
-    def order_total(self, obj):
-        return f"${int(obj.get_total_cost())}"
-
-    @admin.display(description='Comprobante')
+    @admin.display(description="Comprobante")
     def receipt_link(self, obj):
         if not obj.user_id:
-            return 'Sin cuenta'
-        url = reverse('accounts:order_receipt', args=[obj.id])
+            return "Sin cuenta"
+        url = reverse("accounts:order_receipt", args=[obj.id])
         return format_html('<a href="{}" target="_blank">Ver comprobante</a>', url)
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ["id", "order", "product", "quantity", "price"]
+    search_fields = ["order__id", "product__name"]

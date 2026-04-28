@@ -1,15 +1,17 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Count, IntegerField, Q, Sum, Value
+from django.db.models import Avg, Count, DecimalField, IntegerField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
+from django.db.models.functions import TruncDate
 
 from apps.catalog.forms import ProductForm, ProductImageFormSet, ProductVariantFormSet
 from apps.catalog.models import Brand, Category, Product
 from apps.orders.models import Order
+from apps.orders.services import mark_order_cancelled, mark_order_paid
 
 from .forms import BrandManagementForm, CategoryManagementForm, OrderManagementForm, UserRegistrationForm
 
@@ -94,6 +96,13 @@ class BackofficeDashboardView(StaffRequiredMixin, View):
             .order_by("total_stock", "name")[:6]
         )
         recent_orders = Order.objects.select_related("user").prefetch_related("items")[:6]
+        paid_orders = Order.objects.filter(status="paid")
+        sales_by_day = list(
+            paid_orders.annotate(day=TruncDate("created_at"))
+            .values("day")
+            .annotate(total=Coalesce(Sum("total_amount"), Value(0), output_field=DecimalField()))
+            .order_by("-day")[:7]
+        )
         top_customers = (
             User.objects.annotate(order_count=Count("orders"))
             .filter(order_count__gt=0)
@@ -102,16 +111,17 @@ class BackofficeDashboardView(StaffRequiredMixin, View):
         context = {
             **build_backoffice_context("dashboard"),
             "stats": {
-                "published_products": Product.objects.filter(is_active=True).count(),
-                "featured_products": Product.objects.filter(is_featured=True).count(),
+                "total_sales": paid_orders.aggregate(total=Coalesce(Sum("total_amount"), Value(0), output_field=DecimalField()))["total"],
+                "order_count": Order.objects.count(),
                 "pending_orders": Order.objects.filter(status="pending").count(),
-                "paid_orders": Order.objects.filter(is_paid=True).count(),
-                "brands": Brand.objects.count(),
-                "categories": Category.objects.count(),
+                "paid_orders": paid_orders.count(),
+                "average_ticket": paid_orders.aggregate(avg=Coalesce(Avg("total_amount"), Value(0), output_field=DecimalField()))["avg"],
+                "unique_customers": paid_orders.values("user").exclude(user=None).distinct().count(),
             },
             "recent_orders": recent_orders,
             "low_stock_products": low_stock_products,
             "top_customers": top_customers,
+            "sales_by_day": sales_by_day,
         }
         return render(request, "accounts/backoffice_dashboard.html", context)
 
@@ -263,21 +273,23 @@ class BackofficeOrderActionView(StaffRequiredMixin, View):
         action = request.POST.get("action")
         next_url = request.POST.get("next_url") or reverse("accounts:backoffice_orders")
 
-        if action == "mark_processing":
-            order.status = "processing"
-            order.save(update_fields=["status"])
-            messages.success(request, f"Pedido #{order.id} marcado como procesando.")
-        elif action == "mark_shipped":
-            order.status = "shipped"
-            order.save(update_fields=["status"])
-            messages.success(request, f"Pedido #{order.id} marcado como enviado.")
-        elif action == "mark_delivered":
-            order.status = "delivered"
-            order.save(update_fields=["status"])
-            messages.success(request, f"Pedido #{order.id} marcado como entregado.")
+        if action == "mark_paid":
+            mark_order_paid(order, payment_id=order.payment_id)
+            messages.success(request, f"Pedido #{order.id} marcado como pagado.")
+        elif action == "mark_cancelled":
+            mark_order_cancelled(order, payment_id=order.payment_id)
+            messages.success(request, f"Pedido #{order.id} marcado como cancelado.")
+        elif action == "mark_pending":
+            order.status = "pending"
+            order.payment_status = "pending"
+            order.is_paid = False
+            order.save(update_fields=["status", "payment_status", "is_paid", "updated_at"])
+            messages.success(request, f"Pedido #{order.id} marcado como pendiente.")
         elif action == "toggle_paid":
             order.is_paid = not order.is_paid
-            order.save(update_fields=["is_paid"])
+            order.status = "paid" if order.is_paid else "pending"
+            order.payment_status = "paid" if order.is_paid else "pending"
+            order.save(update_fields=["is_paid", "status", "payment_status", "updated_at"])
             messages.success(
                 request,
                 f"Pedido #{order.id}: {'pago confirmado' if order.is_paid else 'marcado como pendiente de pago'}.",
@@ -309,6 +321,11 @@ class BackofficeOrderDetailView(StaffRequiredMixin, View):
         order = self.get_order(order_id)
         form = OrderManagementForm(request.POST, instance=order)
         if form.is_valid():
+            updated_order = form.save(commit=False)
+            if updated_order.status == "paid" or updated_order.payment_status == "paid":
+                updated_order.is_paid = True
+            elif updated_order.status == "cancelled" or updated_order.payment_status == "cancelled":
+                updated_order.is_paid = False
             form.save()
             messages.success(request, f"Pedido #{order.id} actualizado.")
             return redirect("accounts:backoffice_order_detail", order_id=order.id)

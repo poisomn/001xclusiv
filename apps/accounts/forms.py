@@ -41,8 +41,10 @@ class BrandManagementForm(forms.ModelForm):
 class OrderManagementForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ["status", "is_paid"]
+        fields = ["status", "payment_status", "payment_id", "is_paid"]
         widgets = {
             "status": forms.Select(attrs={"class": "form-select"}),
+            "payment_status": forms.Select(attrs={"class": "form-select"}),
+            "payment_id": forms.TextInput(attrs={"class": "form-control", "placeholder": "ID de pago"}),
             "is_paid": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
