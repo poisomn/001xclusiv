@@ -151,6 +151,18 @@ LOGOUT_REDIRECT_URL = 'core:home'
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@001xclusiv.cl")
 
+SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
+FLOW_API_KEY = os.environ.get("FLOW_API_KEY", "")
+FLOW_SECRET_KEY = os.environ.get("FLOW_SECRET_KEY", "")
+FLOW_USE_SANDBOX = os.environ.get("FLOW_USE_SANDBOX", "True").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+FLOW_API_URL = os.environ.get("FLOW_API_URL", "")
+FLOW_API_TIMEOUT = int(os.environ.get("FLOW_API_TIMEOUT", "20"))
+
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

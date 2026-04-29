@@ -5,42 +5,149 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from apps.cart.cart import Cart
+from apps.orders.models import Order
 from apps.orders.services import (
     clear_checkout_order_session,
     get_checkout_order_for_request,
     mark_order_cancelled,
     mark_order_paid,
 )
+from apps.payments.flow_service import (
+    FLOW_CANCELLED_STATUSES,
+    FLOW_PAID,
+    FlowAPIError,
+    get_payment_status,
+    validate_signature,
+)
+
+
+def _payment_id_from_status(status):
+    return str(status.get("flowOrder") or "")
+
+
+def _order_from_token(token):
+    if not token:
+        return None
+    try:
+        return Order.objects.prefetch_related("items__product", "items__variant").get(
+            payment_token=token
+        )
+    except Order.DoesNotExist:
+        return None
+
+
+def _order_from_status(status, token=None):
+    commerce_order = status.get("commerceOrder")
+    if commerce_order:
+        try:
+            return Order.objects.prefetch_related("items__product", "items__variant").get(
+                id=commerce_order
+            )
+        except (Order.DoesNotExist, ValueError, TypeError):
+            pass
+
+    flow_order = status.get("flowOrder")
+    if flow_order:
+        try:
+            return Order.objects.prefetch_related("items__product", "items__variant").get(
+                payment_id=str(flow_order)
+            )
+        except Order.DoesNotExist:
+            return None
+    return _order_from_token(token)
+
+
+def _apply_flow_status(status, token=None):
+    order = _order_from_status(status, token=token)
+    if order is None:
+        return None
+
+    payment_status = status.get("status")
+    payment_id = _payment_id_from_status(status)
+
+    if payment_status == FLOW_PAID:
+        if order.payment_status != "paid":
+            mark_order_paid(order, payment_id=payment_id)
+    elif payment_status in FLOW_CANCELLED_STATUSES:
+        if order.payment_status != "cancelled":
+            mark_order_cancelled(order, payment_id=payment_id)
+    elif payment_id and order.payment_id != payment_id:
+        order.payment_id = payment_id
+        order.save(update_fields=["payment_id", "updated_at"])
+    elif payment_status not in {FLOW_PAID, *FLOW_CANCELLED_STATUSES} and order.payment_status != "pending":
+        order.status = "pending"
+        order.payment_status = "pending"
+        order.is_paid = False
+        order.save(update_fields=["status", "payment_status", "is_paid", "updated_at"])
+
+    return order
 
 
 def payment_success(request):
-    order = get_checkout_order_for_request(request)
-    if order is None:
-        messages.error(request, "No encontramos un pedido pendiente para confirmar.")
+    return payment_return(request)
+
+
+@require_http_methods(["GET"])
+def payment_return(request):
+    token = request.GET.get("token")
+    if not token:
+        messages.error(request, "Flow no envio token de pago.")
         return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
 
-    if order.status != "paid":
-        mark_order_paid(order, payment_id=request.GET.get("payment_id", ""))
-    Cart(request).clear()
+    try:
+        status = get_payment_status(token)
+    except FlowAPIError:
+        messages.error(request, "No pudimos confirmar el estado del pago.")
+        return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
+
+    order = _apply_flow_status(status, token=token)
+    if order is None:
+        messages.error(request, "No encontramos la orden asociada al pago.")
+        return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
+
+    if status.get("status") == FLOW_PAID:
+        Cart(request).clear()
+        clear_checkout_order_session(request)
+        return render(request, "checkout/success.html", {"order": order})
+
     clear_checkout_order_session(request)
-    return render(request, "checkout/success.html", {"order": order})
+    return render(request, "payments/cancel.html", {"order": order})
 
 
 def payment_cancel(request):
-    order = get_checkout_order_for_request(request)
-    if order is not None and order.status == "pending":
-        mark_order_cancelled(order, payment_id=request.GET.get("payment_id", ""))
+    order = None
+    token = request.GET.get("token")
+    if token:
+        try:
+            status = get_payment_status(token)
+        except FlowAPIError:
+            status = None
+        if status:
+            order = _apply_flow_status(status, token=token)
+    if order is None:
+        order = get_checkout_order_for_request(request)
     clear_checkout_order_session(request)
     return render(request, "payments/cancel.html", {"order": order})
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def payment_webhook_placeholder(request):
-    return JsonResponse(
-        {
-            "ready": True,
-            "message": "Webhook placeholder listo para integrar API de pagos.",
-        },
-        status=202,
-    )
+def payment_webhook(request):
+    params = request.POST.dict()
+    if not validate_signature(params):
+        return JsonResponse({"error": "invalid signature"}, status=400)
+
+    token = request.POST.get("token")
+    if not token:
+        return JsonResponse({"error": "token required"}, status=400)
+
+    try:
+        status = get_payment_status(token)
+    except FlowAPIError as error:
+        return JsonResponse({"error": str(error)}, status=400)
+
+    order = _apply_flow_status(status, token=token)
+    if order is None:
+        return JsonResponse({"error": "order not found"}, status=404)
+
+    return JsonResponse({"ok": True})

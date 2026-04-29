@@ -7,9 +7,6 @@ from apps.cart.cart import Cart
 from .models import Order, OrderItem
 
 
-FLOW_PAYMENT_URL = "https://www.flow.cl/uri/8A0Kc6cbd"
-
-
 def store_checkout_order_session(request, order):
     request.session["pending_order_id"] = order.id
     request.session["last_order_id"] = order.id

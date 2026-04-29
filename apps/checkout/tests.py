@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -19,7 +21,13 @@ class CheckoutFlowTests(TestCase):
             price=150000,
         )
 
-    def test_checkout_creates_pending_order_and_redirects_to_flow(self):
+    @patch("apps.checkout.views.create_payment")
+    def test_checkout_creates_pending_order_and_redirects_to_flow(self, create_payment):
+        create_payment.return_value = {
+            "url": "https://sandbox.flow.cl/app/web/pay.php",
+            "token": "FLOW-TOKEN",
+            "flowOrder": 123456,
+        }
         self.client.login(username="checkout-user", password="pass12345")
         session = self.client.session
         session["cart"] = {
@@ -48,4 +56,9 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(order.status, "pending")
         self.assertEqual(order.total_amount, 300000)
         self.assertEqual(order.items.count(), 1)
-        self.assertRedirects(response, "https://www.flow.cl/uri/8A0Kc6cbd", fetch_redirect_response=False)
+        create_payment.assert_called_once()
+        self.assertRedirects(
+            response,
+            "https://sandbox.flow.cl/app/web/pay.php?token=FLOW-TOKEN",
+            fetch_redirect_response=False,
+        )

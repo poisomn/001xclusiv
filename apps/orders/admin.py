@@ -25,7 +25,7 @@ class OrderAdmin(admin.ModelAdmin):
         "receipt_link",
     ]
     list_filter = ["status", "payment_status", "is_paid", "created_at"]
-    search_fields = ["id", "full_name", "email", "payment_id"]
+    search_fields = ["id", "full_name", "email", "payment_id", "payment_token"]
     list_editable = ["status", "payment_status"]
     readonly_fields = ["created_at", "updated_at", "total_amount"]
     save_on_top = True
@@ -35,7 +35,16 @@ class OrderAdmin(admin.ModelAdmin):
         ("Despacho", {"fields": ("address", "city", "postal_code")}),
         (
             "Pago",
-            {"fields": ("total_amount", "status", "payment_status", "payment_id", "is_paid")},
+            {
+                "fields": (
+                    "total_amount",
+                    "status",
+                    "payment_status",
+                    "payment_id",
+                    "payment_token",
+                    "is_paid",
+                )
+            },
         ),
         ("Trazabilidad", {"fields": ("created_at", "updated_at")}),
     )

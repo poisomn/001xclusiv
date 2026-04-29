@@ -34,6 +34,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     payment_id = models.CharField("Payment ID", max_length=120, blank=True)
+    payment_token = models.CharField("Payment Token", max_length=255, blank=True, db_index=True)
     payment_status = models.CharField(
         "Estado de pago",
         max_length=20,
