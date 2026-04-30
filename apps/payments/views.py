@@ -162,13 +162,4 @@ def payment_webhook(request):
 
     return JsonResponse({"ok": True})
 
-    return JsonResponse({"error": "order not found"}, status=404)
 
-# Ensure order is marked as paid when Flow indicates payment
-if status.get("status") == FLOW_PAID:
-    order.payment_status = "paid"
-    order.status = "paid"
-    order.is_paid = True
-    order.save(update_fields=["payment_status", "status", "is_paid"])
-
-return JsonResponse({"ok": True})
