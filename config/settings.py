@@ -155,8 +155,14 @@ CART_SESSION_ID = 'cart'
 
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
-EMAIL_BACKEND = os.environ["EMAIL_BACKEND"]
-DEFAULT_FROM_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend",
+)
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL",
+    "noreply@001xclusiv.cl",
+)
 
 SITE_URL = os.environ["SITE_URL"].rstrip("/")
 FLOW_API_KEY = os.environ["FLOW_API_KEY"]
@@ -169,5 +175,5 @@ FLOW_USE_SANDBOX = os.environ.get("FLOW_USE_SANDBOX", "True").lower() in {
     "yes",
     "on",
 }
-FLOW_API_URL = os.environ["FLOW_API_URL"]
+FLOW_API_URL = os.environ.get("FLOW_API_URL", "")
 FLOW_API_TIMEOUT = int(os.environ.get("FLOW_API_TIMEOUT", "20"))
