@@ -138,6 +138,12 @@ def build_payment_create_params(order, request=None):
 
 def create_payment(order, request=None):
     params = build_payment_create_params(order, request=request)
+    print("=== FLOW DEBUG ===")
+    print("FLOW_API_KEY:", settings.FLOW_API_KEY)
+    print("FLOW_SECRET_KEY:", settings.FLOW_SECRET_KEY)
+    print("FLOW_USE_SANDBOX:", settings.FLOW_USE_SANDBOX)
+    print("FLOW_API_URL:", settings.FLOW_API_URL)
+    print("PARAMS:", params)
     logger.info("Flow create payment amount order_id=%s amount=%s", order.id, params["amount"])
     response = _request_json(
         FLOW_PAYMENT_CREATE_PATH,
