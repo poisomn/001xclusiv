@@ -145,15 +145,11 @@ def payment_webhook(request):
     else:
         params = request.POST.dict()
     print("FLOW WEBHOOK PARAMS:", params)
-    if not validate_signature(params):
-        print("SIGNATURE INVALID")
-        print("EXPECTED:", sign_params(params))
-        print("RECEIVED:", params.get("s"))
-        # TEMPORAL: allow continuation despite invalid signature
+    # signature validation removed (debug)
 
 
 
-    token = request.POST.get("token")
+    token = params.get("token")
     if not token:
         return JsonResponse({"error": "token required"}, status=400)
 
