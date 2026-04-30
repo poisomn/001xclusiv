@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import logging
 from decimal import Decimal, ROUND_HALF_UP
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -17,6 +18,8 @@ FLOW_PAYMENT_STATUS_PATH = "/payment/getStatus"
 
 FLOW_PAID = 2
 FLOW_CANCELLED_STATUSES = {3, 4}
+
+logger = logging.getLogger(__name__)
 
 
 class FlowAPIError(Exception):
@@ -130,10 +133,12 @@ def build_payment_create_params(order, request=None):
 
 
 def create_payment(order, request=None):
+    params = build_payment_create_params(order, request=request)
+    logger.info("Flow create payment amount order_id=%s amount=%s", order.id, params["amount"])
     response = _request_json(
         FLOW_PAYMENT_CREATE_PATH,
         "POST",
-        build_payment_create_params(order, request=request),
+        params,
     )
     flow_order = response.get("flowOrder")
     token = response.get("token")

@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -6,6 +8,8 @@ from apps.orders.models import Order
 from apps.orders.services import build_order_from_cart
 from apps.payments.flow_service import FlowAPIError, build_payment_url, create_payment
 from .forms import CheckoutForm
+
+logger = logging.getLogger(__name__)
 
 CHECKOUT_REASSURANCE = [
     {
@@ -69,12 +73,14 @@ class CheckoutView(View):
 
         if form.is_valid():
             order = build_order_from_cart(request, form)
+            logger.info("Flow checkout cart total order_id=%s total=%s", order.id, order.get_total_cost())
             try:
-                payment = create_payment(order, request=request)
+                response = create_payment(order, request)
             except FlowAPIError:
                 messages.error(request, "No pudimos iniciar el pago. Intenta nuevamente.")
                 return render(request, 'checkout/checkout.html', self.get_context(cart, form))
-            return redirect(build_payment_url(payment))
+            payment_url = build_payment_url(response)
+            return redirect(payment_url)
 
         return render(request, 'checkout/checkout.html', self.get_context(cart, form))
 

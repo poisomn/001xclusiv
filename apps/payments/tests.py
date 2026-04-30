@@ -204,6 +204,7 @@ class FlowServiceTests(TestCase):
         create_payment(self.order)
 
         self.order.refresh_from_db()
+        self.assertEqual(request_json.call_args.args[2]["amount"], "100000")
         self.assertEqual(self.order.payment_id, "123456")
         self.assertEqual(self.order.payment_token, "FLOW-TOKEN")
         self.assertEqual(self.order.payment_status, "pending")
