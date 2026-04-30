@@ -169,7 +169,7 @@ FLOW_API_KEY = os.environ["FLOW_API_KEY"]
 if not FLOW_API_KEY:
     raise ValueError("FLOW_API_KEY must be set")
 FLOW_SECRET_KEY = os.environ["FLOW_SECRET_KEY"]
-FLOW_USE_SANDBOX = os.environ.get("FLOW_USE_SANDBOX", "True").lower() in {
+FLOW_USE_SANDBOX = os.environ.get("FLOW_USE_SANDBOX", "False").lower() in {
     "1",
     "true",
     "yes",
