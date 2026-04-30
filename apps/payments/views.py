@@ -88,7 +88,7 @@ def payment_success(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "POST"])
 def payment_return(request):
     token = request.GET.get("token")
     if not token:
