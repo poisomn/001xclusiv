@@ -1,84 +1,120 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pago confirmado #{{ order.id }} - 001xclusiv{% endblock %}
 
 {% block content %}
-<section class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold text-uppercase">Pago confirmado</h1>
-        <p class="text-muted">Tu pedido ha sido recibido y est&aacute; siendo procesado.</p>
-    </div>
+<section class="account-page">
 
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+    <!-- HEADER -->
+    <div class="receipt-toolbar">
+        <div>
+            <span class="section-kicker">Pago confirmado</span>
+            <h1>Orden #{{ order.id }}</h1>
+        </div>
 
-            <!-- RESUMEN -->
-            <div class="card bg-dark text-white shadow-sm mb-4 border-0">
-                <div class="card-body p-4">
-                    <h5 class="mb-3 text-uppercase">Orden #{{ order.id|default:"-" }}</h5>
-                    <p class="mb-1 text-light">Estado: Pagado</p>
+        <div class="receipt-toolbar__actions">
+            <button type="button" class="btn-accent" onclick="window.print()">
+                <i class="bi bi-printer"></i>
+                Guardar comprobante
+            </button>
 
-                    {% if order.email %}
-                    <p class="mb-0 text-light">
-                        <strong>Email:</strong> {{ order.email }}
-                    </p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- PRODUCTOS -->
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-body p-4">
-                    <h5 class="mb-4 text-uppercase border-bottom pb-2">Productos</h5>
-
-                    {% if order.items.all %}
-                    {% for item in order.items.all %}
-                    <div class="d-flex justify-content-between mb-3 align-items-center">
-                        <div>
-                            <span class="d-block fw-bold">
-                                {{ item.product.name|default:"Producto" }}
-                            </span>
-
-                            <span class="text-muted small">
-                                {% if item.variant %}
-                                Talla {{ item.variant.size|default:"-" }} |
-                                {% endif %}
-                                Cantidad: {{ item.quantity|default:"1" }}
-                            </span>
-                        </div>
-
-                        <strong>
-                            ${{ item.get_total_price|default:"0" }} CLP
-                        </strong>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <p class="text-muted">No hay productos en esta orden.</p>
-                    {% endif %}
-
-                    <hr class="my-4">
-
-                    <div class="d-flex justify-content-between fs-5">
-                        <span class="fw-bold">Total</span>
-                        <strong>
-                            ${{ order.get_total_cost|default:"0" }} CLP
-                        </strong>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BOTONES -->
-            <div class="d-flex justify-content-center gap-3 mt-5">
-                <a href="{% url 'core:home' %}" class="btn btn-outline-dark px-4 py-2 text-uppercase fw-bold">
-                    Seguir comprando
-                </a>
-
-                {% if request.user.is_authenticated %}
-                <a href="{% url 'orders:order_list' %}" class="btn btn-dark px-4 py-2 text-uppercase fw-bold">
-                    Ver pedidos
-                </a>
-                {% endif %}
-            </div>
-
+            <a href="{% url 'core:home' %}" class="btn-secondary">
+                Seguir comprando
+            </a>
         </div>
     </div>
+
+    <!-- CARD -->
+    <article class="order-receipt">
+
+        <!-- BRAND -->
+        <header class="order-receipt__header">
+            <div class="order-receipt__brand">
+                <img src="{% static 'home/logoByN.webp' %}" alt="Logo" class="order-receipt__logo">
+
+                <div>
+                    <p class="product-brand">001xclusiv</p>
+                    <h2>Comprobante de pago</h2>
+                    <p>Tu pago fue procesado correctamente.</p>
+                </div>
+            </div>
+
+            <div class="order-receipt__summary">
+                <div>
+                    <span>Pedido</span>
+                    <strong>#{{ order.id }}</strong>
+                </div>
+
+                <div>
+                    <span>Fecha</span>
+                    <strong>{{ order.created_at|date:"d M Y, H:i" }}</strong>
+                </div>
+
+                <div>
+                    <span>Estado</span>
+                    <strong class="text-success">Pagado</strong>
+                </div>
+            </div>
+        </header>
+
+        <!-- CLIENTE -->
+        <section class="order-receipt__section">
+            <div>
+                <h3>Cliente</h3>
+                <p>{{ order.full_name|default:"-" }}</p>
+                <p>{{ order.email|default:"-" }}</p>
+            </div>
+
+            <div>
+                <h3>Despacho</h3>
+                <p>{{ order.address|default:"-" }}</p>
+                <p>{{ order.city|default:"-" }}</p>
+                <p>{{ order.postal_code|default:"-" }}</p>
+            </div>
+        </section>
+
+        <!-- PRODUCTOS -->
+        <section class="order-receipt__section order-receipt__section--stack">
+            <h3>Detalle de compra</h3>
+
+            <div class="order-receipt__items">
+                {% for item in order.items.all %}
+                <div class="order-receipt__item">
+
+                    <div>
+                        <strong>{{ item.product.name|default:"Producto" }}</strong>
+
+                        <p>
+                            Cantidad: {{ item.quantity|default:"1" }}
+                            {% if item.variant %}
+                            | Talla: {{ item.variant.size|default:"-" }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="text-end">
+                        <strong>
+                            ${{ item.price|default:"0" }} CLP
+                        </strong>
+                        <p>${{ item.price|default:"0" }} c/u</p>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- TOTAL -->
+        <footer class="order-receipt__footer">
+            <div>
+                <span>Total pagado</span>
+                <strong>${{ order.get_total_cost|default:"0" }} CLP</strong>
+            </div>
+
+            <p>Pago procesado exitosamente en 001xclusiv.</p>
+        </footer>
+
+    </article>
 </section>
 {% endblock %}
