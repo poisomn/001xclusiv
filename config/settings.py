@@ -17,7 +17,7 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com"]
 render_external_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
@@ -139,6 +139,13 @@ STORAGES = {
 }
 PRODUCT_IMAGE_PLACEHOLDER_URL = "/static/home/logoByN.webp"
 
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -148,24 +155,19 @@ CART_SESSION_ID = 'cart'
 
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
-EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@001xclusiv.cl")
+EMAIL_BACKEND = os.environ["EMAIL_BACKEND"]
+DEFAULT_FROM_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
 
-SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
-FLOW_API_KEY = os.environ.get("FLOW_API_KEY", "")
-FLOW_SECRET_KEY = os.environ.get("FLOW_SECRET_KEY", "")
+SITE_URL = os.environ["SITE_URL"].rstrip("/")
+FLOW_API_KEY = os.environ["FLOW_API_KEY"]
+if not FLOW_API_KEY:
+    raise ValueError("FLOW_API_KEY must be set")
+FLOW_SECRET_KEY = os.environ["FLOW_SECRET_KEY"]
 FLOW_USE_SANDBOX = os.environ.get("FLOW_USE_SANDBOX", "True").lower() in {
     "1",
     "true",
     "yes",
     "on",
 }
-FLOW_API_URL = os.environ.get("FLOW_API_URL", "")
+FLOW_API_URL = os.environ["FLOW_API_URL"]
 FLOW_API_TIMEOUT = int(os.environ.get("FLOW_API_TIMEOUT", "20"))
-
-if not DEBUG:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-

@@ -119,6 +119,10 @@ def build_payment_url(pay_response):
 
 
 def build_payment_create_params(order, request=None):
+    # Debug environment variables
+    print("DEBUG FLOW_API_KEY:", settings.FLOW_API_KEY)
+    print("DEBUG FLOW_SECRET_KEY:", settings.FLOW_SECRET_KEY)
+    print("DEBUG SITE_URL:", settings.SITE_URL)
     base_url = _public_base_url(request)
     return {
         "apiKey": settings.FLOW_API_KEY,
