@@ -73,6 +73,11 @@ class CheckoutView(View):
 
         if form.is_valid():
             order = build_order_from_cart(request, form)
+            print("ENTRANDO A CHECKOUT")
+            print("TOTAL:", order.get_total_cost())
+            if order.get_total_cost() <= 0:
+                messages.error(request, "El total del pedido es cero o negativo. No se puede proceder al pago.")
+                return render(request, 'checkout/checkout.html', self.get_context(cart, form))
             logger.info("Flow checkout cart total order_id=%s total=%s", order.id, order.get_total_cost())
             try:
                 response = create_payment(order, request)
