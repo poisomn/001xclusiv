@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container py-5 text-center">
+    <h1>Procesando pago...</h1>
+    <p>Estamos confirmando tu pago. Esto puede tardar unos segundos.</p>
+
+    <div class="spinner-border mt-4" role="status"></div>
+
+    <p class="mt-3 text-muted">No cierres esta p&aacute;gina.</p>
+</section>
+
+<script>
+setTimeout(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+        window.location.href = `/payment/return/?token=${token}`;
+    }
+}, 4000);
+</script>
+{% endblock %}

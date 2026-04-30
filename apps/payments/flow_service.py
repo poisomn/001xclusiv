@@ -150,12 +150,10 @@ def create_payment(order, request=None):
         "POST",
         params,
     )
-    flow_order = response.get("flowOrder")
-    token = response.get("token")
-    order.payment_id = str(flow_order or "")
-    order.payment_token = str(token or "")
-    order.payment_status = "pending"
-    order.save(update_fields=["payment_id", "payment_token", "payment_status", "updated_at"])
+    order.payment_id = str(response.get("flowOrder", "")) or order.payment_id
+    order.payment_token = response.get("token")
+
+    order.save(update_fields=["payment_id", "payment_token", "updated_at"])
     return response
 
 
