@@ -97,6 +97,8 @@ def payment_return(request):
 
     try:
         status = get_payment_status(token)
+        print("FLOW STATUS RESPONSE:", status)
+        print("FLOW STATUS CODE:", status.get("status"))
     except FlowAPIError:
         messages.error(request, "No pudimos confirmar el estado del pago.")
         return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
@@ -106,13 +108,13 @@ def payment_return(request):
         messages.error(request, "No encontramos la orden asociada al pago.")
         return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
 
-    if status.get("status") == FLOW_PAID:
+    if order.payment_status == "paid":
         Cart(request).clear()
         clear_checkout_order_session(request)
         return render(request, "checkout/success.html", {"order": order})
-
-    clear_checkout_order_session(request)
-    return render(request, "payments/cancel.html", {"order": order})
+    else:
+        clear_checkout_order_session(request)
+        return render(request, "payments/cancel.html", {"order": order})
 
 
 def payment_cancel(request):
@@ -151,4 +153,22 @@ def payment_webhook(request):
     if order is None:
         return JsonResponse({"error": "order not found"}, status=404)
 
+    # Ensure order is marked as paid when Flow indicates payment
+    if status.get("status") == FLOW_PAID:
+        order.payment_status = "paid"
+        order.status = "paid"
+        order.is_paid = True
+        order.save(update_fields=["payment_status", "status", "is_paid"])
+
     return JsonResponse({"ok": True})
+
+    return JsonResponse({"error": "order not found"}, status=404)
+
+# Ensure order is marked as paid when Flow indicates payment
+if status.get("status") == FLOW_PAID:
+    order.payment_status = "paid"
+    order.status = "paid"
+    order.is_paid = True
+    order.save(update_fields=["payment_status", "status", "is_paid"])
+
+return JsonResponse({"ok": True})
