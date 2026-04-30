@@ -13,6 +13,8 @@ from apps.orders.services import (
     mark_order_paid,
 )
 from apps.payments.flow_service import (
+    FLOW_CANCELLED_STATUSES,
+    FLOW_PAID,
     FlowAPIError,
     get_payment_status,
 )
@@ -89,32 +91,34 @@ def payment_success(request):
 def payment_return(request):
     token = request.GET.get("token") or request.POST.get("token")
     if not token:
-        messages.error(request, "Flow no envio token de pago.")
-        return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
+        return render(request, "payments/error.html", {"message": "Flow no envi\u00f3 token de pago."})
 
     try:
         status = get_payment_status(token)
-        print("FLOW STATUS RESPONSE:", status)
-        print("FLOW STATUS CODE:", status.get("status"))
-    except FlowAPIError:
-        messages.error(request, "No pudimos confirmar el estado del pago.")
-        return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
+        print("FLOW STATUS:", status)
+    except Exception as e:
+        print("FLOW RETURN ERROR:", str(e))
+        return render(request, "payments/error.html", {"message": "Error confirmando el pago"})
 
     order = _apply_flow_status(status, token=token)
-    if order is None:
-        messages.error(request, "No encontramos la orden asociada al pago.")
-        return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
+    print("ORDER:", order.id if order else "NONE")
 
-    print("RETURN ORDER STATUS:", order.payment_status)
-    if order.payment_status == "paid":
+    if order is None:
+        return render(request, "payments/error.html", {"message": "No encontramos la orden asociada al pago."})
+
+    print("FLOW RETURN STATUS:", status.get("status"))
+    print("ORDER DB STATUS:", order.payment_status)
+
+    if status.get("status") == FLOW_PAID:
+        mark_order_paid(order)
         Cart(request).clear()
         clear_checkout_order_session(request)
         return render(request, "checkout/success.html", {"order": order})
-    elif order.payment_status == "pending":
-        return render(request, "payments/processing.html", {"order": order})
-    else:
+    elif status.get("status") in FLOW_CANCELLED_STATUSES:
         clear_checkout_order_session(request)
         return render(request, "payments/cancel.html", {"order": order})
+    else:
+        return render(request, "payments/processing.html", {"order": order})
 
 
 def payment_cancel(request):
@@ -155,7 +159,7 @@ def payment_webhook(request):
 
     try:
         status = get_payment_status(token)
-    except FlowAPIError as error:
+    except Exception as error:
         return JsonResponse({"error": str(error)}, status=400)
 
     order = _apply_flow_status(status, token=token)
@@ -165,6 +169,9 @@ def payment_webhook(request):
     # evitar reprocesamiento
     if order.payment_status in {"paid", "cancelled"}:
         return JsonResponse({"ok": True})
+
+    if status.get("status") == FLOW_PAID:
+        mark_order_paid(order)
 
     return JsonResponse({"ok": True})
 

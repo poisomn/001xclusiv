@@ -2,45 +2,49 @@
 
 {% block content %}
 <section class="container py-5">
-
     <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold">Orden Confirmada</h1>
-        <p class="text-muted">Gracias por tu compra en 001xclusiv</p>
+        <h1 class="display-5 fw-bold text-uppercase">Pago confirmado</h1>
+        <p class="text-muted">Tu pedido ha sido recibido y est&aacute; siendo procesado.</p>
     </div>
 
-    <div class="card shadow-sm p-4 mb-4">
-        <h4>Orden #{{ order.id }}</h4>
-        <p class="text-muted">Estado: Pagado</p>
-        <p><strong>Email:</strong> {{ order.email }}</p>
-    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card bg-dark text-white shadow-sm mb-4 border-0">
+                <div class="card-body p-4">
+                    <h5 class="mb-3 text-uppercase">Orden #{{ order.id }}</h5>
+                    <p class="mb-1 text-light">Estado: Pagado</p>
+                    <p class="mb-0 text-light"><strong>Email:</strong> {{ order.email }}</p>
+                </div>
+            </div>
 
-    <div class="card shadow-sm p-4 mb-4">
-        <h5 class="mb-3">Productos</h5>
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-body p-4">
+                    <h5 class="mb-4 text-uppercase border-bottom pb-2">Productos</h5>
+                    {% for item in order.items.all %}
+                    <div class="d-flex justify-content-between mb-3 align-items-center">
+                        <div>
+                            <span class="d-block fw-bold">{{ item.product.name }}</span>
+                            <span class="text-muted small">
+                                {% if item.variant %}Talla {{ item.variant.size|default:item.variant }} | {% endif %}
+                                Cantidad: {{ item.quantity }}
+                            </span>
+                        </div>
+                        <strong>${{ item.get_total_price }} CLP</strong>
+                    </div>
+                    {% endfor %}
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-between fs-5">
+                        <span class="fw-bold">Total</span>
+                        <strong>${{ order.get_total_cost }} CLP</strong>
+                    </div>
+                </div>
+            </div>
 
-        {% for item in order.items.all %}
-        <div class="d-flex justify-content-between mb-2">
-            <span>
-                {{ item.product.name }}
-                {% if item.variant %}
-                    (Talla {{ item.variant.size }})
-                {% endif %}
-                x{{ item.quantity }}
-            </span>
-            <strong>${{ item.get_total_price }} CLP</strong>
+            <div class="d-flex justify-content-center gap-3 mt-5">
+                <a href="{% url 'core:home' %}" class="btn btn-outline-dark px-4 py-2 text-uppercase fw-bold">Seguir comprando</a>
+                <a href="{% url 'orders:order_list' %}" class="btn btn-dark px-4 py-2 text-uppercase fw-bold">Ver pedidos</a>
+            </div>
         </div>
-        {% endfor %}
     </div>
-
-    <div class="card shadow-sm p-4 mb-4">
-        <div class="d-flex justify-content-between">
-            <span>Total</span>
-            <strong>${{ order.get_total_cost }} CLP</strong>
-        </div>
-    </div>
-
-    <div class="text-center mt-4">
-        <a href="/" class="btn btn-dark">Volver al inicio</a>
-    </div>
-
 </section>
 {% endblock %}
