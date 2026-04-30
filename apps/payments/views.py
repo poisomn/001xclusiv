@@ -136,13 +136,21 @@ def payment_cancel(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def payment_webhook(request):
-    params = request.POST.dict()
+    # Log raw request body
+    print("FLOW WEBHOOK RAW BODY:", request.body)
+    # Parse parameters based on content type
+    if request.content_type == "application/json":
+        import json
+        params = json.loads(request.body.decode("utf-8"))
+    else:
+        params = request.POST.dict()
     print("FLOW WEBHOOK PARAMS:", params)
     if not validate_signature(params):
         print("SIGNATURE INVALID")
         print("EXPECTED:", sign_params(params))
         print("RECEIVED:", params.get("s"))
         # TEMPORAL: allow continuation despite invalid signature
+
 
 
     token = request.POST.get("token")
