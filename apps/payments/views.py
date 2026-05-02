@@ -89,6 +89,9 @@ def payment_success(request):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def payment_return(request):
+    print("USER AUTH:", request.user.is_authenticated)
+    print("SESSION KEY:", request.session.session_key)
+
     token = request.GET.get("token") or request.POST.get("token")
     if not token:
         return render(request, "payments/error.html", {"message": "Flow no envi\u00f3 token de pago."})
