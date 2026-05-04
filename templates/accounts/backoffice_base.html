@@ -1,56 +1,267 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="backoffice-page">
-    <div class="backoffice-hero">
-        <div>
-            <span class="section-kicker">Panel interno</span>
+<section class="bo-wrapper">
+
+    <!-- 🔝 HEADER / HERO -->
+    <div class="bo-hero">
+        <div class="bo-hero-left">
+            <span class="bo-kicker">Panel interno</span>
             <h1>Backoffice 001xclusiv</h1>
-            <p>Gestiona catalogo, pedidos, usuarios y estructura comercial sin salir de la app.</p>
+            <p>Gestiona catálogo, pedidos, usuarios y estructura comercial.</p>
         </div>
-        <div class="backoffice-metric-strip">
-            <div>
+
+        <div class="bo-metrics">
+            <div class="bo-metric">
                 <span>Productos</span>
                 <strong>{{ backoffice_metrics.products }}</strong>
             </div>
-            <div>
+            <div class="bo-metric">
                 <span>Pedidos</span>
                 <strong>{{ backoffice_metrics.orders }}</strong>
             </div>
-            <div>
+            <div class="bo-metric">
                 <span>Pendientes</span>
                 <strong>{{ backoffice_metrics.pending_orders }}</strong>
             </div>
-            <div>
+            <div class="bo-metric">
                 <span>Usuarios</span>
                 <strong>{{ backoffice_metrics.users }}</strong>
             </div>
         </div>
     </div>
 
+    <!-- ⚠️ MENSAJES -->
     {% if messages %}
-    <div class="backoffice-flash-stack">
+    <div class="bo-alert-stack">
         {% for message in messages %}
-        <div class="backoffice-flash backoffice-flash--{{ message.tags|default:'info' }}">{{ message }}</div>
+        <div class="bo-alert bo-alert--{{ message.tags|default:'info' }}">
+            {{ message }}
+        </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <div class="backoffice-layout">
-        <aside class="backoffice-sidebar">
-            <div class="backoffice-sidebar__inner">
-                {% for item in backoffice_nav %}
-                <a href="{% url item.url_name %}" class="backoffice-nav-link {% if backoffice_section == item.key %}is-active{% endif %}">
-                    <i class="bi {{ item.icon }}"></i>
-                    <span>{{ item.label }}</span>
-                </a>
-                {% endfor %}
+    <!-- 🧱 LAYOUT -->
+    <div class="bo-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="bo-sidebar">
+            <div class="bo-sidebar-inner">
+
+                <div class="bo-logo">
+                    001xclusiv
+                </div>
+
+                <nav class="bo-nav">
+                    {% for item in backoffice_nav %}
+                    <a href="{% url item.url_name %}"
+                        class="bo-nav-link {% if backoffice_section == item.key %}is-active{% endif %}">
+                        <i class="bi {{ item.icon }}"></i>
+                        <span>{{ item.label }}</span>
+                    </a>
+                    {% endfor %}
+                </nav>
+
             </div>
         </aside>
 
-        <div class="backoffice-main">
-            {% block backoffice_content %}{% endblock %}
-        </div>
+        <!-- MAIN -->
+        <main class="bo-main">
+
+            <!-- TOPBAR -->
+            <div class="bo-topbar">
+                <div class="bo-topbar-left">
+                    <span class="bo-section">
+                        {{ backoffice_section|default:"Dashboard"|title }}
+                    </span>
+                </div>
+
+                <div class="bo-topbar-right">
+                    <span class="bo-user">
+                        {{ request.user.username }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="bo-content">
+                {% block backoffice_content %}{% endblock %}
+            </div>
+
+        </main>
     </div>
+
 </section>
+
+<!-- 💅 ESTILOS PRO -->
+<style>
+    /* WRAPPER */
+    .bo-wrapper {
+        background: #f5f6f8;
+        padding: 20px;
+    }
+
+    /* HERO */
+    .bo-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .bo-kicker {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #888;
+    }
+
+    .bo-hero h1 {
+        margin: 5px 0;
+    }
+
+    .bo-metrics {
+        display: flex;
+        gap: 15px;
+    }
+
+    .bo-metric {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 10px;
+        min-width: 100px;
+        text-align: center;
+    }
+
+    .bo-metric span {
+        font-size: 12px;
+        color: #888;
+    }
+
+    .bo-metric strong {
+        display: block;
+        font-size: 18px;
+    }
+
+    /* ALERTS */
+    .bo-alert-stack {
+        margin-bottom: 15px;
+    }
+
+    .bo-alert {
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+
+    .bo-alert--success {
+        background: #e6f9f0;
+    }
+
+    .bo-alert--error {
+        background: #fdecea;
+    }
+
+    .bo-alert--info {
+        background: #eef3ff;
+    }
+
+    /* LAYOUT */
+    .bo-layout {
+        display: flex;
+    }
+
+    /* SIDEBAR */
+    .bo-sidebar {
+        width: 230px;
+        background: #111;
+        color: white;
+        min-height: 70vh;
+        border-radius: 12px;
+    }
+
+    .bo-sidebar-inner {
+        padding: 20px;
+    }
+
+    .bo-logo {
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .bo-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #aaa;
+        text-decoration: none;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .bo-nav-link:hover {
+        background: #222;
+        color: white;
+    }
+
+    .bo-nav-link.is-active {
+        background: #fff;
+        color: #111;
+    }
+
+    /* MAIN */
+    .bo-main {
+        flex: 1;
+        margin-left: 20px;
+    }
+
+    /* TOPBAR */
+    .bo-topbar {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .bo-section {
+        font-weight: 600;
+    }
+
+    .bo-user {
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* CONTENT */
+    .bo-content {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+        .bo-layout {
+            flex-direction: column;
+        }
+
+        .bo-sidebar {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .bo-main {
+            margin-left: 0;
+        }
+
+        .bo-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+    }
+</style>
+
 {% endblock %}

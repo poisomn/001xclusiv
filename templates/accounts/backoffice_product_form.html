@@ -3,156 +3,236 @@
 {% block title %}{% if is_editing %}Editar producto{% else %}Nuevo producto{% endif %} - Backoffice{% endblock %}
 
 {% block backoffice_content %}
-<form method="post" class="backoffice-form-stack">
+<form method="post">
     {% csrf_token %}
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Producto</span>
-                <h2>{% if is_editing %}Editar {{ product.name }}{% else %}Crear producto{% endif %}</h2>
-            </div>
-            <div class="backoffice-action-row">
-                <a href="{% url 'accounts:backoffice_products' %}" class="btn-secondary">Volver</a>
-                <button type="submit" class="btn-accent">Guardar</button>
-            </div>
+    <!-- 🔝 HEADER STICKY -->
+    <div class="bo-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0">
+                {% if is_editing %}Editar {{ product.name }}{% else %}Nuevo producto{% endif %}
+            </h3>
+            <small class="text-muted">Panel administrativo</small>
         </div>
-
-        {% if form.non_field_errors %}
-        <div class="backoffice-form-errors">{{ form.non_field_errors }}</div>
-        {% endif %}
-
-        <div class="backoffice-form-grid">
-            <div>
-                <label>Nombre</label>
-                {{ form.name }}
-            </div>
-            <div>
-                <label>Slug</label>
-                {{ form.slug }}
-            </div>
-            <div>
-                <label>SKU</label>
-                {{ form.sku }}
-            </div>
-            <div>
-                <label>Marca</label>
-                {{ form.brand }}
-            </div>
-            <div class="backoffice-form-grid__full">
-                <label>Categorias</label>
-                {{ form.categories }}
-            </div>
-            <div>
-                <label>Precio base</label>
-                {{ form.price }}
-            </div>
-            <div>
-                <label>Precio oferta</label>
-                {{ form.discount_price }}
-            </div>
-            <div class="backoffice-form-grid__full">
-                <label>Descripcion corta</label>
-                {{ form.short_description }}
-            </div>
-            <div class="backoffice-form-grid__full">
-                <label>Descripcion larga</label>
-                {{ form.description }}
-            </div>
-            <div class="backoffice-form-grid__full">
-                <label>Imagen principal URL</label>
-                {{ form.image_url }}
-            </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'accounts:backoffice_products' %}" class="btn btn-light">Volver</a>
+            <button type="submit" class="btn btn-dark">Guardar</button>
         </div>
+    </div>
 
-        <div class="backoffice-checkbox-row">
-            <label class="backoffice-check">
-                {{ form.is_active }}
-                <span>Publicado</span>
-            </label>
-            <label class="backoffice-check">
-                {{ form.is_featured }}
-                <span>Destacado</span>
-            </label>
-        </div>
-    </article>
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Media</span>
-                <h2>Imagenes del producto</h2>
-            </div>
-        </div>
-        {{ image_formset.management_form }}
-        <div class="backoffice-inline-stack">
-            {% for image_form in image_formset %}
-            <div class="backoffice-inline-card">
-                {{ image_form.id }}
-                <div class="backoffice-form-grid">
-                    <div class="backoffice-form-grid__full">
-                        <label>URL de imagen</label>
-                        {{ image_form.image_url }}
+    <!-- 🧱 GRID PRINCIPAL -->
+    <div class="row g-4">
+
+        <!-- 🧾 COLUMNA IZQUIERDA -->
+        <div class="col-lg-8">
+
+            <!-- 🧩 INFO GENERAL -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-4">Información general</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        {{ form.name }}
                     </div>
-                    <div>
-                        <label>Texto alternativo</label>
-                        {{ image_form.alt_text }}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Slug</label>
+                            {{ form.slug }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">SKU</label>
+                            {{ form.sku }}
+                        </div>
                     </div>
-                    <div>
-                        <label>Orden</label>
-                        {{ image_form.ordering }}
+
+                    <div class="mb-3">
+                        <label class="form-label">Marca</label>
+                        {{ form.brand }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Categorías</label>
+                        {{ form.categories }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción corta</label>
+                        {{ form.short_description }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción larga</label>
+                        {{ form.description }}
                     </div>
                 </div>
-                <div class="backoffice-checkbox-row">
-                    <label class="backoffice-check">
-                        {{ image_form.is_main }}
-                        <span>Imagen principal</span>
-                    </label>
-                    <label class="backoffice-check danger">
-                        {{ image_form.DELETE }}
-                        <span>Eliminar</span>
-                    </label>
-                </div>
             </div>
-            {% endfor %}
-        </div>
-    </article>
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Stock</span>
-                <h2>Tallas y disponibilidad</h2>
-            </div>
-        </div>
-        {{ variant_formset.management_form }}
-        <div class="backoffice-inline-stack">
-            {% for variant_form in variant_formset %}
-            <div class="backoffice-inline-card">
-                {{ variant_form.id }}
-                <div class="backoffice-form-grid">
-                    <div>
-                        <label>Talla</label>
-                        {{ variant_form.size }}
-                    </div>
-                    <div>
-                        <label>Stock</label>
-                        {{ variant_form.stock }}
+            <!-- 📦 VARIANTES -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-4">Tallas y stock</h5>
+
+                    {{ variant_formset.management_form }}
+
+                    <div class="d-flex flex-column gap-3">
+                        {% for variant_form in variant_formset %}
+                        <div class="border rounded p-3 d-flex justify-content-between align-items-center">
+
+                            {{ variant_form.id }}
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <!-- TALLA -->
+                                <div>
+                                    <label class="form-label small">Talla</label>
+                                    {{ variant_form.size }}
+                                </div>
+
+                                <!-- STOCK -->
+                                <div>
+                                    <label class="form-label small">Stock</label>
+                                    {{ variant_form.stock }}
+                                </div>
+
+                                <!-- ACTIVO -->
+                                <div class="form-check mt-4">
+                                    {{ variant_form.is_active }}
+                                    <label class="form-check-label">Activo</label>
+                                </div>
+
+                                <!-- DELETE -->
+                                <div class="form-check text-danger mt-4">
+                                    {{ variant_form.DELETE }}
+                                    <label class="form-check-label">Eliminar</label>
+                                </div>
+
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-                <div class="backoffice-checkbox-row">
-                    <label class="backoffice-check">
-                        {{ variant_form.is_active }}
-                        <span>Disponible</span>
-                    </label>
-                    <label class="backoffice-check danger">
-                        {{ variant_form.DELETE }}
-                        <span>Eliminar</span>
-                    </label>
+            </div>
+
+        </div>
+
+        <!-- 📸 COLUMNA DERECHA -->
+        <div class="col-lg-4">
+
+            <!-- 🖼 IMÁGENES -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Imágenes</h5>
+
+                    {{ image_formset.management_form }}
+
+                    <div class="d-flex flex-column gap-3">
+                        {% for image_form in image_formset %}
+                        <div class="border rounded p-2">
+
+                            {{ image_form.id }}
+
+                            <div class="mb-2">
+                                <label class="form-label small">URL</label>
+                                {{ image_form.image_url }}
+                            </div>
+
+                            <!-- PREVIEW -->
+                            {% if image_form.instance.image_url %}
+                            <img src="{{ image_form.instance.image_url }}" class="img-fluid rounded mb-2">
+                            {% endif %}
+
+                            <div class="d-flex justify-content-between">
+                                <div class="form-check">
+                                    {{ image_form.is_main }}
+                                    <label class="form-check-label small">Principal</label>
+                                </div>
+                                <div class="form-check text-danger">
+                                    {{ image_form.DELETE }}
+                                    <label class="form-check-label small">Eliminar</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-            {% endfor %}
+
+            <!-- 💰 PRECIO -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Precio</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Precio base</label>
+                        {{ form.price }}
+                    </div>
+
+                    <div>
+                        <label class="form-label">Precio oferta</label>
+                        {{ form.discount_price }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⚙️ ESTADO -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="mb-3">Estado</h5>
+
+                    <div class="form-check mb-2">
+                        {{ form.is_active }}
+                        <label class="form-check-label">Publicado</label>
+                    </div>
+
+                    <div class="form-check">
+                        {{ form.is_featured }}
+                        <label class="form-check-label">Destacado</label>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </article>
+
+    </div>
 </form>
+
+<!-- 💅 MINI ESTILO -->
+<style>
+    .bo-header {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 10;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    input,
+    select,
+    textarea {
+        border-radius: 8px !important;
+        padding: 10px !important;
+    }
+
+    .btn-dark {
+        border-radius: 8px;
+        padding: 8px 16px;
+    }
+
+    .btn-light {
+        border-radius: 8px;
+    }
+</style>
+
 {% endblock %}
