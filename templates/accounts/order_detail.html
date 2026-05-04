@@ -50,10 +50,14 @@
                 <div class="account-order-detail-items">
                     {% for item in order.items.all %}
                     <article class="account-order-detail-item">
-                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="account-order-detail-item__image">
+                        <a href="{{ item.product.get_absolute_url }}">
+                            <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="account-order-detail-item__image">
+                        </a>
 
                         <div class="account-order-detail-item__copy">
-                            <strong>{{ item.product.name }}</strong>
+                            <a href="{{ item.product.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                                <strong>{{ item.product.name }}</strong>
+                            </a>
                             {% if item.variant %}
                             <span>Talla {{ item.variant.size }}</span>
                             {% endif %}

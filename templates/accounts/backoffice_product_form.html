@@ -115,9 +115,9 @@
                                 <th>Eliminar</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="variant-formset-body">
                             {% for variant_form in variant_formset %}
-                            <tr>
+                            <tr class="variant-row" style="transition: opacity 300ms ease, transform 300ms ease;">
                                 <td>
                                     {{ variant_form.id }}
                                     <div class="bo-field">
@@ -148,6 +148,38 @@
                         </tbody>
                     </table>
                 </div>
+                <button type="button" class="bo-button bo-button--secondary mt-3" id="add-variant-btn" style="margin-top: 16px;">
+                    <i class="bi bi-plus-lg"></i>
+                    Añadir talla
+                </button>
+                
+                <template id="empty-variant-form">
+                    <tr class="variant-row" style="opacity: 0; transform: translateY(10px); transition: opacity 300ms ease, transform 300ms ease;">
+                        <td>
+                            {{ variant_formset.empty_form.id }}
+                            <div class="bo-field">
+                                {{ variant_formset.empty_form.size }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bo-field">
+                                {{ variant_formset.empty_form.stock }}
+                            </div>
+                        </td>
+                        <td>
+                            <label class="bo-check">
+                                {{ variant_formset.empty_form.is_active }}
+                                <span>Activa</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="bo-check bo-check--danger">
+                                {{ variant_formset.empty_form.DELETE }}
+                                <span>Eliminar</span>
+                            </label>
+                        </td>
+                    </tr>
+                </template>
             </article>
         </div>
 
@@ -238,9 +270,9 @@
                 </div>
 
                 {{ image_formset.management_form }}
-                <div class="bo-inline-stack">
+                <div class="bo-inline-stack" id="image-formset-container">
                     {% for image_form in image_formset %}
-                    <div class="bo-inline-card">
+                    <div class="bo-inline-card image-row" style="transition: opacity 300ms ease, transform 300ms ease;">
                         {{ image_form.id }}
                         <div class="bo-form-stack">
                             <div class="bo-field">
@@ -274,8 +306,127 @@
                     </div>
                     {% endfor %}
                 </div>
+                <button type="button" class="bo-button bo-button--secondary mt-3" id="add-image-btn" style="margin-top: 16px;">
+                    <i class="bi bi-plus-lg"></i>
+                    Añadir imagen
+                </button>
+
+                <template id="empty-image-form">
+                    <div class="bo-inline-card image-row" style="opacity: 0; transform: translateY(10px); transition: opacity 300ms ease, transform 300ms ease;">
+                        {{ image_formset.empty_form.id }}
+                        <div class="bo-form-stack">
+                            <div class="bo-field">
+                                <label for="{{ image_formset.empty_form.image_url.id_for_label }}">URL de imagen</label>
+                                {{ image_formset.empty_form.image_url }}
+                            </div>
+                            <div class="bo-form-grid">
+                                <div class="bo-field">
+                                    <label for="{{ image_formset.empty_form.alt_text.id_for_label }}">Texto alternativo</label>
+                                    {{ image_formset.empty_form.alt_text }}
+                                </div>
+                                <div class="bo-field">
+                                    <label for="{{ image_formset.empty_form.ordering.id_for_label }}">Orden</label>
+                                    {{ image_formset.empty_form.ordering }}
+                                </div>
+                            </div>
+                            <div class="bo-check-row">
+                                <label class="bo-check">
+                                    {{ image_formset.empty_form.is_main }}
+                                    <span>Principal</span>
+                                </label>
+                                <label class="bo-check bo-check--danger">
+                                    {{ image_formset.empty_form.DELETE }}
+                                    <span>Eliminar</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </article>
         </aside>
     </div>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setupDynamicForm(prefix, containerId, btnId, templateId) {
+        const container = document.getElementById(containerId);
+        const addBtn = document.getElementById(btnId);
+        const template = document.getElementById(templateId);
+        if (!container || !addBtn || !template) return;
+        
+        const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+        
+        addBtn.addEventListener('click', function() {
+            const currentFormCount = parseInt(totalForms.value);
+            const clone = template.content.cloneNode(true);
+            
+            const wrapper = document.createElement('div');
+            wrapper.appendChild(clone);
+            wrapper.innerHTML = wrapper.innerHTML.replace(/__prefix__/g, currentFormCount);
+            
+            const newElement = wrapper.firstElementChild;
+            container.appendChild(newElement);
+            totalForms.value = currentFormCount + 1;
+            
+            // Trigger reflow for animation
+            void newElement.offsetWidth;
+            newElement.style.opacity = '1';
+            newElement.style.transform = 'translateY(0)';
+            
+            // Scroll into view
+            newElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            attachDeleteEvents(newElement);
+            attachPreviewEvents(newElement);
+        });
+    }
+
+    function attachDeleteEvents(root) {
+        const deleteBtns = root.querySelectorAll('.bo-check--danger input[type="checkbox"]');
+        deleteBtns.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    const row = this.closest('.variant-row, .image-row');
+                    if (row) {
+                        row.style.opacity = '0';
+                        row.style.transform = 'scale(0.98)';
+                        setTimeout(() => {
+                            row.style.display = 'none';
+                        }, 300);
+                    }
+                } else {
+                    const row = this.closest('.variant-row, .image-row');
+                    if (row) {
+                        row.style.opacity = '1';
+                        row.style.transform = 'scale(1)';
+                    }
+                }
+            });
+        });
+    }
+    
+    function attachPreviewEvents(root) {
+        const urlInputs = root.querySelectorAll('input[name$="image_url"]');
+        urlInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const mainImageContainer = document.querySelector('.bo-main-image');
+                if (this.value && mainImageContainer) {
+                    mainImageContainer.innerHTML = `<img src="${this.value}" alt="Preview" style="opacity: 0; transition: opacity 300ms ease; width: 100%; height: 100%; object-fit: contain; padding: 18px;">`;
+                    setTimeout(() => {
+                        const img = mainImageContainer.querySelector('img');
+                        if (img) img.style.opacity = '1';
+                    }, 50);
+                }
+            });
+        });
+    }
+
+    setupDynamicForm('{{ variant_formset.prefix }}', 'variant-formset-body', 'add-variant-btn', 'empty-variant-form');
+    setupDynamicForm('{{ image_formset.prefix }}', 'image-formset-container', 'add-image-btn', 'empty-image-form');
+    
+    attachDeleteEvents(document);
+    attachPreviewEvents(document);
+});
+</script>
 {% endblock %}

@@ -3,19 +3,19 @@
 {% block content %}
 <style>
     :root {
-        --bo-bg: #0f1110;
-        --bo-surface: #171918;
-        --bo-surface-soft: #1f2221;
-        --bo-surface-muted: #2a2d2b;
-        --bo-text: #f5f5f5;
-        --bo-muted: #a0a6a1;
-        --bo-line: #2a2d2b;
-        --bo-accent: #e5e5e5;
-        --bo-accent-strong: #ffffff;
-        --bo-warning: #f7d774;
-        --bo-danger: #f06f6f;
-        --bo-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
-        --bo-shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.2);
+        --bo-bg: #f5f5f7;
+        --bo-surface: #ffffff;
+        --bo-surface-soft: #fcfcfc;
+        --bo-surface-muted: #f1f1f3;
+        --bo-text: #111111;
+        --bo-muted: #737373;
+        --bo-line: #e5e5ea;
+        --bo-accent: #111111;
+        --bo-accent-strong: #000000;
+        --bo-warning: #f5a623;
+        --bo-danger: #d0021b;
+        --bo-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        --bo-shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.04);
         --bo-radius: 8px;
     }
 
@@ -45,8 +45,8 @@
     .bo-app {
         min-height: 100vh;
         background:
-            linear-gradient(180deg, rgba(23, 25, 24, 0.3), rgba(15, 17, 16, 0.95)),
-            var(--bo-bg);
+            radial-gradient(circle at top right, rgba(255,255,255,0.8), transparent 40%),
+            linear-gradient(180deg, #f8f8fa 0%, var(--bo-bg) 100%);
         color: var(--bo-text);
         font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
@@ -63,7 +63,7 @@
         height: 100vh;
         padding: 28px 20px;
         border-right: 1px solid var(--bo-line);
-        background: rgba(23, 25, 24, 0.5);
+        background: rgba(255, 255, 255, 0.6);
         backdrop-filter: blur(18px);
         overflow-y: auto;
     }
@@ -133,17 +133,21 @@
         gap: 12px;
         min-height: 46px;
         padding: 0 12px;
-        border-radius: var(--bo-radius);
+        border-radius: 999px; /* Pill shape */
         color: var(--bo-muted);
         text-decoration: none;
-        transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+        transition: background 200ms ease, color 200ms ease, transform 200ms ease;
     }
 
-    .bo-nav-link:hover,
-    .bo-nav-link.is-active {
-        background: var(--bo-surface-soft);
+    .bo-nav-link:hover {
+        background: var(--bo-surface-muted);
         color: var(--bo-text);
-        transform: translateX(2px);
+    }
+
+    .bo-nav-link.is-active {
+        background: var(--bo-text);
+        color: var(--bo-surface);
+        font-weight: 600;
     }
 
     .bo-nav-link i {
@@ -176,7 +180,7 @@
         margin: -24px -28px 28px;
         padding: 22px 28px;
         border-bottom: 1px solid var(--bo-line);
-        background: rgba(15, 17, 16, 0.75);
+        background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
         backdrop-filter: blur(18px);
     }
 
@@ -329,6 +333,13 @@
         border-radius: var(--bo-radius);
         background: var(--bo-surface);
         box-shadow: var(--bo-shadow-soft);
+        transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    .bo-card:hover,
+    .bo-inline-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--bo-shadow);
     }
 
     .bo-card {
@@ -402,24 +413,24 @@
         text-decoration: none;
         white-space: nowrap;
         cursor: pointer;
-        transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+        transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
     }
 
     .bo-button:hover {
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: var(--bo-shadow-soft);
     }
 
     .bo-button--primary,
     .btn-accent.bo-button {
         background: var(--bo-accent);
-        color: #101412;
-        box-shadow: 0 12px 24px rgba(255, 255, 255, 0.05);
+        color: var(--bo-surface);
     }
 
     .bo-button--primary:hover,
     .btn-accent.bo-button:hover {
         background: var(--bo-accent-strong);
-        color: #101412;
+        color: var(--bo-surface);
     }
 
     .bo-button--secondary,
@@ -431,7 +442,7 @@
 
     .bo-button--secondary:hover,
     .btn-secondary.bo-button:hover {
-        border-color: var(--bo-muted);
+        border-color: #d1d1d6;
         background: var(--bo-surface-soft);
         color: var(--bo-accent-strong);
     }

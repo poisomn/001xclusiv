@@ -135,8 +135,8 @@
                             Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
                         </div>
                         <p class="home-legacy-copy__text">
-                            Tambien tenemos ropa, accesorios y una seleccion con personalidad. Una home con movimiento
-                            para que la marca se sienta viva desde el primer scroll.
+                            Tambien tenemos clothing, accesorios y una selección pensada en la exclusividad que
+                            caracteriza a quienes se atreven.
                         </p>
                     </div>
 
@@ -388,8 +388,7 @@
                 <span class="section-kicker">Lo mas buscado</span>
                 <h2>Productos estrella</h2>
             </div>
-            <p class="section-heading__text">Una seleccion lista para convertir: piezas con mejor presencia, precio
-                claro y acceso directo a carrito o detalle.</p>
+            <p class="section-heading__text">Los favoritos del momento.</p>
         </div>
 
         <div class="product-grid home-product-grid">
@@ -397,11 +396,9 @@
             <article class="product-card home-product-card">
                 <a href="{% url 'catalog:detail' product.slug %}" class="product-link">
                     <div class="product-image-container">
-                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
-                            class="product-image">
+                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="product-image">
                         {% if product.secondary_image_url %}
-                        <img src="{{ product.secondary_image_url }}"
-                            alt="{{ product.name }}"
+                        <img src="{{ product.secondary_image_url }}" alt="{{ product.name }}"
                             class="product-image product-image--secondary">
                         {% endif %}
 
@@ -480,14 +477,13 @@
             <article class="arrival-card">
                 <a href="{% url 'catalog:detail' product.slug %}" class="arrival-card__media">
                     <div class="parallax-shell">
-                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
-                            class="parallax-image">
+                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="parallax-image">
                     </div>
                 </a>
                 <div class="arrival-card__content">
                     <span class="arrival-card__badge">New arrival</span>
                     <h3>{{ product.name }}</h3>
-                    <p>{{ product.short_description|default:"Diseno seleccionado para destacar en la nueva coleccion."
+                    <p>{{ product.short_description|default:"Diseño seleccionado para destacar en la nueva coleccion."
                         }}</p>
                     <div class="arrival-card__footer">
                         <strong>${{ product.final_price }} CLP</strong>
@@ -500,7 +496,7 @@
                 <div class="arrival-card__content">
                     <span class="arrival-card__badge">New arrival</span>
                     <h3>Pronto tendremos nuevos drops</h3>
-                    <p>Cuando subas mas productos, esta seccion se alimentara automaticamente con los mas recientes.</p>
+                    <p>Nuevo!.</p>
                 </div>
             </article>
             {% endfor %}
@@ -510,12 +506,11 @@
     <section class="home-section">
         <div class="section-heading">
             <div>
-                <span class="section-kicker">Journey</span>
-                <h2>Como deberia sentirse este home al recorrerlo completo.</h2>
+                <span class="section-kicker">¿Te gusta algo?</span>
+                <h2>Recuerda que puedes agregar productos a favoritos.</h2>
             </div>
             <p class="section-heading__text">
-                La idea es que cada tramo tenga una funcion distinta: atrapar, orientar, inspirar y finalmente empujar
-                la compra.
+                Visita el catálogo completo y arma tu wishlist para futuras compras.
             </p>
         </div>
 
@@ -534,11 +529,11 @@
 
     <section class="home-section home-brand-promise ambient-surface ambient-surface--light" data-ambient>
         <div class="home-brand-promise__intro">
-            <span class="section-kicker">Brand promise</span>
-            <h2>Una landing larga sirve cuando cada scroll refuerza deseo, claridad y confianza.</h2>
+            <span class="section-kicker">¿Porque comprar en 001xclusiv?</span>
+            <h2>Te aseguramos calidad en cada producto. Nos interesa tu satisfacción.</h2>
             <p>
-                El objetivo es que quien entra por primera vez entienda rapido el tono de la marca y tambien encuentre
-                puertas directas para comprar cuando ya este listo.
+                Porque comprar en 001xclusiv es comprar calidad, estilo y exclusividad.
+                Todos nuestros productos estan seleccionados con el maximo cuidado y dedicacion para ofrecerte lo mejor.
             </p>
         </div>
 
@@ -589,11 +584,10 @@
             <div class="home-cinematic-cta__overlay"></div>
         </div>
         <div class="home-cinematic-cta__content">
-            <span class="section-kicker">Final frame</span>
-            <h2>Si llegaste hasta aqui, la marca ya hizo su trabajo. Ahora toca entrar al drop.</h2>
+            <span class="section-kicker">Gracias por tu tiempo</span>
+            <h2>Si llegaste hasta aqui, seguro es porque algo te gustó. Ahora toca elegir que llevarte.</h2>
             <p>
-                Este ultimo bloque funciona como cierre visual del scroll largo y deja una llamada fuerte a explorar el
-                catalogo completo.
+                Visita el catálogo y encuentra lo que buscas.
             </p>
             <div class="home-cinematic-cta__actions">
                 <a href="{% url 'catalog:list' %}" class="btn-accent">Entrar al catalogo</a>
@@ -604,10 +598,9 @@
 
     <section class="newsletter-cta ambient-surface ambient-surface--dark" data-ambient>
         <div class="newsletter-cta__content">
-            <span class="section-kicker">Cierra con intencion</span>
+            <span class="section-kicker">Si no quieres perderte nada</span>
             <h2>Recibe lanzamientos, descuentos y acceso temprano a nuevos drops.</h2>
-            <p>Este bloque deja al home preparado para capturar interes incluso cuando el usuario todavia no decide
-                comprar hoy.</p>
+            <p>Ingresa tu correo y recibe novedades exclusivas.</p>
         </div>
 
         <form class="newsletter-form" id="newsletter-form">

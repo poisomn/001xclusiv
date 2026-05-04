@@ -64,9 +64,13 @@
                 {% for item in order.items.all %}
                 <div class="bo-list-row">
                     <div class="bo-product-cell">
-                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
+                        <a href="{{ item.product.get_absolute_url }}" target="_blank">
+                            <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
+                        </a>
                         <div>
-                            <strong>{{ item.product.name }}</strong>
+                            <a href="{{ item.product.get_absolute_url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                                <strong>{{ item.product.name }}</strong>
+                            </a>
                             <p>Cantidad: {{ item.quantity }}{% if item.variant %} - Talla {{ item.variant.size }}{% endif %}</p>
                         </div>
                     </div>
