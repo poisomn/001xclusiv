@@ -26,7 +26,7 @@
         <article class="bo-stat">
             <span>Total ventas</span>
             <i class="bi bi-cash-stack"></i>
-            <strong>${{ stats.total_sales }}</strong>
+            <strong>${{ stats.total_sales|floatformat:0 }}</strong>
             <em>CLP pagados</em>
         </article>
         <article class="bo-stat">
@@ -88,7 +88,7 @@
                     <h2>Ventas por dia</h2>
                     <p>Resumen de dias con pedidos pagados.</p>
                 </div>
-                <span class="bo-badge">Ticket ${{ stats.average_ticket }}</span>
+                <span class="bo-badge">Ticket ${{ stats.average_ticket|floatformat:0 }}</span>
             </div>
             <div class="bo-list">
                 {% for day in sales_by_day %}
@@ -97,7 +97,7 @@
                         <strong>{{ day.day|date:"d M Y" }}</strong>
                         <p>Ventas confirmadas</p>
                     </div>
-                    <span class="bo-badge">${{ day.total }} CLP</span>
+                    <span class="bo-badge">${{ day.total|floatformat:0 }} CLP</span>
                 </div>
                 {% empty %}
                 <div class="bo-empty">Todavia no hay ventas pagadas para mostrar.</div>
