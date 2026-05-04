@@ -3,19 +3,19 @@
 {% block content %}
 <style>
     :root {
-        --bo-bg: #f6f7f4;
-        --bo-surface: #ffffff;
-        --bo-surface-soft: #f1f3f0;
-        --bo-surface-muted: #e9ece7;
-        --bo-text: #111412;
-        --bo-muted: #6d746f;
-        --bo-line: #dde3dd;
-        --bo-accent: #8dec9c;
-        --bo-accent-strong: #46c466;
+        --bo-bg: #0f1110;
+        --bo-surface: #171918;
+        --bo-surface-soft: #1f2221;
+        --bo-surface-muted: #2a2d2b;
+        --bo-text: #f5f5f5;
+        --bo-muted: #a0a6a1;
+        --bo-line: #2a2d2b;
+        --bo-accent: #e5e5e5;
+        --bo-accent-strong: #ffffff;
         --bo-warning: #f7d774;
         --bo-danger: #f06f6f;
-        --bo-shadow: 0 24px 60px rgba(17, 20, 18, 0.08);
-        --bo-shadow-soft: 0 12px 30px rgba(17, 20, 18, 0.06);
+        --bo-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+        --bo-shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.2);
         --bo-radius: 8px;
     }
 
@@ -45,7 +45,7 @@
     .bo-app {
         min-height: 100vh;
         background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(246, 247, 244, 0.94)),
+            linear-gradient(180deg, rgba(23, 25, 24, 0.3), rgba(15, 17, 16, 0.95)),
             var(--bo-bg);
         color: var(--bo-text);
         font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -63,7 +63,7 @@
         height: 100vh;
         padding: 28px 20px;
         border-right: 1px solid var(--bo-line);
-        background: rgba(250, 251, 248, 0.92);
+        background: rgba(23, 25, 24, 0.5);
         backdrop-filter: blur(18px);
         overflow-y: auto;
     }
@@ -72,7 +72,7 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 34px;
+        margin-bottom: 24px;
         color: var(--bo-text);
         text-decoration: none;
     }
@@ -87,8 +87,8 @@
         width: 42px;
         height: 42px;
         border-radius: var(--bo-radius);
-        background: #101412;
-        color: var(--bo-accent);
+        background: var(--bo-surface-soft);
+        color: var(--bo-text);
         font-weight: 800;
     }
 
@@ -134,15 +134,15 @@
         min-height: 46px;
         padding: 0 12px;
         border-radius: var(--bo-radius);
-        color: #2e3430;
+        color: var(--bo-muted);
         text-decoration: none;
         transition: background 180ms ease, color 180ms ease, transform 180ms ease;
     }
 
     .bo-nav-link:hover,
     .bo-nav-link.is-active {
-        background: var(--bo-accent);
-        color: #101412;
+        background: var(--bo-surface-soft);
+        color: var(--bo-text);
         transform: translateX(2px);
     }
 
@@ -176,8 +176,15 @@
         margin: -24px -28px 28px;
         padding: 22px 28px;
         border-bottom: 1px solid var(--bo-line);
-        background: rgba(246, 247, 244, 0.9);
+        background: rgba(15, 17, 16, 0.75);
         backdrop-filter: blur(18px);
+    }
+
+    .bo-header-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 20px;
     }
 
     .bo-title h1,
@@ -209,7 +216,7 @@
         border: 1px solid var(--bo-line);
         border-radius: var(--bo-radius);
         background: var(--bo-surface);
-        box-shadow: 0 1px 0 rgba(17, 20, 18, 0.03);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
     }
 
     .bo-search input {
@@ -223,9 +230,8 @@
     .bo-user {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
         gap: 12px;
-        min-width: 180px;
+        min-width: max-content;
     }
 
     .bo-user strong {
@@ -254,14 +260,14 @@
     }
 
     .bo-flash--success {
-        border-color: rgba(70, 196, 102, 0.35);
-        background: #effcf2;
+        border-color: rgba(229, 229, 229, 0.2);
+        background: var(--bo-surface-soft);
     }
 
     .bo-flash--error,
     .bo-flash--danger {
         border-color: rgba(240, 111, 111, 0.35);
-        background: #fff1f1;
+        background: rgba(240, 111, 111, 0.05);
     }
 
     .bo-content {
@@ -330,7 +336,7 @@
     }
 
     .bo-card--soft {
-        background: #fbfcfa;
+        background: var(--bo-surface-soft);
     }
 
     .bo-card--narrow {
@@ -364,7 +370,7 @@
         justify-content: center;
         border-radius: var(--bo-radius);
         background: var(--bo-surface-soft);
-        color: #27312b;
+        color: var(--bo-text);
     }
 
     .bo-stat strong {
@@ -377,7 +383,7 @@
     .bo-stat em {
         display: block;
         margin-top: 10px;
-        color: var(--bo-accent-strong);
+        color: var(--bo-accent);
         font-size: 13px;
         font-style: normal;
         font-weight: 700;
@@ -407,12 +413,12 @@
     .btn-accent.bo-button {
         background: var(--bo-accent);
         color: #101412;
-        box-shadow: 0 12px 24px rgba(70, 196, 102, 0.22);
+        box-shadow: 0 12px 24px rgba(255, 255, 255, 0.05);
     }
 
     .bo-button--primary:hover,
     .btn-accent.bo-button:hover {
-        background: #79e88d;
+        background: var(--bo-accent-strong);
         color: #101412;
     }
 
@@ -420,20 +426,20 @@
     .btn-secondary.bo-button {
         border-color: var(--bo-line);
         background: var(--bo-surface);
-        color: #26302a;
+        color: var(--bo-text);
     }
 
     .bo-button--secondary:hover,
     .btn-secondary.bo-button:hover {
-        border-color: #c5cec7;
+        border-color: var(--bo-muted);
         background: var(--bo-surface-soft);
-        color: #101412;
+        color: var(--bo-accent-strong);
     }
 
     .bo-button--danger {
         border-color: rgba(240, 111, 111, 0.25);
-        background: #fff2f2;
-        color: #b83d3d;
+        background: rgba(240, 111, 111, 0.05);
+        color: var(--bo-danger);
     }
 
     .bo-button--sm {
@@ -447,7 +453,7 @@
         padding: 14px;
         border: 1px solid var(--bo-line);
         border-radius: var(--bo-radius);
-        background: #fbfcfa;
+        background: var(--bo-surface-soft);
     }
 
     .bo-toolbar__filters {
@@ -495,9 +501,9 @@
     .bo-form-stack textarea:focus,
     .bo-form-stack select:focus,
     .bo-toolbar select:focus {
-        border-color: rgba(70, 196, 102, 0.55);
-        background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(141, 236, 156, 0.22);
+        border-color: rgba(229, 229, 229, 0.4);
+        background: var(--bo-surface);
+        box-shadow: 0 0 0 4px rgba(229, 229, 229, 0.1);
     }
 
     .bo-field {
@@ -508,7 +514,7 @@
     .bo-field label,
     .bo-form-stack label {
         margin: 0;
-        color: #2b302d;
+        color: var(--bo-text);
         font-size: 14px;
         font-weight: 750;
     }
@@ -541,8 +547,8 @@
         padding: 9px 12px;
         border: 1px solid var(--bo-line);
         border-radius: var(--bo-radius);
-        background: #fbfcfa;
-        color: #2b302d;
+        background: var(--bo-surface-soft);
+        color: var(--bo-text);
         font-size: 14px;
         font-weight: 700;
     }
@@ -554,7 +560,7 @@
     }
 
     .bo-check--danger {
-        color: #b83d3d;
+        color: var(--bo-danger);
     }
 
     .bo-form-errors,
@@ -563,8 +569,8 @@
         padding: 12px 14px;
         border: 1px solid rgba(240, 111, 111, 0.35);
         border-radius: var(--bo-radius);
-        background: #fff2f2;
-        color: #9d3333;
+        background: rgba(240, 111, 111, 0.05);
+        color: var(--bo-danger);
         list-style: none;
         font-weight: 650;
     }
@@ -595,7 +601,7 @@
         font-size: 12px;
         font-weight: 800;
         text-transform: uppercase;
-        background: #fbfcfa;
+        background: var(--bo-surface-soft);
     }
 
     .bo-table tr:last-child td {
@@ -607,7 +613,7 @@
     }
 
     .bo-table tbody tr:hover {
-        background: #fbfcfa;
+        background: var(--bo-surface-soft);
     }
 
     .bo-product-cell {
@@ -649,26 +655,26 @@
         min-height: 28px;
         padding: 0 10px;
         border-radius: 999px;
-        background: #edf9ef;
-        color: #257a39;
+        background: var(--bo-surface-soft);
+        color: var(--bo-text);
         font-size: 12px;
         font-weight: 800;
         white-space: nowrap;
+        border: 1px solid var(--bo-line);
     }
 
     .bo-badge--muted {
-        background: #eef0ed;
-        color: #69716c;
+        color: var(--bo-muted);
     }
 
     .bo-badge--warning {
-        background: #fff7d9;
-        color: #8a6700;
+        border-color: rgba(247, 215, 116, 0.3);
+        color: var(--bo-warning);
     }
 
     .bo-badge--danger {
-        background: #fff0f0;
-        color: #bc3434;
+        border-color: rgba(240, 111, 111, 0.3);
+        color: var(--bo-danger);
     }
 
     .bo-badge-stack,
@@ -697,23 +703,23 @@
         padding: 14px;
         border: 1px solid var(--bo-line);
         border-radius: var(--bo-radius);
-        background: #fbfcfa;
+        background: var(--bo-surface-soft);
         color: inherit;
         text-decoration: none;
         transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
     }
 
     a.bo-list-row:hover {
-        border-color: rgba(70, 196, 102, 0.42);
-        background: #f6fff7;
+        border-color: rgba(229, 229, 229, 0.3);
+        background: rgba(229, 229, 229, 0.05);
         transform: translateY(-1px);
     }
 
     .bo-empty {
         padding: 24px;
-        border: 1px dashed #cfd8d0;
+        border: 1px dashed var(--bo-line);
         border-radius: var(--bo-radius);
-        background: #fbfcfa;
+        background: var(--bo-surface-soft);
         color: var(--bo-muted);
         text-align: center;
         font-weight: 650;
@@ -774,7 +780,7 @@
     .bo-thumb--empty {
         display: grid;
         place-items: center;
-        color: var(--bo-accent-strong);
+        color: var(--bo-muted);
         border-style: dashed;
     }
 
@@ -829,7 +835,7 @@
             grid-template-columns: 1fr;
         }
 
-        .bo-user {
+        .bo-header-right {
             justify-content: flex-start;
         }
 
@@ -870,6 +876,13 @@
             background: transparent;
         }
 
+        .bo-header-right {
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 16px;
+        }
+
         .bo-grid--stats,
         .bo-form-grid,
         .bo-meta-grid {
@@ -889,6 +902,12 @@
             width: 100%;
         }
     }
+
+    @media (max-width: 480px) {
+        .hide-mobile {
+            display: none;
+        }
+    }
 </style>
 
 <section class="bo-app">
@@ -900,6 +919,12 @@
                     <strong>001xclusiv</strong>
                     <span>Commerce OS</span>
                 </span>
+            </a>
+
+            <!-- Salida hacia el frontend en el sidebar -->
+            <a href="{% url 'core:home' %}" class="bo-button bo-button--secondary" style="width: 100%; margin-bottom: 28px; justify-content: flex-start; border-style: dashed;">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver a la tienda</span>
             </a>
 
             <span class="bo-nav-kicker">Main menu</span>
@@ -948,13 +973,27 @@
                     <i class="bi bi-command"></i>
                 </form>
 
-                <div class="bo-user">
-                    <span class="bo-user__avatar">{{ user.username|first|upper }}</span>
-                    <div>
-                        <strong>{{ user.username }}</strong>
-                        <span>{% if user.is_superuser %}Owner{% elif user.is_staff %}Staff{% else %}Usuario{% endif %}</span>
+                <!-- Acciones secundarias y usuario -->
+                <div class="bo-header-right">
+                    <div style="display: flex; gap: 8px;">
+                        <a href="{% url 'core:home' %}" class="bo-button bo-button--secondary bo-button--sm" title="Ver tienda">
+                            <i class="bi bi-box-arrow-up-right"></i> <span class="hide-mobile">Ver tienda</span>
+                        </a>
+                        <form method="post" action="{% url 'accounts:logout' %}" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="bo-button bo-button--secondary bo-button--sm" title="Cerrar sesión">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </button>
+                        </form>
                     </div>
-                    <i class="bi bi-chevron-down"></i>
+
+                    <div class="bo-user">
+                        <span class="bo-user__avatar">{{ user.username|first|upper }}</span>
+                        <div class="hide-mobile">
+                            <strong>{{ user.username }}</strong>
+                            <span>{% if user.is_superuser %}Owner{% elif user.is_staff %}Staff{% else %}Usuario{% endif %}</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
