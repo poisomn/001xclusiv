@@ -3,81 +3,152 @@
 {% block title %}Pedido #{{ order.id }} - Backoffice{% endblock %}
 
 {% block backoffice_content %}
-<div class="backoffice-section-grid">
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Pedido</span>
-                <h2>#{{ order.id }}</h2>
-            </div>
-            <div class="backoffice-action-row">
-                <a href="{% url 'accounts:order_receipt' order.id %}" class="btn-secondary" target="_blank">Ver comprobante</a>
-                <a href="{% url 'accounts:backoffice_orders' %}" class="btn-secondary">Volver</a>
-            </div>
+<section class="bo-section">
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Invoice</span>
+            <h1>Pedido #{{ order.id }}</h1>
+            <p>Detalle del cliente, direccion, productos y estado de pago.</p>
         </div>
-
-        <div class="backoffice-order-meta">
-            <div>
-                <span>Cliente</span>
-                <strong>{{ order.full_name }}</strong>
-                <p>{{ order.email }}</p>
-            </div>
-            <div>
-                <span>Envio</span>
-                <strong>{{ order.city }}</strong>
-                <p>{{ order.address }}</p>
-            </div>
-            <div>
-                <span>Total</span>
-                <strong>${{ order.total_amount }} CLP</strong>
-                <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
-            </div>
+        <div class="bo-action-row">
+            <a href="{% url 'accounts:order_receipt' order.id %}" class="bo-button bo-button--secondary" target="_blank">
+                <i class="bi bi-printer"></i>
+                Ver comprobante
+            </a>
+            <a href="{% url 'accounts:backoffice_orders' %}" class="bo-button bo-button--secondary">
+                <i class="bi bi-arrow-left"></i>
+                Volver
+            </a>
         </div>
+    </div>
 
-        <div class="backoffice-list">
-            {% for item in order.items.all %}
-            <div class="backoffice-list-row">
+    <div class="bo-grid bo-grid--two">
+        <article class="bo-card">
+            <div class="bo-card__header">
                 <div>
-                    <strong>{{ item.product.name }}</strong>
-                    <p>Cantidad: {{ item.quantity }}{% if item.variant %} · Talla {{ item.variant.size }}{% endif %}</p>
+                    <span class="bo-kicker">Resumen</span>
+                    <h2>Informacion del pedido</h2>
+                    <p>Datos principales para gestion y soporte.</p>
                 </div>
-                <div class="text-end">
-                    <strong>${{ item.get_cost }} CLP</strong>
-                    <p>${{ item.price }} CLP c/u</p>
+                <span class="bo-badge {% if order.status == 'pending' %}bo-badge--warning{% elif order.status == 'cancelled' %}bo-badge--danger{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+
+            <div class="bo-meta-grid">
+                <div class="bo-meta-card">
+                    <span>Cliente</span>
+                    <strong>{{ order.full_name }}</strong>
+                    <p class="bo-muted mb-0">{{ order.email }}</p>
+                </div>
+                <div class="bo-meta-card">
+                    <span>Direccion</span>
+                    <strong>{{ order.city }}</strong>
+                    <p class="bo-muted mb-0">{{ order.address }}</p>
+                </div>
+                <div class="bo-meta-card">
+                    <span>Fecha</span>
+                    <strong>{{ order.created_at|date:"d M Y" }}</strong>
+                    <p class="bo-muted mb-0">{{ order.created_at|date:"H:i" }}</p>
                 </div>
             </div>
-            {% endfor %}
-        </div>
-    </article>
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Control</span>
-                <h2>Actualizar pedido</h2>
+            <div class="bo-card__header mt-4">
+                <div>
+                    <span class="bo-kicker">Productos</span>
+                    <h2>Items comprados</h2>
+                </div>
             </div>
-        </div>
 
-        <form method="post" class="backoffice-form-stack">
-            {% csrf_token %}
-            <div>
-                <label>Estado</label>
-                {{ form.status }}
+            <div class="bo-list">
+                {% for item in order.items.all %}
+                <div class="bo-list-row">
+                    <div class="bo-product-cell">
+                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
+                        <div>
+                            <strong>{{ item.product.name }}</strong>
+                            <p>Cantidad: {{ item.quantity }}{% if item.variant %} - Talla {{ item.variant.size }}{% endif %}</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <strong>${{ item.get_cost }} CLP</strong>
+                        <p>${{ item.price }} CLP c/u</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            <div>
-                <label>Estado de pago</label>
-                {{ form.payment_status }}
+
+            <div class="bo-invoice-summary">
+                <div class="bo-invoice-summary__row">
+                    <span class="bo-muted">Subtotal</span>
+                    <span>${{ order.total_amount }} CLP</span>
+                </div>
+                <div class="bo-invoice-summary__row">
+                    <span class="bo-muted">Total</span>
+                    <strong>${{ order.total_amount }} CLP</strong>
+                </div>
             </div>
-            <div>
-                <label>Payment ID</label>
-                {{ form.payment_id }}
-            </div>
-            <label class="backoffice-check">
-                {{ form.is_paid }}
-                <span>Marcar como pagado</span>
-            </label>
-            <button type="submit" class="btn-accent">Guardar cambios</button>
-        </form>
-    </article>
-</div>
+        </article>
+
+        <aside class="bo-section">
+            <article class="bo-card">
+                <div class="bo-card__header">
+                    <div>
+                        <span class="bo-kicker">Control</span>
+                        <h2>Actualizar pedido</h2>
+                        <p>Cambia estado, pago e identificador de transaccion.</p>
+                    </div>
+                </div>
+
+                <form method="post" class="bo-form-stack">
+                    {% csrf_token %}
+                    <div class="bo-field">
+                        <label for="{{ form.status.id_for_label }}">Estado</label>
+                        {{ form.status }}
+                        {{ form.status.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.payment_status.id_for_label }}">Estado de pago</label>
+                        {{ form.payment_status }}
+                        {{ form.payment_status.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.payment_id.id_for_label }}">Payment ID</label>
+                        {{ form.payment_id }}
+                        {{ form.payment_id.errors }}
+                    </div>
+                    <label class="bo-check">
+                        {{ form.is_paid }}
+                        <span>Marcar como pagado</span>
+                    </label>
+                    <button type="submit" class="bo-button bo-button--primary">
+                        <i class="bi bi-check2"></i>
+                        Guardar cambios
+                    </button>
+                </form>
+            </article>
+
+            <article class="bo-card bo-card--soft">
+                <div class="bo-list">
+                    <div class="bo-list-row">
+                        <div>
+                            <strong>Pago</strong>
+                            <p>{{ order.get_payment_status_display }}</p>
+                        </div>
+                        <span class="bo-badge {% if order.payment_status == 'pending' %}bo-badge--warning{% elif order.payment_status == 'cancelled' or order.payment_status == 'failed' %}bo-badge--danger{% endif %}">
+                            {% if order.is_paid %}Confirmado{% else %}Pendiente{% endif %}
+                        </span>
+                    </div>
+                    <div class="bo-list-row">
+                        <div>
+                            <strong>Payment ID</strong>
+                            <p>{{ order.payment_id|default:"Sin registrar" }}</p>
+                        </div>
+                        <i class="bi bi-credit-card"></i>
+                    </div>
+                </div>
+            </article>
+        </aside>
+    </div>
+</section>
 {% endblock %}

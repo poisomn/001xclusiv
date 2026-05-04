@@ -3,141 +3,163 @@
 {% block title %}Backoffice - 001xclusiv{% endblock %}
 
 {% block backoffice_content %}
-<div class="backoffice-section-grid">
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Panorama</span>
-                <h2>Estado general</h2>
-            </div>
+<section class="bo-section">
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Analytics</span>
+            <h1>Panel general</h1>
+            <p>Una lectura rapida del estado comercial de 001xclusiv.</p>
         </div>
-        <div class="backoffice-stat-grid">
-            <div class="backoffice-stat-card">
-                <span>Total ventas</span>
-                <strong>${{ stats.total_sales }} CLP</strong>
-            </div>
-            <div class="backoffice-stat-card">
-                <span>Pedidos</span>
-                <strong>{{ stats.order_count }}</strong>
-            </div>
-            <div class="backoffice-stat-card">
-                <span>Pagados</span>
-                <strong>{{ stats.paid_orders }}</strong>
-            </div>
-            <div class="backoffice-stat-card">
-                <span>Pendientes</span>
-                <strong>{{ stats.pending_orders }}</strong>
-            </div>
-            <div class="backoffice-stat-card">
-                <span>Ticket promedio</span>
-                <strong>${{ stats.average_ticket }} CLP</strong>
-            </div>
-            <div class="backoffice-stat-card">
-                <span>Clientes unicos</span>
-                <strong>{{ stats.unique_customers }}</strong>
-            </div>
-        </div>
-    </article>
-
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Pedidos</span>
-                <h2>Ultimos pedidos</h2>
-            </div>
-            <a href="{% url 'accounts:backoffice_orders' %}" class="btn-secondary">Ver todos</a>
-        </div>
-        <div class="backoffice-list">
-            {% for order in recent_orders %}
-            <a href="{% url 'accounts:backoffice_order_detail' order.id %}" class="backoffice-list-row">
-                <div>
-                    <strong>#{{ order.id }} · {{ order.full_name }}</strong>
-                    <p>{{ order.email }}</p>
-                </div>
-                <div class="text-end">
-                    <span class="status-chip">{{ order.get_status_display }}</span>
-                    <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
-                </div>
+        <div class="bo-action-row">
+            <a href="{% url 'accounts:backoffice_products' %}" class="bo-button bo-button--secondary">
+                <i class="bi bi-box-seam"></i>
+                Catalogo
             </a>
-            {% empty %}
-            <div class="backoffice-empty-state">Aun no hay pedidos registrados.</div>
-            {% endfor %}
+            <a href="{% url 'accounts:backoffice_product_create' %}" class="bo-button bo-button--primary">
+                <i class="bi bi-plus-lg"></i>
+                Agregar producto
+            </a>
         </div>
-    </article>
+    </div>
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">KPIs</span>
-                <h2>Ventas por dia</h2>
-            </div>
-        </div>
-        <div class="backoffice-list">
-            {% for day in sales_by_day %}
-            <div class="backoffice-list-row">
-                <div>
-                    <strong>{{ day.day|date:"d M Y" }}</strong>
-                </div>
-                <div class="text-end">
-                    <span class="status-chip">${{ day.total }} CLP</span>
-                </div>
-            </div>
-            {% empty %}
-            <div class="backoffice-empty-state">Todavia no hay ventas pagadas para graficar.</div>
-            {% endfor %}
-        </div>
-    </article>
+    <div class="bo-grid bo-grid--stats">
+        <article class="bo-stat">
+            <span>Total ventas</span>
+            <i class="bi bi-cash-stack"></i>
+            <strong>${{ stats.total_sales }}</strong>
+            <em>CLP pagados</em>
+        </article>
+        <article class="bo-stat">
+            <span>Pedidos</span>
+            <i class="bi bi-receipt"></i>
+            <strong>{{ stats.order_count }}</strong>
+            <em>{{ stats.pending_orders }} pendientes</em>
+        </article>
+        <article class="bo-stat">
+            <span>Productos</span>
+            <i class="bi bi-bag"></i>
+            <strong>{{ backoffice_metrics.products }}</strong>
+            <em>Catalogo activo</em>
+        </article>
+        <article class="bo-stat">
+            <span>Usuarios</span>
+            <i class="bi bi-people"></i>
+            <strong>{{ backoffice_metrics.users }}</strong>
+            <em>{{ stats.unique_customers }} compradores</em>
+        </article>
+    </div>
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Stock</span>
-                <h2>Productos a vigilar</h2>
-            </div>
-            <a href="{% url 'accounts:backoffice_products' %}" class="btn-secondary">Gestionar productos</a>
-        </div>
-        <div class="backoffice-list">
-            {% for product in low_stock_products %}
-            <a href="{% url 'accounts:backoffice_product_edit' product.id %}" class="backoffice-list-row">
+    <div class="bo-grid bo-grid--split">
+        <article class="bo-card">
+            <div class="bo-card__header">
                 <div>
-                    <strong>{{ product.name }}</strong>
-                    <p>{% if product.brand %}{{ product.brand.name }}{% else %}Sin marca{% endif %}</p>
+                    <span class="bo-kicker">Actividad reciente</span>
+                    <h2>Ultimos pedidos</h2>
+                    <p>Pedidos nuevos y su estado operativo.</p>
                 </div>
-                <div class="text-end">
-                    <span class="status-chip {% if product.total_stock == 0 %}is-danger{% endif %}">
+                <a href="{% url 'accounts:backoffice_orders' %}" class="bo-button bo-button--secondary bo-button--sm">
+                    Ver todos
+                </a>
+            </div>
+            <div class="bo-list">
+                {% for order in recent_orders %}
+                <a href="{% url 'accounts:backoffice_order_detail' order.id %}" class="bo-list-row">
+                    <div>
+                        <strong>#{{ order.id }} - {{ order.full_name }}</strong>
+                        <p>{{ order.email }}</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="bo-badge {% if order.status == 'pending' %}bo-badge--warning{% elif order.status == 'cancelled' %}bo-badge--danger{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                        <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="bo-empty">Aun no hay pedidos registrados.</div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="bo-card">
+            <div class="bo-card__header">
+                <div>
+                    <span class="bo-kicker">Ventas</span>
+                    <h2>Ventas por dia</h2>
+                    <p>Resumen de dias con pedidos pagados.</p>
+                </div>
+                <span class="bo-badge">Ticket ${{ stats.average_ticket }}</span>
+            </div>
+            <div class="bo-list">
+                {% for day in sales_by_day %}
+                <div class="bo-list-row">
+                    <div>
+                        <strong>{{ day.day|date:"d M Y" }}</strong>
+                        <p>Ventas confirmadas</p>
+                    </div>
+                    <span class="bo-badge">${{ day.total }} CLP</span>
+                </div>
+                {% empty %}
+                <div class="bo-empty">Todavia no hay ventas pagadas para mostrar.</div>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+
+    <div class="bo-grid bo-grid--split">
+        <article class="bo-card">
+            <div class="bo-card__header">
+                <div>
+                    <span class="bo-kicker">Inventario</span>
+                    <h2>Productos a vigilar</h2>
+                    <p>Stock bajo o agotado para reaccionar rapido.</p>
+                </div>
+                <a href="{% url 'accounts:backoffice_products' %}?filter=low_stock" class="bo-button bo-button--secondary bo-button--sm">
+                    Revisar stock
+                </a>
+            </div>
+            <div class="bo-list">
+                {% for product in low_stock_products %}
+                <a href="{% url 'accounts:backoffice_product_edit' product.id %}" class="bo-list-row">
+                    <div>
+                        <strong>{{ product.name }}</strong>
+                        <p>{% if product.brand %}{{ product.brand.name }}{% else %}Sin marca{% endif %}</p>
+                    </div>
+                    <span class="bo-badge {% if product.total_stock == 0 %}bo-badge--danger{% else %}bo-badge--warning{% endif %}">
                         {{ product.total_stock }} en stock
                     </span>
-                </div>
-            </a>
-            {% empty %}
-            <div class="backoffice-empty-state">No hay alertas de stock bajo por ahora.</div>
-            {% endfor %}
-        </div>
-    </article>
+                </a>
+                {% empty %}
+                <div class="bo-empty">No hay alertas de stock bajo por ahora.</div>
+                {% endfor %}
+            </div>
+        </article>
 
-    <article class="backoffice-panel">
-        <div class="backoffice-panel__header">
-            <div>
-                <span class="section-kicker">Clientes</span>
-                <h2>Usuarios con mas pedidos</h2>
-            </div>
-            <a href="{% url 'accounts:backoffice_users' %}" class="btn-secondary">Ver usuarios</a>
-        </div>
-        <div class="backoffice-list">
-            {% for customer in top_customers %}
-            <div class="backoffice-list-row">
+        <article class="bo-card">
+            <div class="bo-card__header">
                 <div>
-                    <strong>{{ customer.username }}</strong>
-                    <p>{{ customer.email|default:"Sin email" }}</p>
+                    <span class="bo-kicker">Clientes</span>
+                    <h2>Usuarios con mas pedidos</h2>
+                    <p>Clientes que mas actividad han generado.</p>
                 </div>
-                <div class="text-end">
-                    <span class="status-chip">{{ customer.order_count }} pedidos</span>
-                </div>
+                <a href="{% url 'accounts:backoffice_users' %}" class="bo-button bo-button--secondary bo-button--sm">
+                    Ver usuarios
+                </a>
             </div>
-            {% empty %}
-            <div class="backoffice-empty-state">Todavia no hay usuarios con pedidos.</div>
-            {% endfor %}
-        </div>
-    </article>
-</div>
+            <div class="bo-list">
+                {% for customer in top_customers %}
+                <div class="bo-list-row">
+                    <div>
+                        <strong>{{ customer.username }}</strong>
+                        <p>{{ customer.email|default:"Sin email" }}</p>
+                    </div>
+                    <span class="bo-badge">{{ customer.order_count }} pedidos</span>
+                </div>
+                {% empty %}
+                <div class="bo-empty">Todavia no hay usuarios con pedidos.</div>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+</section>
 {% endblock %}

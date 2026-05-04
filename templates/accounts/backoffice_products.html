@@ -3,96 +3,114 @@
 {% block title %}Productos - Backoffice{% endblock %}
 
 {% block backoffice_content %}
-<article class="backoffice-panel">
-    <div class="backoffice-panel__header">
-        <div>
-            <span class="section-kicker">Catalogo</span>
-            <h2>Gestion de productos</h2>
+<section class="bo-section">
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Catalogo</span>
+            <h1>Gestion de productos</h1>
+            <p>Administra precios, stock, estado y visibilidad del catalogo.</p>
         </div>
-        <a href="{% url 'accounts:backoffice_product_create' %}" class="btn-accent">Nuevo producto</a>
+        <a href="{% url 'accounts:backoffice_product_create' %}" class="bo-button bo-button--primary">
+            <i class="bi bi-plus-lg"></i>
+            Agregar producto
+        </a>
     </div>
 
-    <form method="get" class="backoffice-toolbar">
-        <div class="backoffice-search">
-            <i class="bi bi-search"></i>
-            <input type="search" name="q" value="{{ query }}" placeholder="Buscar por nombre">
-        </div>
-        <select name="filter" class="form-select backoffice-toolbar__select">
-            {% for value, label in product_filters %}
-            <option value="{{ value }}" {% if active_filter == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn-secondary">Buscar</button>
-    </form>
+    <article class="bo-card">
+        <form method="get" class="bo-toolbar">
+            <div class="bo-search">
+                <i class="bi bi-search"></i>
+                <input type="search" name="q" value="{{ query }}" placeholder="Buscar por nombre o SKU">
+            </div>
+            <div class="bo-toolbar__filters">
+                <select name="filter" class="bo-input">
+                    {% for value, label in product_filters %}
+                    <option value="{{ value }}" {% if active_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="bo-button bo-button--secondary">
+                    <i class="bi bi-sliders"></i>
+                    Filtrar
+                </button>
+            </div>
+        </form>
 
-    <div class="backoffice-table-wrap">
-        <table class="backoffice-table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Marca</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Estado</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>
-                        <div class="backoffice-table__product">
-                            <img src="{{ product.primary_image_url }}" alt="{{ product.name }}">
-                            <div>
-                                <strong>{{ product.name }}</strong>
-                                <p>{{ product.sku }}</p>
+        <div class="bo-table-wrap">
+            <table class="bo-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Marca</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            <div class="bo-product-cell">
+                                <img src="{{ product.primary_image_url }}" alt="{{ product.name }}">
+                                <div>
+                                    <strong>{{ product.name }}</strong>
+                                    <p>{{ product.sku }}</p>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>{{ product.brand.name|default:"-" }}</td>
-                    <td>${{ product.final_price }} CLP</td>
-                    <td>{{ product.total_stock }}</td>
-                    <td>
-                        <div class="backoffice-status-stack">
-                            <span class="status-chip {% if not product.is_active %}is-muted{% endif %}">
-                                {% if product.is_active %}Publicado{% else %}Oculto{% endif %}
+                        </td>
+                        <td>{{ product.brand.name|default:"Sin marca" }}</td>
+                        <td><strong>${{ product.final_price }}</strong> <p>CLP</p></td>
+                        <td>
+                            <span class="bo-badge {% if product.total_stock == 0 %}bo-badge--danger{% elif product.total_stock <= 5 %}bo-badge--warning{% endif %}">
+                                {{ product.total_stock }} unidades
                             </span>
-                            {% if product.is_featured %}
-                            <span class="status-chip">Destacado</span>
-                            {% endif %}
-                        </div>
-                    </td>
-                    <td class="text-end">
-                        <div class="backoffice-inline-actions">
-                            <form method="post" action="{% url 'accounts:backoffice_product_action' product.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="toggle_active">
-                                <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
-                                <button type="submit" class="btn-secondary btn-sm">
-                                    {% if product.is_active %}Ocultar{% else %}Publicar{% endif %}
-                                </button>
-                            </form>
-                            <form method="post" action="{% url 'accounts:backoffice_product_action' product.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="toggle_featured">
-                                <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
-                                <button type="submit" class="btn-secondary btn-sm">
-                                    {% if product.is_featured %}Quitar destacado{% else %}Destacar{% endif %}
-                                </button>
-                            </form>
-                            <a href="{% url 'accounts:backoffice_product_edit' product.id %}" class="btn-secondary btn-sm">Editar</a>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6">
-                        <div class="backoffice-empty-state">No encontramos productos con ese criterio.</div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</article>
+                        </td>
+                        <td>
+                            <div class="bo-badge-stack">
+                                <span class="bo-badge {% if not product.is_active %}bo-badge--muted{% endif %}">
+                                    {% if product.is_active %}Publicado{% else %}Oculto{% endif %}
+                                </span>
+                                {% if product.is_featured %}
+                                <span class="bo-badge">Destacado</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="bo-table-actions">
+                                <form method="post" action="{% url 'accounts:backoffice_product_action' product.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle_active">
+                                    <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="bo-button bo-button--secondary bo-button--sm">
+                                        {% if product.is_active %}Ocultar{% else %}Publicar{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'accounts:backoffice_product_action' product.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle_featured">
+                                    <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="bo-button bo-button--secondary bo-button--sm">
+                                        {% if product.is_featured %}Quitar{% else %}Destacar{% endif %}
+                                    </button>
+                                </form>
+                                <a href="{% url 'accounts:backoffice_product_edit' product.id %}" class="bo-button bo-button--secondary bo-button--sm">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Editar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="bo-empty">No encontramos productos con ese criterio.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
 {% endblock %}

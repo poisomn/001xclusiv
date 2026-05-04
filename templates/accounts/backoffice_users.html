@@ -3,49 +3,66 @@
 {% block title %}Usuarios - Backoffice{% endblock %}
 
 {% block backoffice_content %}
-<article class="backoffice-panel">
-    <div class="backoffice-panel__header">
-        <div>
-            <span class="section-kicker">Usuarios</span>
-            <h2>Cuentas registradas</h2>
+<section class="bo-section">
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Usuarios</span>
+            <h1>Cuentas registradas</h1>
+            <p>Visualiza roles, emails y actividad de pedidos.</p>
         </div>
     </div>
 
-    <div class="backoffice-table-wrap">
-        <table class="backoffice-table">
-            <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Pedidos</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for listed_user in users %}
-                <tr>
-                    <td>{{ listed_user.username }}</td>
-                    <td>{{ listed_user.email|default:"-" }}</td>
-                    <td>
-                        {% if listed_user.is_superuser %}
-                        <span class="status-chip">Superuser</span>
-                        {% elif listed_user.is_staff %}
-                        <span class="status-chip">Staff</span>
-                        {% else %}
-                        <span class="status-chip is-muted">Cliente</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ listed_user.order_count }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">
-                        <div class="backoffice-empty-state">No hay usuarios registrados.</div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</article>
+    <article class="bo-card">
+        <div class="bo-table-wrap">
+            <table class="bo-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Pedidos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for listed_user in users %}
+                    <tr>
+                        <td>
+                            <div class="bo-product-cell">
+                                <span class="bo-table-avatar">{{ listed_user.username|first|upper }}</span>
+                                <div>
+                                    <strong>{{ listed_user.username }}</strong>
+                                    <p>ID {{ listed_user.id }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ listed_user.email|default:"-" }}</td>
+                        <td>
+                            {% if listed_user.is_superuser %}
+                            <span class="bo-badge">Superuser</span>
+                            {% elif listed_user.is_staff %}
+                            <span class="bo-badge">Staff</span>
+                            {% else %}
+                            <span class="bo-badge bo-badge--muted">Cliente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="bo-badge {% if not listed_user.is_active %}bo-badge--danger{% endif %}">
+                                {% if listed_user.is_active %}Activo{% else %}Inactivo{% endif %}
+                            </span>
+                        </td>
+                        <td><strong>{{ listed_user.order_count }}</strong></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="bo-empty">No hay usuarios registrados.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
 {% endblock %}
