@@ -10,6 +10,7 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
     path('backoffice/', views.BackofficeDashboardView.as_view(), name='backoffice_dashboard'),
     path('backoffice/products/', views.BackofficeProductListView.as_view(), name='backoffice_products'),
+    path('backoffice/products/autosave/', views.backoffice_product_autosave, name='backoffice_product_autosave'),
     path('backoffice/products/<int:product_id>/action/', views.BackofficeProductActionView.as_view(), name='backoffice_product_action'),
     path('backoffice/products/new/', views.BackofficeProductFormView.as_view(), name='backoffice_product_create'),
     path('backoffice/products/<int:product_id>/edit/', views.BackofficeProductFormView.as_view(), name='backoffice_product_edit'),

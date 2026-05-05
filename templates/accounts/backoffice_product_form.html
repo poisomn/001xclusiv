@@ -3,8 +3,9 @@
 {% block title %}{% if is_editing %}Editar producto{% else %}Nuevo producto{% endif %} - Backoffice{% endblock %}
 
 {% block backoffice_content %}
-<form method="post" class="bo-section">
+<form method="post" class="bo-section" id="backoffice-product-form" data-autosave-url="{% url 'accounts:backoffice_product_autosave' %}">
     {% csrf_token %}
+    <input type="hidden" name="autosave_product_id" id="autosave-product-id" value="{% if product %}{{ product.id }}{% endif %}">
 
     <div class="bo-page-bar">
         <div class="bo-page-heading">
@@ -13,6 +14,7 @@
             <p>Construye la ficha comercial, imagenes, categorias y variantes.</p>
         </div>
         <div class="bo-action-row">
+            <span class="bo-autosave-status" id="autosave-status" aria-live="polite"></span>
             <a href="{% url 'accounts:backoffice_products' %}" class="bo-button bo-button--secondary">
                 <i class="bi bi-arrow-left"></i>
                 Volver
@@ -138,10 +140,10 @@
                                     </label>
                                 </td>
                                 <td>
-                                    <label class="bo-check bo-check--danger">
+                                    <div class="bo-delete-control">
                                         {{ variant_form.DELETE }}
-                                        <span>Eliminar</span>
-                                    </label>
+                                        <button type="button" class="bo-button bo-button--secondary bo-button--sm js-formset-delete">Eliminar</button>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -173,10 +175,10 @@
                             </label>
                         </td>
                         <td>
-                            <label class="bo-check bo-check--danger">
+                            <div class="bo-delete-control">
                                 {{ variant_formset.empty_form.DELETE }}
-                                <span>Eliminar</span>
-                            </label>
+                                <button type="button" class="bo-button bo-button--secondary bo-button--sm js-formset-delete">Eliminar</button>
+                            </div>
                         </td>
                     </tr>
                 </template>
@@ -297,10 +299,10 @@
                                     {{ image_form.is_main }}
                                     <span>Principal</span>
                                 </label>
-                                <label class="bo-check bo-check--danger">
+                                <div class="bo-delete-control">
                                     {{ image_form.DELETE }}
-                                    <span>Eliminar</span>
-                                </label>
+                                    <button type="button" class="bo-button bo-button--secondary bo-button--sm js-formset-delete">Eliminar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -334,10 +336,10 @@
                                     {{ image_formset.empty_form.is_main }}
                                     <span>Principal</span>
                                 </label>
-                                <label class="bo-check bo-check--danger">
+                                <div class="bo-delete-control">
                                     {{ image_formset.empty_form.DELETE }}
-                                    <span>Eliminar</span>
-                                </label>
+                                    <button type="button" class="bo-button bo-button--secondary bo-button--sm js-formset-delete">Eliminar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -349,6 +351,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const productForm = document.getElementById('backoffice-product-form');
+    const autosaveStatus = document.getElementById('autosave-status');
+    const autosaveProductId = document.getElementById('autosave-product-id');
+    let autosaveTimer = null;
+    let autosaveInFlight = false;
+    let autosaveQueued = false;
+
     function setupDynamicForm(prefix, containerId, btnId, templateId) {
         const container = document.getElementById(containerId);
         const addBtn = document.getElementById(btnId);
@@ -358,57 +367,113 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
         
         addBtn.addEventListener('click', function() {
-            const currentFormCount = parseInt(totalForms.value);
-            const clone = template.content.cloneNode(true);
-            
-            const wrapper = document.createElement('div');
-            wrapper.appendChild(clone);
-            wrapper.innerHTML = wrapper.innerHTML.replace(/__prefix__/g, currentFormCount);
-            
-            const newElement = wrapper.firstElementChild;
-            container.appendChild(newElement);
+            const currentFormCount = Number.parseInt(totalForms.value, 10) || 0;
+            const html = template.innerHTML.replace(/__prefix__/g, currentFormCount).trim();
+
+            container.insertAdjacentHTML('beforeend', html);
+            const newElement = container.lastElementChild;
             totalForms.value = currentFormCount + 1;
             
-            // Trigger reflow for animation
             void newElement.offsetWidth;
             newElement.style.opacity = '1';
             newElement.style.transform = 'translateY(0)';
-            
-            // Scroll into view
             newElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             
             attachDeleteEvents(newElement);
             attachPreviewEvents(newElement);
+            scheduleAutosave();
         });
     }
 
     function attachDeleteEvents(root) {
-        const deleteBtns = root.querySelectorAll('.bo-check--danger input[type="checkbox"]');
-        deleteBtns.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    const row = this.closest('.variant-row, .image-row');
-                    if (row) {
-                        row.style.opacity = '0';
-                        row.style.transform = 'scale(0.98)';
-                        setTimeout(() => {
-                            row.style.display = 'none';
-                        }, 300);
-                    }
-                } else {
-                    const row = this.closest('.variant-row, .image-row');
-                    if (row) {
-                        row.style.opacity = '1';
-                        row.style.transform = 'scale(1)';
-                    }
-                }
+        root.querySelectorAll('.bo-delete-control input[type="checkbox"]').forEach(checkbox => {
+            checkbox.style.display = 'none';
+        });
+
+        root.querySelectorAll('.js-formset-delete').forEach(button => {
+            if (button.dataset.bound === 'true') return;
+            button.dataset.bound = 'true';
+            button.addEventListener('click', function() {
+                const control = this.closest('.bo-delete-control');
+                const checkbox = control ? control.querySelector('input[type="checkbox"]') : null;
+                const row = this.closest('.variant-row, .image-row');
+                if (!checkbox || !row) return;
+
+                checkbox.checked = true;
+                row.style.opacity = '0';
+                row.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    row.style.display = 'none';
+                    scheduleAutosave();
+                }, 250);
             });
         });
+
+        root.querySelectorAll('.bo-delete-control input[type="checkbox"]:checked').forEach(checkbox => {
+            const row = checkbox.closest('.variant-row, .image-row');
+            if (row) {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function scheduleAutosave() {
+        if (!productForm) return;
+        window.clearTimeout(autosaveTimer);
+        autosaveTimer = window.setTimeout(runAutosave, 800);
+    }
+
+    function setAutosaveStatus(text, state) {
+        if (!autosaveStatus) return;
+        autosaveStatus.textContent = text;
+        autosaveStatus.dataset.state = state || '';
+    }
+
+    async function runAutosave() {
+        if (!productForm || !productForm.dataset.autosaveUrl) return;
+        if (autosaveInFlight) {
+            autosaveQueued = true;
+            return;
+        }
+
+        autosaveInFlight = true;
+        autosaveQueued = false;
+        setAutosaveStatus('Guardando...', 'saving');
+
+        try {
+            const response = await fetch(productForm.dataset.autosaveUrl, {
+                method: 'POST',
+                body: new FormData(productForm),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const payload = await response.json();
+            if (!response.ok || !payload.success) {
+                throw new Error(payload.error || 'Autosave failed');
+            }
+
+            if (payload.product_id && autosaveProductId) {
+                autosaveProductId.value = payload.product_id;
+            }
+            setAutosaveStatus('Guardado', 'saved');
+        } catch (error) {
+            console.error('Autosave error:', error);
+            setAutosaveStatus('No se pudo guardar', 'error');
+        } finally {
+            autosaveInFlight = false;
+            if (autosaveQueued) {
+                scheduleAutosave();
+            }
+        }
     }
     
     function attachPreviewEvents(root) {
         const urlInputs = root.querySelectorAll('input[name$="image_url"]');
         urlInputs.forEach(input => {
+            if (input.dataset.previewBound === 'true') return;
+            input.dataset.previewBound = 'true';
             input.addEventListener('input', function() {
                 const mainImageContainer = document.querySelector('.bo-main-image');
                 if (this.value && mainImageContainer) {
@@ -427,6 +492,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     attachDeleteEvents(document);
     attachPreviewEvents(document);
+
+    if (productForm) {
+        productForm.addEventListener('input', scheduleAutosave);
+        productForm.addEventListener('change', scheduleAutosave);
+        productForm.addEventListener('submit', function() {
+            window.clearTimeout(autosaveTimer);
+        });
+    }
 });
 </script>
 {% endblock %}

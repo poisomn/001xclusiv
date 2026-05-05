@@ -1,12 +1,18 @@
+from decimal import Decimal, InvalidOperation
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import transaction
 from django.db.models import Avg, Count, DecimalField, IntegerField, Q, Sum, Value
 from django.db.models.functions import Coalesce
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.text import slugify
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.db.models.functions import TruncDate
+from uuid import uuid4
 
 from apps.catalog.forms import ProductForm, ProductImageFormSet, ProductVariantFormSet
 from apps.catalog.models import Brand, Category, Product
@@ -17,6 +23,60 @@ from .forms import BrandManagementForm, CategoryManagementForm, OrderManagementF
 
 
 User = get_user_model()
+
+
+def user_can_access_backoffice(user):
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
+
+
+def unique_product_value(field_name, raw_value, fallback, product=None):
+    max_length = Product._meta.get_field(field_name).max_length
+    base = (raw_value or fallback or "").strip()
+    if field_name == "slug":
+        base = slugify(base)
+    if not base:
+        base = fallback
+    base = str(base)[:max_length].strip("-") or fallback
+    candidate = base
+    counter = 2
+    queryset = Product.objects.all()
+    if product and product.pk:
+        queryset = queryset.exclude(pk=product.pk)
+    while queryset.filter(**{field_name: candidate}).exists():
+        suffix = f"-{counter}" if field_name == "slug" else f"-{counter}"
+        candidate = f"{base[:max_length - len(suffix)]}{suffix}"
+        counter += 1
+    return candidate
+
+
+def normalize_product_autosave_data(post_data, product):
+    data = post_data.copy()
+    draft_token = uuid4().hex[:8]
+    fallback_name = product.name or "Borrador sin titulo"
+    data["name"] = data.get("name") or fallback_name
+    data["slug"] = unique_product_value(
+        "slug",
+        data.get("slug") or data.get("name"),
+        product.slug or f"borrador-{draft_token}",
+        product,
+    )
+    data["sku"] = unique_product_value(
+        "sku",
+        data.get("sku"),
+        product.sku or f"DRAFT-{draft_token}",
+        product,
+    )
+    data["price"] = clean_autosave_price(data.get("price"), product.price or 0)
+    return data
+
+
+def clean_autosave_price(value, fallback=0):
+    if value in (None, ""):
+        return fallback
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        return fallback
 
 
 def build_backoffice_context(active_section):
@@ -47,7 +107,7 @@ def get_order_for_request(request, order_id):
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        return self.request.user.is_staff or self.request.user.is_superuser
+        return user_can_access_backoffice(self.request.user)
 
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
@@ -244,6 +304,68 @@ class BackofficeProductFormView(StaffRequiredMixin, View):
             )
             return redirect("accounts:backoffice_product_edit", product_id=saved_product.id)
         return self.render_form(request, form, image_formset, variant_formset, product)
+
+
+@require_POST
+def backoffice_product_autosave(request):
+    if not user_can_access_backoffice(request.user):
+        return JsonResponse({"success": False, "error": "No autorizado"}, status=403)
+
+    product = None
+    product_id = request.POST.get("autosave_product_id") or request.POST.get("product_id")
+    if product_id:
+        product = Product.objects.filter(id=product_id).first()
+
+    with transaction.atomic():
+        if product is None:
+            draft_token = uuid4().hex[:8]
+            product = Product.objects.create(
+                name=request.POST.get("name") or "Borrador sin titulo",
+                slug=unique_product_value(
+                    "slug",
+                    request.POST.get("slug") or request.POST.get("name"),
+                    f"borrador-{draft_token}",
+                ),
+                sku=unique_product_value("sku", request.POST.get("sku"), f"DRAFT-{draft_token}"),
+                price=clean_autosave_price(request.POST.get("price"), 0),
+                is_active=False,
+                is_featured=False,
+            )
+
+        data = normalize_product_autosave_data(request.POST, product)
+        form = ProductForm(data, instance=product)
+        image_formset = ProductImageFormSet(data, request.FILES, instance=product)
+        variant_formset = ProductVariantFormSet(data, instance=product)
+
+        form_valid = form.is_valid()
+        image_formset_valid = image_formset.is_valid()
+        variant_formset_valid = variant_formset.is_valid()
+
+        if form_valid:
+            product = form.save()
+        else:
+            product.name = data["name"]
+            product.slug = data["slug"]
+            product.sku = data["sku"]
+            product.price = data["price"]
+            product.is_active = data.get("is_active") == "on"
+            product.is_featured = data.get("is_featured") == "on"
+            product.save()
+
+        if image_formset_valid:
+            image_formset.save()
+        if variant_formset_valid:
+            variant_formset.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "product_id": product.id,
+            "form_saved": form_valid,
+            "image_formset_saved": image_formset_valid,
+            "variant_formset_saved": variant_formset_valid,
+        }
+    )
 
 
 class BackofficeOrderListView(StaffRequiredMixin, View):

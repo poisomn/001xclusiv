@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 
 
 class TimeStampedModel(models.Model):
@@ -76,6 +77,9 @@ class Product(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("catalog:detail", kwargs={"slug": self.slug})
 
     @property
     def final_price(self):
