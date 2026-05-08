@@ -167,6 +167,9 @@ DEFAULT_FROM_EMAIL = os.environ.get(
     "noreply@001xclusiv.cl",
 )
 
+GMAIL_SERVICE_ACCOUNT_JSON = os.environ.get("GMAIL_SERVICE_ACCOUNT_JSON", "")
+GMAIL_DELEGATED_USER = os.environ.get("GMAIL_DELEGATED_USER", "")
+
 SITE_URL = os.environ["SITE_URL"].rstrip("/")
 FLOW_API_KEY = os.environ["FLOW_API_KEY"]
 if not FLOW_API_KEY:
