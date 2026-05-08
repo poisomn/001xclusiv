@@ -4,3 +4,5 @@ dj-database-url
 gunicorn
 psycopg2-binary
 whitenoise[brotli]
+google-api-python-client
+google-auth

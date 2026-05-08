@@ -59,3 +59,17 @@
 - `config/`: Project configuration (settings, urls).
 - `static/`: Static files (CSS, images).
 - `templates/`: HTML templates.
+
+## Gmail API para correos de órdenes
+
+El proyecto ahora intenta enviar correos de órdenes con Gmail API y, si no está configurado, usa el backend de email de Django como respaldo.
+
+Variables de entorno:
+
+- `DEFAULT_FROM_EMAIL`: correo remitente visible.
+- `GMAIL_DELEGATED_USER`: cuenta de Google Workspace autorizada para enviar (ej: `ventas@tudominio.cl`).
+- `GMAIL_SERVICE_ACCOUNT_JSON`: JSON completo de la service account en una sola línea.
+
+También debes habilitar `Domain-wide delegation` para la service account y autorizar el scope:
+
+- `https://www.googleapis.com/auth/gmail.send`

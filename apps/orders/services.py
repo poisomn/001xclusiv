@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.core.mail import send_mail
+
+from .gmail_sender import send_gmail_message
 from django.template.loader import render_to_string
 
 from apps.cart.cart import Cart
@@ -88,25 +90,26 @@ def mark_order_cancelled(order, payment_id=""):
     return order
 
 
-def send_order_created_email(order):
-    subject = f"Tu orden #{order.id} fue creada"
-    message = render_to_string("emails/order_created.txt", {"order": order})
+def _send_order_email(subject, message, recipient):
+    if send_gmail_message(subject, message, recipient):
+        return
+
     send_mail(
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        [order.email],
+        [recipient],
         fail_silently=True,
     )
+
+
+def send_order_created_email(order):
+    subject = f"Tu orden #{order.id} fue creada"
+    message = render_to_string("emails/order_created.txt", {"order": order})
+    _send_order_email(subject, message, order.email)
 
 
 def send_order_paid_email(order):
     subject = f"Pago confirmado para tu orden #{order.id}"
     message = render_to_string("emails/order_paid.txt", {"order": order})
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [order.email],
-        fail_silently=True,
-    )
+    _send_order_email(subject, message, order.email)
