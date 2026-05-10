@@ -1,0 +1,85 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Comunidad - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<section class="bo-section">
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Comunidad 001</span>
+            <h1>Looks de clientes</h1>
+            <p>Administra las imagenes que aparecen en el carrusel del home.</p>
+        </div>
+        <a href="{% url 'accounts:backoffice_community_create' %}" class="bo-button bo-button--primary">
+            <i class="bi bi-plus-lg"></i>
+            Agregar imagen
+        </a>
+    </div>
+
+    <article class="bo-card">
+        <div class="bo-table-wrap">
+            <table class="bo-table">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Instagram</th>
+                        <th>Caption</th>
+                        <th>Orden</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for image in community_images %}
+                    <tr>
+                        <td>
+                            <div class="bo-product-cell">
+                                <img src="{{ image.image_url }}" alt="{{ image.caption|default:'Comunidad 001' }}">
+                                <div>
+                                    <strong>Look comunidad</strong>
+                                    <p>{{ image.created_at|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ image.instagram_handle|default:"Sin handle" }}</td>
+                        <td>{{ image.caption|default:"Sin caption" }}</td>
+                        <td>{{ image.ordering }}</td>
+                        <td>
+                            <span class="bo-badge {% if not image.is_active %}bo-badge--muted{% endif %}">
+                                {% if image.is_active %}Activa{% else %}Oculta{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="bo-table-actions">
+                                <form method="post" action="{% url 'accounts:backoffice_community_action' image.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle_active">
+                                    <button type="submit" class="bo-button bo-button--secondary bo-button--sm">
+                                        {% if image.is_active %}Ocultar{% else %}Activar{% endif %}
+                                    </button>
+                                </form>
+                                <a href="{% url 'accounts:backoffice_community_edit' image.id %}" class="bo-button bo-button--secondary bo-button--sm">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Editar
+                                </a>
+                                <form method="post" action="{% url 'accounts:backoffice_community_action' image.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit" class="bo-button bo-button--danger bo-button--sm">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="bo-empty">Aun no hay imagenes de comunidad.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}

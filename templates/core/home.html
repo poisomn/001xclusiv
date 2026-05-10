@@ -129,10 +129,10 @@
             <div class="row align-items-center hero-gsap__content">
                 <div class="col-lg-7">
                     <div class="scroll-hero home-legacy-copy align-items-start">
-                        <span class="section-kicker">Streetwear curado para destacar</span>
+                        <span class="section-kicker">SNKRS seleccionados para ti</span>
                         <h1 class="scroll-hero__title home-legacy-copy__title">Bienvenido a 001xclusiv</h1>
                         <div class="scroll-hero__payoff text-start">
-                            Sneakers, accesorios y ropa, todo xclusiv TODO DRIP.
+                            Sneakers, flow, facha. Todo xclusiv, TODO DRIP.
                         </div>
                         <p class="home-legacy-copy__text">
                             Tambien tenemos clothing, accesorios y una selección pensada en la exclusividad que
@@ -141,7 +141,7 @@
                     </div>
 
                     <div class="home-hero__actions home-legacy-copy__actions">
-                        <a href="{% url 'catalog:list' %}" class="btn-primary btn-lg">Ver catalogo</a>
+                        <a href="{% url 'catalog:list' %}" class="btn-primary btn-lg">Ver catálogo</a>
                         <a href="#best-sellers" class="btn-secondary btn-lg">Explorar destacados</a>
                     </div>
 
@@ -152,11 +152,11 @@
                         </div>
                         <div class="hero-stat">
                             <strong>{{ featured_categories|length }}</strong>
-                            <span>categorias activas</span>
+                            <span>categorías activas</span>
                         </div>
                         <div class="hero-stat">
                             <strong>24/7</strong>
-                            <span>acompanamiento y soporte</span>
+                            <span>acompañamiento y soporte</span>
                         </div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@
                                             </div>
                                             <h2>{{ product.name }}</h2>
                                             <p class="hero-spotlight__meta">
-                                                {% if product.brand %}{{ product.brand.name }}{% else %}Seleccion
+                                                {% if product.brand %}{{ product.brand.name }}{% else %}Selección
                                                 001xclusiv{% endif %}
                                             </p>
                                             <div class="hero-spotlight__price">
@@ -223,7 +223,7 @@
         <article class="trust-pill">
             <i class="bi bi-truck"></i>
             <div>
-                <strong>Envio gratis</strong>
+                <strong>Envío gratis</strong>
                 <span>En compras destacadas y promos seleccionadas</span>
             </div>
         </article>
@@ -238,7 +238,7 @@
             <i class="bi bi-headset"></i>
             <div>
                 <strong>Soporte 24/7</strong>
-                <span>Acompanamiento antes y despues de tu pedido</span>
+                <span>Acompañamiento antes y después de tu pedido</span>
             </div>
         </article>
     </section>
@@ -332,6 +332,31 @@
                 </div>
             </a>
             {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-section home-video-split ambient-surface ambient-surface--light" data-ambient>
+        <div class="home-video-split__copy">
+            <span class="section-kicker">001 EXPERIENCE</span>
+            <h2>No vendemos solo prendas. Creamos presencia.</h2>
+            <p>
+                Cada drop, cada sneaker y cada detalle esta pensado para quienes quieren vestir con identidad.
+                001xclusiv mezcla streetwear, curaduria y experiencia digital en una tienda hecha desde cero.
+            </p>
+            <a href="{% url 'catalog:list' %}" class="btn-accent">Explorar catalogo</a>
+        </div>
+        <div class="home-video-split__media">
+            {% if home_experience_video_url %}
+            <video autoplay muted loop playsinline {% if home_experience_poster_url %}poster="{{ home_experience_poster_url }}"{% endif %}>
+                <source src="{{ home_experience_video_url }}" type="video/mp4">
+            </video>
+            {% else %}
+            <div class="home-video-split__placeholder">
+                <span>001</span>
+                <strong>Video experience</strong>
+                <p>Agrega static/home/001experience.mp4 para activar esta pieza editorial.</p>
+            </div>
+            {% endif %}
         </div>
     </section>
 
@@ -477,16 +502,17 @@
             <article class="arrival-card">
                 <a href="{% url 'catalog:detail' product.slug %}" class="arrival-card__media">
                     <div class="parallax-shell">
-                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="parallax-image">
+                        {% firstof product.primary_image_url product.placeholder_image_url as arrival_image %}
+                        <img src="{{ arrival_image }}" alt="{{ product.name }}" class="parallax-image">
                     </div>
                 </a>
                 <div class="arrival-card__content">
                     <span class="arrival-card__badge">New arrival</span>
                     <h3>{{ product.name }}</h3>
-                    <p>{{ product.short_description|default:"Diseño seleccionado para destacar en la nueva colección."
-                        }}</p>
+                    <p>{% firstof product.short_description "Diseno seleccionado para destacar en la nueva coleccion." %}</p>
                     <div class="arrival-card__footer">
-                        <strong>${{ product.final_price }} CLP</strong>
+                        {% firstof product.final_price product.price 0 as arrival_price %}
+                        <strong>${{ arrival_price }} CLP</strong>
                         <a href="{% url 'catalog:detail' product.slug %}" class="section-link">Ver producto</a>
                     </div>
                 </div>
@@ -496,11 +522,46 @@
                 <div class="arrival-card__content">
                     <span class="arrival-card__badge">New arrival</span>
                     <h3>Pronto tendremos nuevos drops</h3>
-                    <p>Nuevo!.</p>
+                    <p>Estamos preparando la proxima seleccion para el home.</p>
                 </div>
             </article>
             {% endfor %}
         </div>
+    </section>
+
+
+    <section class="home-section community-strip">
+        <div class="section-heading">
+            <div>
+                <span class="section-kicker">Comunidad 001</span>
+                <h2>Los que salen bonitos, salen 001.</h2>
+            </div>
+            <p class="section-heading__text">
+                Looks reales, clientes reales y momentos que representan el corte de la marca.
+            </p>
+        </div>
+
+        {% if community_images %}
+        <div class="community-marquee" aria-label="Looks de la comunidad 001">
+            <div class="community-marquee__track">
+                {% for image in community_marquee_images %}
+                <article class="community-card">
+                    <img src="{{ image.image_url }}" alt="{{ image.caption|default:'Look comunidad 001' }}">
+                    <div class="community-card__body">
+                        {% if image.instagram_handle %}<strong>{{ image.instagram_handle }}</strong>{% endif %}
+                        {% if image.caption %}<p>{{ image.caption }}</p>{% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="community-empty">
+            <span>Comunidad 001</span>
+            <h3>Pronto mostraremos los primeros looks de la comunidad.</h3>
+            <p>Sube imagenes desde el backoffice para activar este carrusel.</p>
+        </div>
+        {% endif %}
     </section>
 
 
@@ -560,7 +621,7 @@
             <h2>Te aseguramos calidad en cada producto. Nos interesa tu satisfacción.</h2>
             <p>
                 Porque comprar en 001xclusiv es comprar calidad, estilo y exclusividad.
-                Todos nuestros productos estan seleccionados con el maximo cuidado y dedicacion para ofrecerte lo mejor.
+                Todos nuestros productos estan seleccionados con el máximo cuidado y dedicación para ofrecerte lo mejor.
             </p>
         </div>
 
@@ -612,12 +673,12 @@
         </div>
         <div class="home-cinematic-cta__content">
             <span class="section-kicker">Gracias por tu tiempo</span>
-            <h2>Si llegaste hasta aqui, seguro es porque algo te gustó. Ahora toca elegir que llevarte.</h2>
+            <h2>Si llegaste hasta aquí, seguro es porque algo te gustó. Ahora toca elegir que llevarte.</h2>
             <p>
                 Visita el catálogo y encuentra lo que buscas.
             </p>
             <div class="home-cinematic-cta__actions">
-                <a href="{% url 'catalog:list' %}" class="btn-accent">Entrar al catalogo</a>
+                <a href="{% url 'catalog:list' %}" class="btn-accent">Entrar al catálogo</a>
                 <a href="#newsletter-form" class="btn-secondary">Recibir novedades</a>
             </div>
         </div>
@@ -627,17 +688,17 @@
         <div class="newsletter-cta__content">
             <span class="section-kicker">Si no quieres perderte nada</span>
             <h2>Recibe lanzamientos, descuentos y acceso temprano a nuevos drops.</h2>
-            <p>Ingresa tu correo y recibe novedades exclusivas.</p>
+            <p>Ingresa tu correo y entérate de todo antes que nadie.</p>
         </div>
 
         <form class="newsletter-form" id="newsletter-form">
-            <label for="newsletter-email" class="visually-hidden">Correo electronico</label>
+            <label for="newsletter-email" class="visually-hidden">Correo electrónico</label>
             <input type="email" id="newsletter-email" name="email" placeholder="tuemail@ejemplo.com" required>
-            <button type="submit" class="btn-accent">Quiero acceso</button>
+            <button type="submit" class="btn-accent">¡Quiero acceso!</button>
         </form>
 
-        <p class="newsletter-cta__note" id="newsletter-feedback">Promesa simple: nada de spam, solo novedades con
-            sentido.</p>
+        <p class="newsletter-cta__note" id="newsletter-feedback">Promesa simple: nada de spam, solo novedades
+            exclusivas.</p>
     </section>
 </div>
 {% endblock %}

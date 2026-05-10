@@ -1,8 +1,11 @@
 from django.http import Http404
 from django.db.models import Count, Prefetch, Q
 from django.shortcuts import render
+from django.contrib.staticfiles import finders
+from django.conf import settings
 
 from apps.catalog.models import Category, Product, ProductVariant, Wishlist
+from apps.core.models import CommunityImage
 
 
 CATEGORY_VISUALS = {
@@ -22,6 +25,10 @@ CATEGORY_VISUALS = {
         "image": "home/airmutblackhome2.png",
         "eyebrow": "Pedales",
     },
+    "ninos": {
+        "image": "home/airforcelv8blackbrown.jpg",
+        "eyebrow": "Para los mini sangres",
+    },
     "ropa": {
         "image": "home/ropa.jpg",
         "eyebrow": "Prenditas del corte pa' todos",
@@ -31,6 +38,9 @@ CATEGORY_VISUALS = {
         "eyebrow": "Los detallitos que marcan la diferencia en el outfit",
     },
 }
+
+HOME_CATEGORY_FALLBACK = "home/airforcelv8blackbrown.jpg"
+CATEGORY_VISUALS["ni\u00f1os"] = CATEGORY_VISUALS["ninos"]
 
 HOME_TESTIMONIALS = [
     {
@@ -105,152 +115,156 @@ HOME_JOURNEY_STEPS = [
 
 HOME_BRAND_PROMISES = [
     {
-        "title": "Menos ruido, mas identidad",
-        "text": "No todo merece entrar. Solo lo que de verdad sostiene el universo 001xclusiv.",
+        "title": "Más exclusivo, menos relleno",
+        "text": "No vendemos por vender, vendemos porque nos aburrimos de las típicas tiendas de SNKRS que no ofrecen nada nuevo.",
     },
     {
-        "title": "Vestirte tambien es decir algo",
-        "text": "La seleccion no busca llenar catalogo. Busca ayudarte a construir presencia con criterio.",
+        "title": "Selección con intención",
+        "text": "No tenemos stock por tenerlo, nuestro stock es único, para ti.",
     },
     {
-        "title": "No parecer una tienda mas",
-        "text": "La experiencia tiene que sentirse propia, con tono, con presencia y con una forma distinta de mostrar producto.",
+        "title": "No parecer una tienda más",
+        "text": "Queremos que entres a la tienda y sepas que estás en 001xclusiv y no en cualquier tienda de Streetwear / SNKRS.",
     },
 ]
 
 INFO_PAGES = {
     "about": {
         "title": "Sobre 001xclusiv",
-        "meta_description": "Conoce la vision de 001xclusiv, una tienda enfocada en streetwear curado, drops con criterio y una experiencia premium.",
-        "hero_kicker": "Nuestra vision",
-        "hero_title": "001xclusiv nace para que vestir distinto se sienta natural.",
-        "hero_copy": "No buscamos llenar un catalogo por llenar. Buscamos construir una seleccion con presencia, criterio visual y una forma mas cuidada de presentar streetwear, sneakers y accesorios.",
+        "meta_description": "Conoce la visión de 001xclusiv, una tienda enfocada en streetwear curado, drops con criterio y una experiencia premium.",
+        "hero_kicker": "Nuestra visión",
+        "hero_title": "001xclusiv nace para brindar la experiencia que otros no dan.",
+        "hero_copy": "Nuestro catálogo está pensado con una selección hecha por nosotros mismos, con intención, criterio visual y una forma diferente de presentar streetwear, sneakers y accesorios.",
         "sections": [
             {
-                "title": "Curaduria antes que ruido",
-                "body": "Cada producto deberia tener una razon para estar aqui. Por eso pensamos el catalogo como una seleccion con identidad, no como un listado generico.",
+                "title": "El sueño siempre fue 001",
+                "body": "Todos los productos tienen una razón para estar aquí. Por eso pensamos el catálogo como una selección con identidad, no como un listado generico.",
             },
             {
-                "title": "Una experiencia mas editorial",
-                "body": "Queremos que entrar a la tienda se parezca mas a entrar a una marca con universo propio que a navegar una plantilla comun de e-commerce.",
+                "title": "Una experiencia premium",
+                "body": "Queremos que comprar sea claro, visual y confiable. Desde el primer scroll hasta el checkout, 001xclusiv busca transmitir seguridad, estética y una experiencia más cuidada para quienes valoran lo exclusivo.",
             },
             {
-                "title": "Streetwear con intencion",
-                "body": "La idea es que puedas armar un look completo y encontrar piezas que dialoguen entre si, desde el primer scroll hasta el checkout.",
+                "title": "La cultura nos mueve",
+                "body": "Nos mueve la cultura urbana, las zapatillas, los drops, los detalles y esa sensación de encontrar una pieza que calza con tu estilo. La tienda está pensada para sentirse como una marca, no como una plantilla más de internet.",
             },
         ],
         "highlights": [
-            "Seleccion enfocada en sneakers, ropa y accesorios con personalidad.",
-            "Visual premium alineado con la identidad de la marca.",
-            "Compra mas clara, mas confiable y con mejor lectura de producto.",
+            "👟 Sneakers, ropa y accesorios seleccionados con criterio.",
+            "🖤 Identidad visual premium, deluxe y callejera.",
+            "🛒 Compra clara, segura y pensada para productos exclusivos.",
         ],
     },
     "shipping": {
         "title": "Envíos y entregas",
-        "meta_description": "Información de envíos, tiempos de entrega y alcance de despacho en 001xclusiv.",
-        "hero_kicker": "Información de compra",
-        "hero_title": "Envíos claros para que compres tranquilo.",
-        "hero_copy": "Queremos que el proceso sea simple: confirmar tu pedido, prepararlo con cuidado y mantener una expectativa realista sobre despacho y tiempos.",
+        "meta_description": "Información sobre envíos, tiempos de entrega y despacho de productos físicos en 001xclusiv.",
+        "hero_kicker": "📦 Envíos",
+        "hero_title": "Tu pedido merece llegar bien, claro y sin vueltas.",
+        "hero_copy": "Sabemos que cuando compras una pieza exclusiva, quieres claridad. Por eso buscamos que cada pedido tenga un proceso simple: confirmación, preparación y entrega con comunicación transparente.",
         "sections": [
             {
                 "title": "Preparación del pedido",
-                "body": "Una vez confirmado el pedido, nuestro objetivo es prepararlo lo antes posible. Los tiempos pueden variar segun volumen, disponibilidad y direccion de despacho.",
+                "body": "Una vez confirmado el pago, preparamos tu pedido con cuidado. Revisamos producto, talla y datos de entrega antes de avanzar al despacho.",
             },
             {
                 "title": "Cobertura",
-                "body": "Trabajamos para despachar dentro de Chile y priorizar entregas seguras. Si una direccion requiere coordinacion especial, te contactaremos antes de cerrar el envio.",
+                "body": "Inicialmente trabajamos con despachos dentro de Chile. Si la dirección necesita coordinación especial, te contactaremos para confirmar los detalles antes del envío.",
             },
             {
                 "title": "Seguimiento",
-                "body": "A medida que el MVP siga creciendo, iremos incorporando mas automatizaciones para el tracking. Mientras tanto, el estado del pedido en tu cuenta ya entrega contexto de avance.",
+                "body": "Desde tu cuenta puedes revisar el estado de tus pedidos. A medida que la tienda crezca, se integrarán opciones de tracking más automatizadas.",
             },
         ],
         "highlights": [
-            "Procesamiento claro del pedido.",
-            "Estados visibles desde tu cuenta.",
-            "Base preparada para sumar tracking mas adelante.",
+            "📍 Despacho orientado a Chile.",
+            "🧾 Estado del pedido visible desde tu cuenta.",
+            "📦 Preparación cuidadosa antes del envío.",
         ],
     },
     "returns": {
         "title": "Cambios y devoluciones",
-        "meta_description": "Politica base de cambios y devoluciones de 001xclusiv para dar mas confianza al momento de comprar.",
-        "hero_kicker": "Compra con confianza",
-        "hero_title": "Una politica clara mejora la confianza incluso antes del checkout.",
-        "hero_copy": "En esta etapa MVP, lo importante es dejar expectativas transparentes: si hay un problema con el pedido, deberia existir un camino claro para resolverlo.",
+        "meta_description": "Política base de cambios y devoluciones de 001xclusiv para comprar con mayor seguridad y claridad.",
+        "hero_kicker": "🔁 Cambios",
+        "hero_title": "Comprar exclusivo también debe sentirse seguro.",
+        "hero_copy": "Queremos que cada compra tenga reglas claras. Si existe un problema con tu pedido, la idea es resolverlo con comunicación directa, criterio y transparencia.",
         "sections": [
             {
-                "title": "Productos en buen estado",
-                "body": "Para evaluar un cambio o devolucion, el producto debe conservar su estado original, sin uso indebido y con todos sus elementos asociados.",
+                "title": "Estado del producto",
+                "body": "Para evaluar un cambio o devolución, el producto debe conservar su estado original, sin uso, sin daños y con sus elementos asociados cuando corresponda.",
             },
             {
-                "title": "Revision del caso",
-                "body": "Cada solicitud se revisa considerando el estado del producto, el motivo del requerimiento y la informacion entregada por el cliente.",
+                "title": "Revisión caso a caso",
+                "body": "Cada solicitud será revisada considerando el motivo, el estado del producto y la información entregada por el cliente.",
             },
             {
-                "title": "Resolucion",
-                "body": "Dependiendo del caso, podremos orientar un cambio, devolucion o solucion alternativa. La meta es resolver sin ambiguedad y con comunicacion clara.",
+                "title": "Resolución clara",
+                "body": "Dependiendo del caso, se podrá orientar un cambio, devolución o solución alternativa. Lo importante es evitar ambigüedades y mantener comunicación clara.",
             },
         ],
         "highlights": [
-            "Evaluacion caso a caso con criterio claro.",
-            "Compra mas segura gracias a reglas visibles.",
-            "Espacio preparado para sumar politica legal completa mas adelante.",
+            "✅ Revisión transparente del caso.",
+            "🧼 Productos deben mantener su estado original.",
+            "🤝 Comunicación directa para resolver problemas.",
         ],
     },
     "faq": {
         "title": "Preguntas frecuentes",
-        "meta_description": "Resuelve dudas frecuentes sobre pedidos, stock, tallas, envios y funcionamiento general de 001xclusiv.",
-        "hero_kicker": "FAQ",
-        "hero_title": "Las preguntas mas comunes tambien son parte de la experiencia.",
-        "hero_copy": "Una buena tienda responde dudas antes de que se conviertan en friccion. Esta base de FAQ ayuda a dar claridad desde el primer contacto.",
+        "meta_description": "Resuelve dudas frecuentes sobre pedidos, stock, tallas, pagos, envíos y funcionamiento general de 001xclusiv.",
+        "hero_kicker": "❓ FAQ",
+        "hero_title": "Preguntas claras para comprar sin dudas.",
+        "hero_copy": "Una buena experiencia también significa responder antes de que exista la fricción. Aquí reunimos dudas importantes sobre productos, pedidos y pagos.",
         "faq_items": [
             {
-                "question": "Como se si un producto sigue disponible?",
-                "answer": "Cada detalle de producto muestra disponibilidad y tallas activas. Si un producto deja de estar publicado o sin stock, el catalogo se actualiza en consecuencia.",
+                "question": "¿Cómo sé si un producto sigue disponible?",
+                "answer": "Cada producto muestra disponibilidad según sus tallas activas. Si una talla se queda sin stock o el producto deja de estar publicado, el catálogo se actualiza según la gestión del backoffice.",
             },
             {
-                "question": "Puedo guardar productos para revisarlos despues?",
-                "answer": "Si. La wishlist te permite marcar favoritos y volver a ellos cuando quieras desde tu cuenta.",
+                "question": "¿Puedo guardar productos para revisarlos después?",
+                "answer": "Sí. Puedes usar la wishlist para guardar tus favoritos y volver a ellos desde tu cuenta cuando quieras.",
             },
             {
-                "question": "Donde veo el estado de mi compra?",
-                "answer": "Dentro de tu perfil puedes revisar tu historial de pedidos, entrar al detalle de cada orden y descargar el comprobante de pedido.",
+                "question": "¿Dónde veo el estado de mi compra?",
+                "answer": "Desde tu perfil puedes revisar tus pedidos, entrar al detalle de cada orden y ver su estado actual.",
             },
             {
-                "question": "Ya existe comprobante de pago?",
-                "answer": "Por ahora la app genera comprobante de pedido. El comprobante de pago quedara para una siguiente etapa del proyecto.",
+                "question": "¿El pago es seguro?",
+                "answer": "Sí. El checkout está integrado con Flow, una pasarela de pago que permite procesar transacciones de forma segura mediante Webpay y otros medios disponibles.",
+            },
+            {
+                "question": "¿Recibo comprobante de mi compra?",
+                "answer": "Sí. Al crear un pedido y al confirmar un pago, el sistema puede generar comprobantes y enviar notificaciones al correo registrado.",
             },
         ],
         "highlights": [
-            "Dudas frecuentes resueltas en un solo lugar.",
-            "Menos friccion antes y despues de comprar.",
-            "Base preparada para crecer con nuevas respuestas.",
+            "🧠 Dudas importantes en un solo lugar.",
+            "💳 Información clara sobre pago y pedidos.",
+            "🛍️ Menos trámites antes y después de comprar.",
         ],
     },
     "contact": {
         "title": "Contacto",
-        "meta_description": "Canales de contacto y atencion de 001xclusiv para resolver dudas sobre pedidos, productos y la marca.",
-        "hero_kicker": "Conversemos",
-        "hero_title": "Cuando la tienda responde bien, la confianza sube sola.",
-        "hero_copy": "Si tienes dudas sobre un producto, un pedido o simplemente quieres saber mas de la marca, dejamos un punto de contacto claro dentro del MVP.",
+        "meta_description": "Contacta a 001xclusiv para resolver dudas sobre productos, pedidos, pagos, envíos y novedades de la marca.",
+        "hero_kicker": "📲 Contacto",
+        "hero_title": "Si tienes dudas, hablemos directo.",
+        "hero_copy": "Ya sea por un producto, una talla, un pedido o simplemente porque quieres saber más de la marca, aquí tienes nuestros canales de contacto.",
         "sections": [
             {
-                "title": "Correo principal",
+                "title": "📧 Correo principal",
                 "body": "001xclusiv@gmail.com",
             },
             {
-                "title": "Horario referencial",
-                "body": "Respuesta prioritaria durante horario comercial, con seguimiento progresivo para consultas de post-venta.",
+                "title": "📸 Instagram",
+                "body": "@001xclusiv",
             },
             {
-                "title": "Instagram / comunidad",
-                "body": "La marca puede apoyarse tambien en redes para contenido, novedades y cercania con la comunidad.",
+                "title": "🕒 Horario referencial",
+                "body": "Respondemos prioritariamente durante horario comercial. Las consultas de pedidos y post-venta tendrán seguimiento según el caso.",
             },
         ],
         "highlights": [
-            "Canal claro para dudas de compra.",
-            "Mejor percepcion de soporte y legitimidad.",
-            "Preparado para sumar WhatsApp o formulario mas adelante.",
+            "📩 Canal claro para dudas de compra.",
+            "📸 Instagram para novedades, drops y comunidad.",
+            "🤝 Atención directa para pedidos y post-venta.",
         ],
     },
 }
@@ -269,6 +283,40 @@ def _home_product_queryset():
     )
 
 
+def _static_asset_exists(path):
+    return bool(finders.find(path))
+
+
+def _home_static_asset(*candidates):
+    for candidate in candidates:
+        if candidate and _static_asset_exists(candidate):
+            return candidate
+    return ""
+
+
+def _home_static_url(path):
+    if not path:
+        return ""
+    return f"{settings.STATIC_URL}{path}"
+
+
+def _category_visual(category):
+    visual = (
+        CATEGORY_VISUALS.get(category.slug)
+        or CATEGORY_VISUALS.get(category.slug.replace("-", "_"))
+        or CATEGORY_VISUALS.get(category.name.strip().lower())
+        or {}
+    )
+    image = visual.get("image", HOME_CATEGORY_FALLBACK)
+    if not _static_asset_exists(image):
+        image = HOME_CATEGORY_FALLBACK
+    return {
+        "category": category,
+        "image": image,
+        "eyebrow": visual.get("eyebrow", "Curado para ti"),
+    }
+
+
 def home(request):
     product_qs = _home_product_queryset()
 
@@ -285,8 +333,10 @@ def home(request):
         featured_ids.extend(product.id for product in fallback_products)
 
     new_arrivals = list(
-        product_qs.exclude(id__in=featured_ids).order_by("-created_at")[:4]
+        product_qs.filter(show_in_new_arrivals=True).order_by("new_arrival_order", "-created_at")[:6]
     )
+    if not new_arrivals:
+        new_arrivals = list(product_qs.order_by("-created_at")[:6])
 
     category_qs = (
         Category.objects.filter(is_active=True)
@@ -300,20 +350,10 @@ def home(request):
         .filter(active_products__gt=0)
         .order_by("-active_products", "name")[:6]
     )
-    featured_categories = [
-        {
-            "category": category,
-            "image": CATEGORY_VISUALS.get(category.slug, {}).get(
-                "image",
-                "home/airforcelv8blackbrown.jpg",
-            ),
-            "eyebrow": CATEGORY_VISUALS.get(category.slug, {}).get(
-                "eyebrow",
-                "Curado para ti",
-            ),
-        }
-        for category in category_qs
-    ]
+    featured_categories = [_category_visual(category) for category in category_qs]
+    community_images = list(
+        CommunityImage.objects.filter(is_active=True).order_by("ordering", "-created_at")[:12]
+    )
 
     wishlist_product_ids = set()
     if request.user.is_authenticated:
@@ -323,8 +363,8 @@ def home(request):
 
     context = {
         "title": "001xclusiv",
-        "seo_title": "001xclusiv - Streetwear y sneakers curados",
-        "seo_description": "Explora 001xclusiv, una experiencia editorial de streetwear, sneakers y accesorios con seleccion premium y compra mas clara.",
+        "seo_title": "001xclusiv - SNKRS & Streetwear, Accesories & More...",
+        "seo_description": "Explora 001xclusiv, una experiencia editorial de streetwear, sneakers y accesorios con selección premium y compra más clara.",
         "featured_products": featured_products,
         "new_arrivals": new_arrivals,
         "featured_categories": featured_categories,
@@ -333,6 +373,14 @@ def home(request):
         "editorial_panels": HOME_EDITORIAL_PANELS,
         "journey_steps": HOME_JOURNEY_STEPS,
         "brand_promises": HOME_BRAND_PROMISES,
+        "community_images": community_images,
+        "community_marquee_images": community_images + community_images,
+        "home_experience_video_url": _home_static_url(
+            _home_static_asset("home/001experience.mp4", "home/blackcat2.mp4")
+        ),
+        "home_experience_poster_url": _home_static_url(
+            _home_static_asset("home/videoPoster.jpg", "home/retro4bcathome.jpg")
+        ),
         "wishlist_product_ids": wishlist_product_ids,
     }
     return render(request, "core/home.html", context)

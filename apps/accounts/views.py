@@ -16,10 +16,17 @@ from uuid import uuid4
 
 from apps.catalog.forms import ProductForm, ProductImageFormSet, ProductVariantFormSet
 from apps.catalog.models import Brand, Category, Product
+from apps.core.models import CommunityImage
 from apps.orders.models import Order
 from apps.orders.services import mark_order_cancelled, mark_order_paid
 
-from .forms import BrandManagementForm, CategoryManagementForm, OrderManagementForm, UserRegistrationForm
+from .forms import (
+    BrandManagementForm,
+    CategoryManagementForm,
+    CommunityImageForm,
+    OrderManagementForm,
+    UserRegistrationForm,
+)
 
 
 User = get_user_model()
@@ -79,6 +86,15 @@ def clean_autosave_price(value, fallback=0):
         return fallback
 
 
+def clean_autosave_int(value, fallback=0):
+    if value in (None, ""):
+        return fallback
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
 def build_backoffice_context(active_section):
     return {
         "backoffice_section": active_section,
@@ -86,6 +102,7 @@ def build_backoffice_context(active_section):
             {"label": "Resumen", "icon": "bi-grid-1x2", "url_name": "accounts:backoffice_dashboard", "key": "dashboard"},
             {"label": "Productos", "icon": "bi-bag", "url_name": "accounts:backoffice_products", "key": "products"},
             {"label": "Pedidos", "icon": "bi-receipt", "url_name": "accounts:backoffice_orders", "key": "orders"},
+            {"label": "Comunidad", "icon": "bi-images", "url_name": "accounts:backoffice_community", "key": "community"},
             {"label": "Mensajes", "icon": "bi-envelope", "url_name": "accounts:backoffice_messages", "key": "messages"},
             {"label": "Marcas y categorias", "icon": "bi-tags", "url_name": "accounts:backoffice_taxonomy", "key": "taxonomy"},
             {"label": "Usuarios", "icon": "bi-people", "url_name": "accounts:backoffice_users", "key": "users"},
@@ -205,6 +222,8 @@ class BackofficeProductListView(StaffRequiredMixin, View):
             products = products.filter(is_active=False)
         elif product_filter == "featured":
             products = products.filter(is_featured=True)
+        elif product_filter == "new_arrivals":
+            products = products.filter(show_in_new_arrivals=True)
         elif product_filter == "low_stock":
             products = products.filter(total_stock__gt=0, total_stock__lte=5)
         elif product_filter == "out_of_stock":
@@ -220,6 +239,7 @@ class BackofficeProductListView(StaffRequiredMixin, View):
                 ("active", "Publicados"),
                 ("inactive", "Ocultos"),
                 ("featured", "Destacados"),
+                ("new_arrivals", "Recien llegados"),
                 ("low_stock", "Stock bajo"),
                 ("out_of_stock", "Sin stock"),
             ],
@@ -246,6 +266,13 @@ class BackofficeProductActionView(StaffRequiredMixin, View):
             messages.success(
                 request,
                 f"{product.name}: {'marcado como destacado' if product.is_featured else 'quitado de destacados'}.",
+            )
+        elif action == "toggle_new_arrival":
+            product.show_in_new_arrivals = not product.show_in_new_arrivals
+            product.save(update_fields=["show_in_new_arrivals", "updated_at"])
+            messages.success(
+                request,
+                f"{product.name}: {'visible en Recien llegados' if product.show_in_new_arrivals else 'quitado de Recien llegados'}.",
             )
         else:
             messages.error(request, "Accion de producto no valida.")
@@ -331,6 +358,8 @@ def backoffice_product_autosave(request):
                 price=clean_autosave_price(request.POST.get("price"), 0),
                 is_active=False,
                 is_featured=False,
+                show_in_new_arrivals=request.POST.get("show_in_new_arrivals") == "on",
+                new_arrival_order=clean_autosave_int(request.POST.get("new_arrival_order"), 0),
             )
 
         data = normalize_product_autosave_data(request.POST, product)
@@ -351,6 +380,8 @@ def backoffice_product_autosave(request):
             product.price = data["price"]
             product.is_active = data.get("is_active") == "on"
             product.is_featured = data.get("is_featured") == "on"
+            product.show_in_new_arrivals = data.get("show_in_new_arrivals") == "on"
+            product.new_arrival_order = clean_autosave_int(data.get("new_arrival_order"), 0)
             product.save()
 
         if image_formset_valid:
@@ -478,6 +509,69 @@ class BackofficeMessagesView(StaffRequiredMixin, View):
             **build_backoffice_context("messages"),
         }
         return render(request, "accounts/backoffice_messages.html", context)
+
+
+class BackofficeCommunityListView(StaffRequiredMixin, View):
+    def get(self, request):
+        context = {
+            **build_backoffice_context("community"),
+            "community_images": CommunityImage.objects.order_by("ordering", "-created_at"),
+        }
+        return render(request, "accounts/backoffice_community.html", context)
+
+
+class BackofficeCommunityFormView(StaffRequiredMixin, View):
+    template_name = "accounts/backoffice_community_form.html"
+
+    def get_object(self, image_id):
+        if image_id is None:
+            return None
+        return get_object_or_404(CommunityImage, id=image_id)
+
+    def get(self, request, image_id=None):
+        community_image = self.get_object(image_id)
+        form = CommunityImageForm(instance=community_image)
+        context = {
+            **build_backoffice_context("community"),
+            "form": form,
+            "community_image": community_image,
+            "is_editing": community_image is not None,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, image_id=None):
+        community_image = self.get_object(image_id)
+        form = CommunityImageForm(request.POST, instance=community_image)
+        if form.is_valid():
+            saved_image = form.save()
+            messages.success(request, "Imagen de comunidad guardada correctamente.")
+            return redirect("accounts:backoffice_community_edit", image_id=saved_image.id)
+        context = {
+            **build_backoffice_context("community"),
+            "form": form,
+            "community_image": community_image,
+            "is_editing": community_image is not None,
+        }
+        return render(request, self.template_name, context)
+
+
+class BackofficeCommunityActionView(StaffRequiredMixin, View):
+    def post(self, request, image_id):
+        community_image = get_object_or_404(CommunityImage, id=image_id)
+        action = request.POST.get("action")
+        if action == "toggle_active":
+            community_image.is_active = not community_image.is_active
+            community_image.save(update_fields=["is_active"])
+            messages.success(
+                request,
+                f"Imagen {'activada' if community_image.is_active else 'ocultada'} correctamente.",
+            )
+        elif action == "delete":
+            community_image.delete()
+            messages.success(request, "Imagen de comunidad eliminada.")
+        else:
+            messages.error(request, "Accion de comunidad no valida.")
+        return redirect(request.POST.get("next_url") or reverse("accounts:backoffice_community"))
 
 
 class BackofficeTaxonomyView(StaffRequiredMixin, View):

@@ -76,6 +76,8 @@ class PaymentViewsTests(TestCase):
 
     @patch("apps.payments.views.get_payment_status")
     def test_payment_return_keeps_order_pending(self, get_payment_status):
+        self.order.payment_token = "FLOW-TOKEN"
+        self.order.save(update_fields=["payment_token"])
         get_payment_status.return_value = {
             "flowOrder": 123456,
             "commerceOrder": str(self.order.id),
@@ -88,6 +90,26 @@ class PaymentViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.order.status, "pending")
         self.assertEqual(self.order.payment_status, "pending")
+        get_payment_status.assert_called_once_with("FLOW-TOKEN")
+
+    @patch("apps.payments.views.get_payment_status")
+    def test_payment_return_string_pending_status_goes_to_processing(self, get_payment_status):
+        self.order.payment_token = "RAW-FLOW-TOKEN-123456789"
+        self.order.save(update_fields=["payment_token"])
+        get_payment_status.return_value = {
+            "flowOrder": 123456,
+            "commerceOrder": str(self.order.id),
+            "status": "1",
+        }
+
+        response = self.client.get(reverse("payments:return"), {"token": "RAW-FLOW-TOKEN-123456789"})
+
+        self.order.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "payments/processing.html")
+        self.assertEqual(self.order.status, "pending")
+        self.assertEqual(self.order.payment_status, "pending")
+        get_payment_status.assert_called_once_with("RAW-FLOW-TOKEN-123456789")
 
     def test_payment_success_without_token_does_not_mark_paid(self):
         response = self.client.get(reverse("payments:success"), {"order_id": self.order.id})

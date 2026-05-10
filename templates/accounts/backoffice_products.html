@@ -74,6 +74,9 @@
                                 {% if product.is_featured %}
                                 <span class="bo-badge">Destacado</span>
                                 {% endif %}
+                                {% if product.show_in_new_arrivals %}
+                                <span class="bo-badge">Inicio</span>
+                                {% endif %}
                             </div>
                         </td>
                         <td>
@@ -92,6 +95,14 @@
                                     <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
                                     <button type="submit" class="bo-button bo-button--secondary bo-button--sm">
                                         {% if product.is_featured %}Quitar{% else %}Destacar{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'accounts:backoffice_product_action' product.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle_new_arrival">
+                                    <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="bo-button bo-button--secondary bo-button--sm">
+                                        {% if product.show_in_new_arrivals %}Quitar del inicio{% else %}Mostrar en inicio{% endif %}
                                     </button>
                                 </form>
                                 <a href="{% url 'accounts:backoffice_product_edit' product.id %}" class="bo-button bo-button--secondary bo-button--sm">

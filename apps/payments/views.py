@@ -17,11 +17,21 @@ from apps.payments.flow_service import (
     FLOW_PAID,
     FlowAPIError,
     get_payment_status,
+    mask_secret,
 )
 
 
 def _payment_id_from_status(status):
     return str(status.get("flowOrder") or "")
+
+
+def _flow_status_code(status):
+    if not status:
+        return None
+    try:
+        return int(status.get("status"))
+    except (TypeError, ValueError):
+        return status.get("status")
 
 
 def _order_from_token(token):
@@ -61,7 +71,7 @@ def _apply_flow_status(status, token=None):
     if order is None:
         return None
 
-    payment_status = status.get("status")
+    payment_status = _flow_status_code(status)
     payment_id = _payment_id_from_status(status)
 
     if payment_status == FLOW_PAID:
@@ -93,10 +103,13 @@ def payment_success(request):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def payment_return(request):
-    print("FLOW RETURN ENDPOINT")
+    print("PAYMENT RETURN START")
     print("USER AUTH:", request.user.is_authenticated)
 
     token = request.GET.get("token") or request.POST.get("token")
+    print("TOKEN PRESENT:", bool(token))
+    print("TOKEN LENGTH:", len(token) if token else 0)
+    print("TOKEN MASKED:", mask_secret(token))
     if not token:
         return render(request, "payments/error.html", {"message": "Flow no envi\u00f3 token de pago."})
 
@@ -107,19 +120,22 @@ def payment_return(request):
         return render(request, "payments/error.html", {"message": "Error confirmando el pago"})
 
     order = _apply_flow_status(status, token=token)
-    print("ORDER:", order.id if order else "NONE")
-    print("FLOW RETURN STATUS:", status.get("status"))
-    print("ORDER DB STATUS:", order.payment_status if order else "NONE")
+    status_code = _flow_status_code(status)
+    print("FLOW STATUS CODE:", status_code if status else "NO_STATUS")
+    print("FLOW ORDER:", status.get("flowOrder") if status else "NO_FLOW_ORDER")
+    print("COMMERCE ORDER:", status.get("commerceOrder") if status else "NO_COMMERCE_ORDER")
+    print("ORDER ID:", order.id if order else "NONE")
+    print("ORDER PAYMENT STATUS:", order.payment_status if order else "NONE")
 
     if order is None:
         return render(request, "payments/error.html", {"message": "No encontramos la orden asociada al pago."})
 
-    if status.get("status") == FLOW_PAID:
+    if status_code == FLOW_PAID:
         mark_order_paid(order)
         Cart(request).clear()
         clear_checkout_order_session(request)
         return render(request, "checkout/success.html", {"order": order})
-    elif status.get("status") in FLOW_CANCELLED_STATUSES:
+    elif status_code in FLOW_CANCELLED_STATUSES:
         clear_checkout_order_session(request)
         return render(request, "payments/cancel.html", {"order": order})
     else:
@@ -145,7 +161,7 @@ def payment_cancel(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def payment_webhook(request):
-    print("FLOW WEBHOOK RECEIVED")
+    print("PAYMENT WEBHOOK START")
     if request.content_type == "application/json":
         import json
         params = json.loads(request.body.decode("utf-8"))
@@ -153,6 +169,9 @@ def payment_webhook(request):
         params = request.POST.dict()
 
     token = params.get("token")
+    print("TOKEN PRESENT:", bool(token))
+    print("TOKEN LENGTH:", len(token) if token else 0)
+    print("TOKEN MASKED:", mask_secret(token))
     if not token:
         return JsonResponse({"error": "token required"}, status=400)
 
@@ -162,8 +181,9 @@ def payment_webhook(request):
         return JsonResponse({"error": str(error)}, status=400)
 
     order = _apply_flow_status(status, token=token)
-    print("ORDER:", order.id if order else "NONE")
-    print("FLOW STATUS:", status.get("status"))
+    status_code = _flow_status_code(status)
+    print("FLOW STATUS CODE:", status_code if status else "NO_STATUS")
+    print("ORDER ID:", order.id if order else "NONE")
     if order is None:
         return JsonResponse({"error": "order not found"}, status=404)
 
@@ -171,7 +191,7 @@ def payment_webhook(request):
     if order.payment_status in {"paid", "cancelled"}:
         return JsonResponse({"ok": True})
 
-    if status.get("status") == FLOW_PAID:
+    if status_code == FLOW_PAID:
         mark_order_paid(order)
 
     return JsonResponse({"ok": True})

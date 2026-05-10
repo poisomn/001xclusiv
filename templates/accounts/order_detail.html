@@ -10,7 +10,8 @@
             <span class="section-kicker">Detalle de pedido</span>
             <h1>Pedido #{{ order.id }}</h1>
         </div>
-        <p class="section-heading__text">Vista completa del pedido, con estado, productos, despacho y acceso al comprobante.</p>
+        <p class="section-heading__text">Vista completa del pedido, con estado, productos, despacho y acceso al
+            comprobante.</p>
     </div>
 
     <div class="account-order-detail-layout">
@@ -51,11 +52,13 @@
                     {% for item in order.items.all %}
                     <article class="account-order-detail-item">
                         <a href="{{ item.product.get_absolute_url }}">
-                            <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="account-order-detail-item__image">
+                            <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}"
+                                class="account-order-detail-item__image">
                         </a>
 
                         <div class="account-order-detail-item__copy">
-                            <a href="{{ item.product.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                            <a href="{{ item.product.get_absolute_url }}"
+                                style="text-decoration: none; color: inherit;">
                                 <strong>{{ item.product.name }}</strong>
                             </a>
                             {% if item.variant %}
@@ -77,9 +80,9 @@
                 <div class="account-order-shipping">
                     <p><strong>Nombre:</strong> {{ order.full_name }}</p>
                     <p><strong>Email:</strong> {{ order.email }}</p>
-                    <p><strong>Direccion:</strong> {{ order.address }}</p>
+                    <p><strong>Dirección:</strong> {{ order.address }}</p>
                     <p><strong>Ciudad:</strong> {{ order.city }}</p>
-                    <p><strong>Codigo postal:</strong> {{ order.postal_code }}</p>
+                    <p><strong>Código postal:</strong> {{ order.postal_code }}</p>
                 </div>
             </div>
 

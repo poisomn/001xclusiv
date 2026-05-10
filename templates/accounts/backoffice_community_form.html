@@ -1,0 +1,90 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}{% if is_editing %}Editar imagen{% else %}Nueva imagen{% endif %} - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<form method="post" class="bo-section">
+    {% csrf_token %}
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Comunidad</span>
+            <h1>{% if is_editing %}Editar imagen{% else %}Nueva imagen de comunidad{% endif %}</h1>
+            <p>Sube URLs de looks reales para alimentar el carrusel del home.</p>
+        </div>
+        <div class="bo-action-row">
+            <a href="{% url 'accounts:backoffice_community' %}" class="bo-button bo-button--secondary">
+                <i class="bi bi-arrow-left"></i>
+                Volver
+            </a>
+            <button type="submit" class="bo-button bo-button--primary">
+                <i class="bi bi-check2"></i>
+                Guardar
+            </button>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="bo-form-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="bo-grid bo-grid--two">
+        <article class="bo-card">
+            <div class="bo-card__header">
+                <div>
+                    <span class="bo-kicker">Contenido</span>
+                    <h2>Datos del look</h2>
+                    <p>Imagen, usuario de Instagram y texto corto.</p>
+                </div>
+            </div>
+            <div class="bo-form-stack">
+                <div class="bo-field">
+                    <label for="{{ form.image_url.id_for_label }}">URL de imagen</label>
+                    {{ form.image_url }}
+                    {{ form.image_url.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ form.instagram_handle.id_for_label }}">Instagram</label>
+                    {{ form.instagram_handle }}
+                    {{ form.instagram_handle.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ form.caption.id_for_label }}">Caption</label>
+                    {{ form.caption }}
+                    {{ form.caption.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ form.ordering.id_for_label }}">Orden</label>
+                    {{ form.ordering }}
+                    {{ form.ordering.errors }}
+                </div>
+                <label class="bo-check">
+                    {{ form.is_active }}
+                    <span>Activa en home</span>
+                </label>
+            </div>
+        </article>
+
+        <aside class="bo-card">
+            <div class="bo-card__header">
+                <div>
+                    <span class="bo-kicker">Preview</span>
+                    <h2>Vista previa</h2>
+                </div>
+            </div>
+            <div class="bo-main-image">
+                {% if community_image %}
+                <img src="{{ community_image.image_url }}" alt="{{ community_image.caption|default:'Comunidad 001' }}">
+                {% else %}
+                <div class="bo-main-image__placeholder">
+                    <div>
+                        <i class="bi bi-images"></i>
+                        <strong>Imagen de comunidad</strong>
+                        <p class="bo-muted mb-0">Pega una URL publica para verla en el home.</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+</form>
+{% endblock %}

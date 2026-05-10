@@ -69,6 +69,8 @@ class Product(TimeStampedModel):
 
     is_active = models.BooleanField("Publicado", default=True)
     is_featured = models.BooleanField("Destacado", default=False)
+    show_in_new_arrivals = models.BooleanField("Mostrar en Recien llegados", default=False)
+    new_arrival_order = models.PositiveIntegerField("Orden en Recien llegados", default=0)
 
     class Meta:
         verbose_name = "Producto"

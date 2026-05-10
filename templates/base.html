@@ -54,7 +54,7 @@
 
                     <li class="nav-item">
                         <a class="nav-link text-uppercase fw-medium fs-7 mx-2"
-                            href="{% url 'catalog:list' %}">Catalogo</a>
+                            href="{% url 'catalog:list' %}">Catálogo</a>
                     </li>
 
                     <li class="nav-item">
@@ -74,7 +74,8 @@
                             <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Mi Cuenta</a></li>
                             <li><a class="dropdown-item" href="{% url 'accounts:my_orders' %}">Mis pedidos</a></li>
                             {% if user.is_staff or user.is_superuser %}
-                            <li><a class="dropdown-item" href="{% url 'accounts:backoffice_dashboard' %}">Backoffice</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:backoffice_dashboard' %}">Backoffice</a>
+                            </li>
                             {% endif %}
                             <li>
                                 <hr class="dropdown-divider">
@@ -82,7 +83,7 @@
                             <li>
                                 <form action="{% url 'accounts:logout' %}" method="post">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesion</button>
+                                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
                                 </form>
                             </li>
                         </ul>
@@ -95,7 +96,8 @@
                     {% endif %}
 
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase fw-medium fs-7 mx-2" href="{% url 'cart:cart_detail' %}" id="cartNavLink">
+                        <a class="nav-link text-uppercase fw-medium fs-7 mx-2" href="{% url 'cart:cart_detail' %}"
+                            id="cartNavLink">
                             Carrito
                             {% if cart|length > 0 %}
                             <span class="badge bg-black text-white rounded-pill ms-1">{{ cart|length }}</span>
@@ -114,31 +116,33 @@
         </div>
     </main>
 
-    <div class="offcanvas offcanvas-end mini-cart-offcanvas" tabindex="-1" id="miniCartOffcanvas" aria-labelledby="miniCartLabel">
+    <div class="offcanvas offcanvas-end mini-cart-offcanvas" tabindex="-1" id="miniCartOffcanvas"
+        aria-labelledby="miniCartLabel">
         <div class="offcanvas-header mini-cart-offcanvas__header">
             <div>
                 <span class="section-kicker">Mini cart</span>
-                <h2 class="offcanvas-title" id="miniCartLabel">Tu seleccion</h2>
+                <h2 class="offcanvas-title" id="miniCartLabel">Tu selección</h2>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body mini-cart-offcanvas__body">
             <div id="miniCartItems" class="mini-cart-items">
                 {% if cart %}
-                    {% for item in cart %}
-                    <article class="mini-cart-item">
-                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="mini-cart-item__image">
-                        <div class="mini-cart-item__copy">
-                            <strong>{{ item.product.name }}</strong>
-                            {% if item.variant %}<span>Talla {{ item.variant.size }}</span>{% endif %}
-                            <span>{{ item.quantity }} x ${{ item.price }} CLP</span>
-                        </div>
-                    </article>
-                    {% endfor %}
-                {% else %}
-                    <div class="mini-cart-empty">
-                        <p>Aun no agregas productos al carrito.</p>
+                {% for item in cart %}
+                <article class="mini-cart-item">
+                    <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}"
+                        class="mini-cart-item__image">
+                    <div class="mini-cart-item__copy">
+                        <strong>{{ item.product.name }}</strong>
+                        {% if item.variant %}<span>Talla {{ item.variant.size }}</span>{% endif %}
+                        <span>{{ item.quantity }} x ${{ item.price }} CLP</span>
                     </div>
+                </article>
+                {% endfor %}
+                {% else %}
+                <div class="mini-cart-empty">
+                    <p>Aún no agregas productos al carrito.</p>
+                </div>
                 {% endif %}
             </div>
 
@@ -159,12 +163,12 @@
         <div class="container site-footer__grid">
             <div class="site-footer__brand">
                 <h2>001xclusiv</h2>
-                <p>Streetwear, sneakers y una experiencia de compra mas curada, clara y premium.</p>
+                <p>SNKRS, streetwear y más, todo xclusiv, todo para ti.</p>
             </div>
             <div>
                 <span class="site-footer__title">Compra</span>
                 <div class="site-footer__links">
-                    <a href="{% url 'catalog:list' %}">Catalogo</a>
+                    <a href="{% url 'catalog:list' %}">Catálogo</a>
                     <a href="{% url 'catalog:wishlist' %}">Wishlist</a>
                     <a href="{% url 'cart:cart_detail' %}">Carrito</a>
                     <a href="{% url 'checkout:index' %}">Checkout</a>
@@ -173,7 +177,7 @@
             <div>
                 <span class="site-footer__title">Ayuda</span>
                 <div class="site-footer__links">
-                    <a href="{% url 'core:info_page' 'shipping' %}">Envios</a>
+                    <a href="{% url 'core:info_page' 'shipping' %}">Envíos</a>
                     <a href="{% url 'core:info_page' 'returns' %}">Cambios y devoluciones</a>
                     <a href="{% url 'core:info_page' 'faq' %}">FAQ</a>
                     <a href="{% url 'core:info_page' 'contact' %}">Contacto</a>
@@ -239,8 +243,8 @@
             return items.map(item => `
                 <article class="mini-cart-item">
                     ${item.product_image
-                        ? `<img src="${item.product_image}" alt="${item.product_name}" class="mini-cart-item__image">`
-                        : `<div class="mini-cart-item__image mini-cart-item__image--placeholder">Img</div>`}
+                    ? `<img src="${item.product_image}" alt="${item.product_name}" class="mini-cart-item__image">`
+                    : `<div class="mini-cart-item__image mini-cart-item__image--placeholder">Img</div>`}
                     <div class="mini-cart-item__copy">
                         <strong>${item.product_name}</strong>
                         ${item.variant ? `<span>Talla ${item.variant}</span>` : ``}

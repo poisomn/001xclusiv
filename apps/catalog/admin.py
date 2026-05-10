@@ -28,14 +28,15 @@ class ProductAdmin(admin.ModelAdmin):
         "stock_summary",
         "is_active",
         "is_featured",
+        "show_in_new_arrivals",
         "created_at",
     )
-    list_filter = ("is_active", "is_featured", "brand", "categories")
+    list_filter = ("is_active", "is_featured", "show_in_new_arrivals", "brand", "categories")
     search_fields = ("name", "sku")
     prepopulated_fields = {"slug": ("name",)}
     filter_horizontal = ("categories",)
     inlines = [ProductImageInline, ProductVariantInline]
-    list_editable = ("is_active", "is_featured")
+    list_editable = ("is_active", "is_featured", "show_in_new_arrivals")
     readonly_fields = ("created_at", "updated_at", "cover_preview_large")
     list_per_page = 25
     save_on_top = True
@@ -54,7 +55,7 @@ class ProductAdmin(admin.ModelAdmin):
             "fields": ("price", "discount_price", "short_description", "description", "image_url"),
         }),
         ("Estado", {
-            "fields": ("is_active", "is_featured"),
+            "fields": ("is_active", "is_featured", "show_in_new_arrivals", "new_arrival_order"),
         }),
         ("Vista previa", {
             "fields": ("cover_preview_large",),

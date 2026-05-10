@@ -10,14 +10,15 @@
             <span class="section-kicker">Cuenta y pedidos</span>
             <h1>Mi cuenta</h1>
         </div>
-        <p class="section-heading__text">Revisa el estado de tus compras, entra al detalle de cada pedido y descarga tu comprobante de pedido cuando lo necesites.</p>
+        <p class="section-heading__text">Revisa el estado de tus compras, entra al detalle de cada pedido y descarga tu
+            comprobante de pedido cuando lo necesites.</p>
     </div>
 
     <div class="account-hero-card">
         <div>
             <p class="product-brand">Bienvenido</p>
             <h2>{{ user.username }}</h2>
-            <p>Tu historial de compras queda centralizado aqui para que puedas seguir cada pedido con claridad.</p>
+            <p>Tu historial de compras queda centralizado aquí para que puedas seguir cada pedido con claridad.</p>
         </div>
         <div class="account-hero-card__stats">
             <div>
@@ -88,9 +89,9 @@
     </div>
     {% else %}
     <div class="catalog-empty-state">
-        <span class="section-kicker">Sin pedidos aun</span>
-        <h2>Todavia no tienes compras registradas</h2>
-        <p>Cuando hagas tu primer pedido, aqui podras ver el historial completo y descargar tu comprobante.</p>
+        <span class="section-kicker">Sin pedidos aún</span>
+        <h2>Todavía no tienes compras registradas</h2>
+        <p>Cuando realices tu primer pedido, aquí podrás ver el historial completo y descargar tu comprobante 💯.</p>
         <a href="{% url 'catalog:list' %}" class="btn-accent">Ir a comprar</a>
     </div>
     {% endif %}

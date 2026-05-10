@@ -7,10 +7,10 @@
 <section class="cart-page">
     <div class="section-heading">
         <div>
-            <span class="section-kicker">Checkout prep</span>
+            <span class="section-kicker">Checkout preparation</span>
             <h1>Tu carrito</h1>
         </div>
-        <p class="section-heading__text">Ajusta cantidades, revisa tallas y llega al checkout con un resumen mas claro y limpio.</p>
+        <p class="section-heading__text">Revisa y ajusta los productos seleccionados antes de continuar.</p>
     </div>
 
     <div class="cart-layout">
@@ -18,14 +18,15 @@
             {% if cart %}
             <div class="cart-list">
                 {% for item in cart %}
-                <article class="cart-item" data-cart-item="{{ item.product.id }}{% if item.variant %}-{{ item.variant.id }}{% endif %}">
+                <article class="cart-item"
+                    data-cart-item="{{ item.product.id }}{% if item.variant %}-{{ item.variant.id }}{% endif %}">
                     <a href="{% url 'catalog:detail' item.product.slug %}" class="cart-item__media">
                         <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
                     </a>
 
                     <div class="cart-item__body">
                         <div class="cart-item__copy">
-                            <p class="product-brand">{{ item.product.brand.name|default:"Seleccion 001xclusiv" }}</p>
+                            <p class="product-brand">{{ item.product.brand.name|default:"Selección 001xclusiv" }}</p>
                             <h2 class="cart-item__title">
                                 <a href="{% url 'catalog:detail' item.product.slug %}">{{ item.product.name }}</a>
                             </h2>
@@ -35,13 +36,15 @@
                         </div>
 
                         <div class="cart-item__controls">
-                            <form method="post" action="{% url 'cart:cart_update' item.product.id %}" class="cart-quantity-form js-cart-update-form">
+                            <form method="post" action="{% url 'cart:cart_update' item.product.id %}"
+                                class="cart-quantity-form js-cart-update-form">
                                 {% csrf_token %}
                                 {% if item.variant %}
                                 <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
                                 {% endif %}
                                 <label for="qty-{{ forloop.counter }}" class="visually-hidden">Cantidad</label>
-                                <input id="qty-{{ forloop.counter }}" type="number" name="quantity" min="1" value="{{ item.quantity }}">
+                                <input id="qty-{{ forloop.counter }}" type="number" name="quantity" min="1"
+                                    value="{{ item.quantity }}">
                                 <button type="submit" class="btn-secondary btn-sm">Actualizar</button>
                             </form>
 
@@ -62,9 +65,9 @@
             {% else %}
             <div class="catalog-empty-state">
                 <span class="section-kicker">Sin productos</span>
-                <h2>Tu carrito esta vacio</h2>
-                <p>Explora el catalogo y agrega piezas para activar tu resumen de compra.</p>
-                <a href="{% url 'catalog:list' %}" class="btn-accent">Ir al catalogo</a>
+                <h2>Tu carrito esta vacío 😔</h2>
+                <p>Agrega piezas a tu carrito para activar tu resumen de compra.</p>
+                <a href="{% url 'catalog:list' %}" class="btn-accent">Ir al catálogo</a>
             </div>
             {% endif %}
         </div>
@@ -80,7 +83,7 @@
                         <strong id="cartSubtotal">${{ cart.get_total_price }} CLP</strong>
                     </div>
                     <div class="cart-summary__row">
-                        <span>Envio</span>
+                        <span>Envío</span>
                         <span>Se calcula en checkout</span>
                     </div>
                     <div class="cart-summary__row cart-summary__row--total">

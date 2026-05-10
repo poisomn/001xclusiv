@@ -8,7 +8,7 @@ class ProductForm(forms.ModelForm):
         fields = [
             'name', 'slug', 'sku', 'brand', 'categories',
             'price', 'discount_price', 'short_description', 'description', 'image_url',
-            'is_active', 'is_featured'
+            'is_active', 'is_featured', 'show_in_new_arrivals', 'new_arrival_order'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -23,6 +23,8 @@ class ProductForm(forms.ModelForm):
             'image_url': forms.URLInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_in_new_arrivals': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'new_arrival_order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
 
 ProductImageFormSet = inlineformset_factory(

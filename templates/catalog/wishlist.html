@@ -7,10 +7,11 @@
 <section class="wishlist-page">
     <div class="section-heading">
         <div>
-            <span class="section-kicker">Guardados para despues</span>
+            <span class="section-kicker">Guardados para después</span>
             <h1>Tu wishlist</h1>
         </div>
-        <p class="section-heading__text">Revisa tus productos favoritos, quita lo que ya no te haga sentido y mueve al carrito los que ya estas listo para comprar.</p>
+        <p class="section-heading__text">Revisa tus productos favoritos, quita lo que ya no te haga sentido y mueve al
+            carrito los que ya estás listo para comprar.</p>
     </div>
 
     {% if wishlist_items %}
@@ -84,10 +85,10 @@
     </div>
     {% else %}
     <div class="catalog-empty-state">
-        <span class="section-kicker">Aun no guardas nada</span>
-        <h2>Tu wishlist esta vacia</h2>
-        <p>Explora el catalogo y guarda piezas para compararlas con calma antes de pasar al carrito.</p>
-        <a href="{% url 'catalog:list' %}" class="btn-accent">Explorar catalogo</a>
+        <span class="section-kicker">Aún no guardas nada</span>
+        <h2>Tu wishlist está vacía</h2>
+        <p>Explora el catálogo y guarda piezas para compararlas con calma antes de pasar al carrito.</p>
+        <a href="{% url 'catalog:list' %}" class="btn-accent">Explorar catálogo</a>
     </div>
     {% endif %}
 </section>

@@ -258,6 +258,15 @@
                             {{ form.is_featured }}
                             <span>Destacado</span>
                         </label>
+                        <label class="bo-check">
+                            {{ form.show_in_new_arrivals }}
+                            <span>Mostrar en Recien llegados</span>
+                        </label>
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.new_arrival_order.id_for_label }}">Orden en Recien llegados</label>
+                        {{ form.new_arrival_order }}
+                        {{ form.new_arrival_order.errors }}
                     </div>
                 </div>
             </article>

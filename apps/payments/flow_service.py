@@ -26,15 +26,13 @@ class FlowAPIError(Exception):
     pass
 
 
-def mask_sensitive_value(value, visible=8):
-    if value is None:
-        return "NONE"
-    value = str(value)
+def mask_secret(value, visible_start=6, visible_end=4):
     if not value:
-        return "EMPTY"
-    if len(value) <= visible * 2:
-        return "***hidden***"
-    return f"{value[:visible]}...{value[-visible:]}"
+        return ""
+    value = str(value)
+    if len(value) <= visible_start + visible_end:
+        return "***"
+    return f"{value[:visible_start]}...{value[-visible_end:]}"
 
 
 def _base_url():
@@ -150,7 +148,7 @@ def create_payment(order, request=None):
         order.id,
         params["amount"],
         settings.FLOW_USE_SANDBOX,
-        mask_sensitive_value(settings.FLOW_API_KEY),
+        mask_secret(settings.FLOW_API_KEY),
         "***hidden***",
     )
     response = _request_json(
@@ -164,7 +162,7 @@ def create_payment(order, request=None):
         "Flow payment created order_id=%s flowOrder=%s token=%s",
         order.id,
         order.payment_id or "NONE",
-        mask_sensitive_value(order.payment_token),
+        mask_secret(order.payment_token),
     )
 
     order.save(update_fields=["payment_id", "payment_token", "updated_at"])

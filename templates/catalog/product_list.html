@@ -11,9 +11,9 @@
     <div class="catalog-shell">
         <aside class="catalog-sidebar d-none d-lg-block">
             <div class="catalog-sidebar__card">
-                <span class="section-kicker">Filtra con criterio</span>
-                <h2>Encuentra tu par ideal</h2>
-                <p>Refina por estilo, marca, rango de precio y orden para aterrizar mas rapido en el producto correcto.</p>
+                <span class="section-kicker">Filtra tu búsqueda</span>
+                <h2>Encuentra lo que buscas</h2>
+                <p>Filtra por categoría, marca, rango de precio y más.</p>
                 {% include "catalog/partials/filter_form.html" with filter_prefix="desktop-filters" %}
             </div>
         </aside>
@@ -21,29 +21,37 @@
         <div class="catalog-content">
             <header class="catalog-header">
                 <div>
-                    <span class="section-kicker">Catalogo curado</span>
-                    <h1>Seleccion 001xclusiv</h1>
+                    <span class="section-kicker">Catálogo</span>
+                    <h1>Selección 001xclusiv</h1>
                     <p class="catalog-header__text">
-                        {{ results_count }} resultado{{ results_count|pluralize }} con una navegacion mas clara, visual y lista para convertir.
+                        {{ results_count }} resultado{{ results_count|pluralize }} para ti.
                     </p>
                 </div>
 
                 <div class="catalog-header__actions">
-                    <button class="btn-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#catalogFilters" aria-controls="catalogFilters">
+                    <button class="btn-secondary d-lg-none" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#catalogFilters" aria-controls="catalogFilters">
                         <i class="bi bi-sliders"></i>
                         Filtros
                     </button>
 
                     <form method="get" class="catalog-sort-inline">
-                        {% if active_filters.q %}<input type="hidden" name="q" value="{{ active_filters.q }}">{% endif %}
-                        {% if active_filters.category %}<input type="hidden" name="category" value="{{ active_filters.category }}">{% endif %}
-                        {% if active_filters.brand %}<input type="hidden" name="brand" value="{{ active_filters.brand }}">{% endif %}
-                        {% if active_filters.min_price %}<input type="hidden" name="min_price" value="{{ active_filters.min_price }}">{% endif %}
-                        {% if active_filters.max_price %}<input type="hidden" name="max_price" value="{{ active_filters.max_price }}">{% endif %}
+                        {% if active_filters.q %}<input type="hidden" name="q" value="{{ active_filters.q }}">{% endif
+                        %}
+                        {% if active_filters.category %}<input type="hidden" name="category"
+                            value="{{ active_filters.category }}">{% endif %}
+                        {% if active_filters.brand %}<input type="hidden" name="brand"
+                            value="{{ active_filters.brand }}">{% endif %}
+                        {% if active_filters.min_price %}<input type="hidden" name="min_price"
+                            value="{{ active_filters.min_price }}">{% endif %}
+                        {% if active_filters.max_price %}<input type="hidden" name="max_price"
+                            value="{{ active_filters.max_price }}">{% endif %}
                         <label for="catalog-sort" class="visually-hidden">Ordenar productos</label>
-                        <select id="catalog-sort" name="sort" class="catalog-filter-select" onchange="this.form.submit()">
+                        <select id="catalog-sort" name="sort" class="catalog-filter-select"
+                            onchange="this.form.submit()">
                             {% for value, label in sort_options %}
-                            <option value="{{ value }}" {% if active_filters.sort == value %}selected{% endif %}>{{ label }}</option>
+                            <option value="{{ value }}" {% if active_filters.sort==value %}selected{% endif %}>{{ label
+                                }}</option>
                             {% endfor %}
                         </select>
                     </form>
@@ -52,16 +60,17 @@
 
             <div class="catalog-active-filters">
                 {% if active_filters.q %}
-                <span class="catalog-active-chip">Busqueda: {{ active_filters.q }}</span>
+                <span class="catalog-active-chip">Búsqueda: {{ active_filters.q }}</span>
                 {% endif %}
                 {% if active_filters.category %}
-                <span class="catalog-active-chip">Categoria: {{ active_filters.category }}</span>
+                <span class="catalog-active-chip">Categoría: {{ active_filters.category }}</span>
                 {% endif %}
                 {% if active_filters.brand %}
                 <span class="catalog-active-chip">Marca: {{ active_filters.brand }}</span>
                 {% endif %}
                 {% if active_filters.min_price or active_filters.max_price %}
-                <span class="catalog-active-chip">Precio: {{ active_filters.min_price|default:"0" }} - {{ active_filters.max_price|default:"max" }}</span>
+                <span class="catalog-active-chip">Precio: {{ active_filters.min_price|default:"0" }} - {{
+                    active_filters.max_price|default:"max" }}</span>
                 {% endif %}
                 {% if current_query %}
                 <a href="{% url 'catalog:list' %}" class="catalog-clear-link">Limpiar filtros</a>
@@ -87,8 +96,9 @@
                 <div class="catalog-empty-state">
                     <span class="section-kicker">Sin coincidencias</span>
                     <h2>No encontramos productos con esos filtros</h2>
-                    <p>Prueba ampliando el rango de precio o limpiando la busqueda para volver a explorar la coleccion completa.</p>
-                    <a href="{% url 'catalog:list' %}" class="btn-accent">Ver todo el catalogo</a>
+                    <p>Prueba ampliando el rango de precio o limpiando la búsqueda para volver a explorar la colección
+                        completa.</p>
+                    <a href="{% url 'catalog:list' %}" class="btn-accent">Ver todo el catálogo</a>
                 </div>
                 {% endfor %}
             </div>
@@ -98,7 +108,9 @@
                 <ul class="pagination">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                        <a class="page-link"
+                            href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                            aria-label="Anterior">
                             &laquo;
                         </a>
                     </li>
@@ -106,13 +118,16 @@
 
                     {% for num in paginator.page_range %}
                     <li class="page-item {% if num == page_obj.number %}active{% endif %}">
-                        <a class="page-link" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        <a class="page-link"
+                            href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ num }}">{{ num }}</a>
                     </li>
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                        <a class="page-link"
+                            href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+                            aria-label="Siguiente">
                             &raquo;
                         </a>
                     </li>
@@ -124,11 +139,12 @@
     </div>
 </section>
 
-<div class="offcanvas offcanvas-end catalog-offcanvas" tabindex="-1" id="catalogFilters" aria-labelledby="catalogFiltersLabel">
+<div class="offcanvas offcanvas-end catalog-offcanvas" tabindex="-1" id="catalogFilters"
+    aria-labelledby="catalogFiltersLabel">
     <div class="offcanvas-header">
         <div>
             <span class="section-kicker">Filtros</span>
-            <h2 class="offcanvas-title" id="catalogFiltersLabel">Ajusta tu busqueda</h2>
+            <h2 class="offcanvas-title" id="catalogFiltersLabel">Ajusta tu búsqueda</h2>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>

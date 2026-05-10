@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from apps.catalog.models import Brand, Category
+from apps.core.models import CommunityImage
 from apps.orders.models import Order
 
 class UserRegistrationForm(UserCreationForm):
@@ -47,4 +48,17 @@ class OrderManagementForm(forms.ModelForm):
             "payment_status": forms.Select(attrs={"class": "form-select"}),
             "payment_id": forms.TextInput(attrs={"class": "form-control", "placeholder": "ID de pago"}),
             "is_paid": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+class CommunityImageForm(forms.ModelForm):
+    class Meta:
+        model = CommunityImage
+        fields = ["image_url", "instagram_handle", "caption", "is_active", "ordering"]
+        widgets = {
+            "image_url": forms.URLInput(attrs={"class": "form-control", "placeholder": "https://..."}),
+            "instagram_handle": forms.TextInput(attrs={"class": "form-control", "placeholder": "@001xclusiv"}),
+            "caption": forms.TextInput(attrs={"class": "form-control", "placeholder": "Look real de la comunidad"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "ordering": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
         }
