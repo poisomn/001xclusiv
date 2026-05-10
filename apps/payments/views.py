@@ -93,8 +93,8 @@ def payment_success(request):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def payment_return(request):
+    print("FLOW RETURN ENDPOINT")
     print("USER AUTH:", request.user.is_authenticated)
-    print("SESSION KEY:", request.session.session_key)
 
     token = request.GET.get("token") or request.POST.get("token")
     if not token:
@@ -102,19 +102,17 @@ def payment_return(request):
 
     try:
         status = get_payment_status(token)
-        print("FLOW STATUS:", status)
     except Exception as e:
-        print("FLOW RETURN ERROR:", str(e))
+        print("FLOW RETURN ERROR:", e.__class__.__name__)
         return render(request, "payments/error.html", {"message": "Error confirmando el pago"})
 
     order = _apply_flow_status(status, token=token)
     print("ORDER:", order.id if order else "NONE")
+    print("FLOW RETURN STATUS:", status.get("status"))
+    print("ORDER DB STATUS:", order.payment_status if order else "NONE")
 
     if order is None:
         return render(request, "payments/error.html", {"message": "No encontramos la orden asociada al pago."})
-
-    print("FLOW RETURN STATUS:", status.get("status"))
-    print("ORDER DB STATUS:", order.payment_status)
 
     if status.get("status") == FLOW_PAID:
         mark_order_paid(order)
@@ -147,18 +145,12 @@ def payment_cancel(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def payment_webhook(request):
-    # Log raw request body
-    print("FLOW WEBHOOK RAW BODY:", request.body)
-    # Parse parameters based on content type
+    print("FLOW WEBHOOK RECEIVED")
     if request.content_type == "application/json":
         import json
         params = json.loads(request.body.decode("utf-8"))
     else:
         params = request.POST.dict()
-    print("FLOW WEBHOOK PARAMS:", params)
-    # signature validation removed (debug)
-
-
 
     token = params.get("token")
     if not token:
@@ -170,6 +162,8 @@ def payment_webhook(request):
         return JsonResponse({"error": str(error)}, status=400)
 
     order = _apply_flow_status(status, token=token)
+    print("ORDER:", order.id if order else "NONE")
+    print("FLOW STATUS:", status.get("status"))
     if order is None:
         return JsonResponse({"error": "order not found"}, status=404)
 
@@ -181,4 +175,3 @@ def payment_webhook(request):
         mark_order_paid(order)
 
     return JsonResponse({"ok": True})
-

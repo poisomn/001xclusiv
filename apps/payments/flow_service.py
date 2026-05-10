@@ -26,6 +26,17 @@ class FlowAPIError(Exception):
     pass
 
 
+def mask_sensitive_value(value, visible=8):
+    if value is None:
+        return "NONE"
+    value = str(value)
+    if not value:
+        return "EMPTY"
+    if len(value) <= visible * 2:
+        return "***hidden***"
+    return f"{value[:visible]}...{value[-visible:]}"
+
+
 def _base_url():
     configured_url = getattr(settings, "FLOW_API_URL", "").strip()
     if configured_url:
@@ -119,10 +130,6 @@ def build_payment_url(pay_response):
 
 
 def build_payment_create_params(order, request=None):
-    # Debug environment variables
-    print("DEBUG FLOW_API_KEY:", settings.FLOW_API_KEY)
-    print("DEBUG FLOW_SECRET_KEY:", settings.FLOW_SECRET_KEY)
-    print("DEBUG SITE_URL:", settings.SITE_URL)
     base_url = _public_base_url(request)
     return {
         "apiKey": settings.FLOW_API_KEY,
@@ -138,13 +145,14 @@ def build_payment_create_params(order, request=None):
 
 def create_payment(order, request=None):
     params = build_payment_create_params(order, request=request)
-    print("=== FLOW DEBUG ===")
-    print("FLOW_API_KEY:", settings.FLOW_API_KEY)
-    print("FLOW_SECRET_KEY:", settings.FLOW_SECRET_KEY)
-    print("FLOW_USE_SANDBOX:", settings.FLOW_USE_SANDBOX)
-    print("FLOW_API_URL:", settings.FLOW_API_URL)
-    print("PARAMS:", params)
-    logger.info("Flow create payment amount order_id=%s amount=%s", order.id, params["amount"])
+    logger.info(
+        "Flow create payment order_id=%s amount=%s sandbox=%s api_key=%s secret=%s",
+        order.id,
+        params["amount"],
+        settings.FLOW_USE_SANDBOX,
+        mask_sensitive_value(settings.FLOW_API_KEY),
+        "***hidden***",
+    )
     response = _request_json(
         FLOW_PAYMENT_CREATE_PATH,
         "POST",
@@ -152,6 +160,12 @@ def create_payment(order, request=None):
     )
     order.payment_id = str(response.get("flowOrder", "")) or order.payment_id
     order.payment_token = response.get("token")
+    logger.info(
+        "Flow payment created order_id=%s flowOrder=%s token=%s",
+        order.id,
+        order.payment_id or "NONE",
+        mask_sensitive_value(order.payment_token),
+    )
 
     order.save(update_fields=["payment_id", "payment_token", "updated_at"])
     return response

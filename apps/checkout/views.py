@@ -65,36 +65,36 @@ class CheckoutView(View):
         return render(request, 'checkout/checkout.html', self.get_context(cart, form))
 
     def post(self, request):
-        print("METHOD:", request.method)
         if request.method == "POST":
-            print("ENTRANDO A POST")
+            logger.info("Checkout POST received user_authenticated=%s", request.user.is_authenticated)
             cart = Cart(request)
             if len(cart) == 0:
                 return redirect('cart:cart_detail')
 
             form = CheckoutForm(request.POST)
-            print("FORM VALID:", form.is_valid())
-            print("FORM ERRORS:", form.errors)
             if form.is_valid():
-                print("FORM OK")
                 order = build_order_from_cart(request, form)
-                print("ORDER CREADA:", order.id)
+                logger.info("Checkout order created order_id=%s", order.id)
                 if order.get_total_cost() <= 0:
                     messages.error(request, "El total del pedido es cero o negativo. No se puede proceder al pago.")
                     return render(request, 'checkout/checkout.html', self.get_context(cart, form))
                 logger.info("Flow checkout cart total order_id=%s total=%s", order.id, order.get_total_cost())
                 try:
                     response = create_payment(order, request)
-                    print("FLOW RESPONSE:", response)
+                    logger.info(
+                        "Flow checkout payment response order_id=%s flowOrder=%s",
+                        order.id,
+                        response.get("flowOrder"),
+                    )
                     payment_url = build_payment_url(response)
-                    print("REDIRECTING TO:", payment_url)
+                    logger.info("Redirecting to Flow payment order_id=%s", order.id)
                     return redirect(payment_url)
-                except Exception as e:
-                    print("ERROR FLOW:", str(e))
+                except Exception:
+                    logger.exception("Flow payment creation failed order_id=%s", order.id)
                     messages.error(request, "No pudimos iniciar el pago. Intenta nuevamente.")
                     return render(request, 'checkout/checkout.html', self.get_context(cart, form))
             else:
-                print("FORM INVALID")
+                logger.info("Checkout form invalid user_authenticated=%s", request.user.is_authenticated)
         # Fallback render if not POST or any other issue
         return render(request, 'checkout/checkout.html', self.get_context(Cart(request), CheckoutForm()))
 
