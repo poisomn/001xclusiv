@@ -14,7 +14,7 @@ CATEGORY_VISUALS = {
         "image": "home/mujerCate.jpg",
         "eyebrow": "Para las reinas",
     },
-    "ninos": {
+    "niños": {
         "image": "home/airforcelv8blackbrown.jpg",
         "eyebrow": "Para los mini sangres",
     },
@@ -34,17 +34,17 @@ CATEGORY_VISUALS = {
 
 HOME_TESTIMONIALS = [
     {
-        "quote": "No se siente como comprar algo al azar. Se siente como elegir una pieza que si va conmigo.",
-        "author": "Camila R.",
+        "quote": "Buenas, por aquí el Admin, les doy las gracias por su compra, espero disfruten su pedido cabros (obvio que me quedé con unas black cat fichitas 😼).",
+        "author": "Christopher Araya",
         "role": "Compra verificada",
     },
     {
-        "quote": "Entre por unas sneakers y termine armando presencia completa. Eso es lo que hace distinta a la marca.",
-        "author": "Matias G.",
+        "quote": "Entré a comprar unas zapatillas y me quedé viendo la página por más de una hora jkajskaja, me encantó todo, bacán como evolucionó la página compañero.",
+        "author": "Alonso M.",
         "role": "Cliente frecuente",
     },
     {
-        "quote": "001xclusiv no se ve como una tienda generica. Se siente como una identidad con criterio propio.",
+        "quote": "001xclusiv🔥🔥, gracias cabros, está muy bueno todo.",
         "author": "Valentina S.",
         "role": "Amante del streetwear",
     },
@@ -88,18 +88,18 @@ HOME_EDITORIAL_PANELS = [
 HOME_JOURNEY_STEPS = [
     {
         "step": "01",
-        "title": "Entras y ya se siente",
-        "text": "El home tiene que atraparte al primer segundo. No para que mires, para que quieras quedarte un rato mas.",
+        "title": "Entra, encuentra tu estilo, encuentrate tú",
+        "text": "La idea es que si no venías con algo en mente, salgas con una idea clara de lo que quieres y con algo que refleje tu personalidad.",
     },
     {
         "step": "02",
-        "title": "Encuentras tu energia",
-        "text": "Hay quien viene por unas sneakers, hay quien quiere outfit completo. El scroll acompana ambos caminos sin perder identidad.",
+        "title": "Favoritos, wishlist, carrito y listo",
+        "text": "Explora el catálogo, ve lo que te gusta, añádelo a tu wishlist, o directito al carrito.",
     },
     {
         "step": "03",
-        "title": "Sales con algo tuyo",
-        "text": "Cada bloque tiene que dejarte una salida natural: guardar, explorar, elegir talla o entrar directo al carrito.",
+        "title": "Post-pago nosotros nos encargamos de todo",
+        "text": "Seleccionaste, hiciste el pago, ahora nosotros nos encargamos de todo lo demás. Lo que más nos importa es fortalecer la confianza y brindarte una experiencia 5 estrellas.",
     },
 ]
 
@@ -146,14 +146,14 @@ INFO_PAGES = {
         ],
     },
     "shipping": {
-        "title": "Envios y entregas",
-        "meta_description": "Informacion de envios, tiempos de entrega y alcance de despacho en 001xclusiv.",
-        "hero_kicker": "Informacion de compra",
-        "hero_title": "Envios claros para que compres con menos friccion.",
+        "title": "Envíos y entregas",
+        "meta_description": "Información de envíos, tiempos de entrega y alcance de despacho en 001xclusiv.",
+        "hero_kicker": "Información de compra",
+        "hero_title": "Envíos claros para que compres tranquilo.",
         "hero_copy": "Queremos que el proceso sea simple: confirmar tu pedido, prepararlo con cuidado y mantener una expectativa realista sobre despacho y tiempos.",
         "sections": [
             {
-                "title": "Preparacion del pedido",
+                "title": "Preparación del pedido",
                 "body": "Una vez confirmado el pedido, nuestro objetivo es prepararlo lo antes posible. Los tiempos pueden variar segun volumen, disponibilidad y direccion de despacho.",
             },
             {

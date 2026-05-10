@@ -16,21 +16,21 @@
     <div class="info-page__layout">
         <div class="info-page__main">
             {% if page.sections %}
-                {% for section in page.sections %}
-                <article class="info-card">
-                    <h2>{{ section.title }}</h2>
-                    <p>{{ section.body }}</p>
-                </article>
-                {% endfor %}
+            {% for section in page.sections %}
+            <article class="info-card">
+                <h2>{{ section.title }}</h2>
+                <p>{{ section.body }}</p>
+            </article>
+            {% endfor %}
             {% endif %}
 
             {% if page.faq_items %}
-                {% for item in page.faq_items %}
-                <article class="info-card info-card--faq">
-                    <h2>{{ item.question }}</h2>
-                    <p>{{ item.answer }}</p>
-                </article>
-                {% endfor %}
+            {% for item in page.faq_items %}
+            <article class="info-card info-card--faq">
+                <h2>{{ item.question }}</h2>
+                <p>{{ item.answer }}</p>
+            </article>
+            {% endfor %}
             {% endif %}
         </div>
 
@@ -45,7 +45,7 @@
                 </ul>
             </article>
 
-            <article class="info-sidebar-card info-sidebar-card--dark">
+            <article class="info-sidebar-card info-sidebar-card">
                 <span class="section-kicker">Navegacion util</span>
                 <h2>Mas confianza para convertir.</h2>
                 <div class="info-sidebar-links">
