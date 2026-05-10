@@ -1,10 +1,10 @@
-from django.conf import settings
-from django.core.mail import send_mail
-
-from .gmail_sender import send_gmail_message
-from django.template.loader import render_to_string
-
 from apps.cart.cart import Cart
+from apps.notifications.services import (
+    send_admin_new_order_email,
+    send_order_cancelled_email,
+    send_order_created_email,
+    send_payment_confirmed_email,
+)
 
 from .models import Order, OrderItem
 
@@ -47,6 +47,7 @@ def build_order_from_cart(request, form):
     order.recalculate_total_amount()
     store_checkout_order_session(request, order)
     send_order_created_email(order)
+    send_admin_new_order_email(order)
     return order
 
 
@@ -74,7 +75,7 @@ def mark_order_paid(order, payment_id=""):
         order.payment_id = payment_id
         update_fields.append("payment_id")
     order.save(update_fields=update_fields)
-    send_order_paid_email(order)
+    send_payment_confirmed_email(order)
     return order
 
 
@@ -87,29 +88,9 @@ def mark_order_cancelled(order, payment_id=""):
         order.payment_id = payment_id
         update_fields.append("payment_id")
     order.save(update_fields=update_fields)
+    send_order_cancelled_email(order)
     return order
 
 
-def _send_order_email(subject, message, recipient):
-    if send_gmail_message(subject, message, recipient):
-        return
-
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [recipient],
-        fail_silently=True,
-    )
-
-
-def send_order_created_email(order):
-    subject = f"Tu orden #{order.id} fue creada"
-    message = render_to_string("emails/order_created.txt", {"order": order})
-    _send_order_email(subject, message, order.email)
-
-
 def send_order_paid_email(order):
-    subject = f"Pago confirmado para tu orden #{order.id}"
-    message = render_to_string("emails/order_paid.txt", {"order": order})
-    _send_order_email(subject, message, order.email)
+    return send_payment_confirmed_email(order)

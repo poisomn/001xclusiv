@@ -86,6 +86,7 @@ def build_backoffice_context(active_section):
             {"label": "Resumen", "icon": "bi-grid-1x2", "url_name": "accounts:backoffice_dashboard", "key": "dashboard"},
             {"label": "Productos", "icon": "bi-bag", "url_name": "accounts:backoffice_products", "key": "products"},
             {"label": "Pedidos", "icon": "bi-receipt", "url_name": "accounts:backoffice_orders", "key": "orders"},
+            {"label": "Mensajes", "icon": "bi-envelope", "url_name": "accounts:backoffice_messages", "key": "messages"},
             {"label": "Marcas y categorias", "icon": "bi-tags", "url_name": "accounts:backoffice_taxonomy", "key": "taxonomy"},
             {"label": "Usuarios", "icon": "bi-people", "url_name": "accounts:backoffice_users", "key": "users"},
         ],
@@ -441,6 +442,8 @@ class BackofficeOrderDetailView(StaffRequiredMixin, View):
 
     def post(self, request, order_id):
         order = self.get_order(order_id)
+        previous_payment_status = order.payment_status
+        previous_status = order.status
         form = OrderManagementForm(request.POST, instance=order)
         if form.is_valid():
             updated_order = form.save(commit=False)
@@ -449,6 +452,16 @@ class BackofficeOrderDetailView(StaffRequiredMixin, View):
             elif updated_order.status == "cancelled" or updated_order.payment_status == "cancelled":
                 updated_order.is_paid = False
             form.save()
+            if (
+                previous_payment_status != "paid"
+                and updated_order.payment_status == "paid"
+            ) or (previous_status != "paid" and updated_order.status == "paid"):
+                mark_order_paid(updated_order, payment_id=updated_order.payment_id)
+            elif (
+                previous_payment_status != "cancelled"
+                and updated_order.payment_status == "cancelled"
+            ) or (previous_status != "cancelled" and updated_order.status == "cancelled"):
+                mark_order_cancelled(updated_order, payment_id=updated_order.payment_id)
             messages.success(request, f"Pedido #{order.id} actualizado.")
             return redirect("accounts:backoffice_order_detail", order_id=order.id)
         context = {
@@ -457,6 +470,14 @@ class BackofficeOrderDetailView(StaffRequiredMixin, View):
             "form": form,
         }
         return render(request, "accounts/backoffice_order_detail.html", context)
+
+
+class BackofficeMessagesView(StaffRequiredMixin, View):
+    def get(self, request):
+        context = {
+            **build_backoffice_context("messages"),
+        }
+        return render(request, "accounts/backoffice_messages.html", context)
 
 
 class BackofficeTaxonomyView(StaffRequiredMixin, View):

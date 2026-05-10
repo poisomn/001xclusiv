@@ -83,6 +83,10 @@ def _apply_flow_status(status, token=None):
 
 
 def payment_success(request):
+    if not (request.GET.get("token") or request.POST.get("token")):
+        order_id = request.GET.get("order_id") or request.POST.get("order_id")
+        if order_id:
+            return redirect("checkout:success", order_id=order_id)
     return payment_return(request)
 
 
@@ -177,5 +181,4 @@ def payment_webhook(request):
         mark_order_paid(order)
 
     return JsonResponse({"ok": True})
-
 

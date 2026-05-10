@@ -43,6 +43,10 @@ class OrderAdmin(admin.ModelAdmin):
                     "payment_id",
                     "payment_token",
                     "is_paid",
+                    "order_created_email_sent",
+                    "payment_confirmed_email_sent",
+                    "order_cancelled_email_sent",
+                    "admin_new_order_email_sent",
                 )
             },
         ),

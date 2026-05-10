@@ -483,7 +483,8 @@
                 <div class="arrival-card__content">
                     <span class="arrival-card__badge">New arrival</span>
                     <h3>{{ product.name }}</h3>
-                    <p>{{ product.short_description|default:"Diseño seleccionado para destacar en la nueva colección." }}</p>
+                    <p>{{ product.short_description|default:"Diseño seleccionado para destacar en la nueva colección."
+                        }}</p>
                     <div class="arrival-card__footer">
                         <strong>${{ product.final_price }} CLP</strong>
                         <a href="{% url 'catalog:detail' product.slug %}" class="section-link">Ver producto</a>
@@ -506,24 +507,24 @@
     <section class="home-section split-highlight-grid">
         <article class="split-highlight-card ambient-surface ambient-surface--light" data-ambient>
             <div class="split-highlight-card__media">
-                <img src="{% static 'home/airforcelv8black.jpg' %}" alt="Selección urbana 001xclusiv">
+                <img src="{% static 'home/retro4bcathome.jpg' %}" alt="Selección urbana 001xclusiv">
             </div>
             <div class="split-highlight-card__content">
-                <span class="section-kicker">Selección semanal</span>
-                <h3>Mitad imagen, mitad historia.</h3>
-                <p>Elegimos piezas clave para que veas el detalle real del producto junto con contexto de estilo.</p>
+                <span class="section-kicker">Admin cops</span>
+                <h3>Preferidas del admin. -chris.</h3>
+                <p>Los clásicos que no pueden faltar en tu colección (ni en la mía jejeje).</p>
                 <a href="{% url 'catalog:list' %}" class="btn-secondary">Explorar catálogo</a>
             </div>
         </article>
 
         <article class="split-highlight-card ambient-surface ambient-surface--dark" data-ambient>
             <div class="split-highlight-card__media">
-                <img src="{% static 'home/retro4bcathome.jpg' %}" alt="Nuevo drop destacado">
+                <img src="{% static 'home/ropa.jpg' %}" alt="Nuevo drop destacado">
             </div>
             <div class="split-highlight-card__content">
-                <span class="section-kicker">Drop destacado</span>
-                <h3>Visual potente + mensaje claro.</h3>
-                <p>Agregamos este formato para contar cada lanzamiento de forma más editorial y atractiva.</p>
+                <span class="section-kicker">Clothing</span>
+                <h3>Vístete...</h3>
+                <p>Visita la categoría de clothing y encuentra tus prendas favoritas.</p>
                 <a href="{% url 'catalog:list' %}" class="btn-accent">Ver novedades</a>
             </div>
         </article>

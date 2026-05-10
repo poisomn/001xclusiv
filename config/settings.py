@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.checkout',
     'apps.orders',
     'apps.payments',
+    'apps.notifications',
 ]
 
 MIDDLEWARE = [
@@ -167,10 +168,14 @@ DEFAULT_FROM_EMAIL = os.environ.get(
     "noreply@001xclusiv.cl",
 )
 
-GMAIL_SERVICE_ACCOUNT_JSON = os.environ.get("GMAIL_SERVICE_ACCOUNT_JSON", "")
-GMAIL_DELEGATED_USER = os.environ.get("GMAIL_DELEGATED_USER", "")
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+GOOGLE_REFRESH_TOKEN = os.environ.get("GOOGLE_REFRESH_TOKEN")
+GMAIL_SENDER_EMAIL = os.environ.get("GMAIL_SENDER_EMAIL")
+GMAIL_SENDER_NAME = os.environ.get("GMAIL_SENDER_NAME", "001xclusiv")
+ADMIN_NOTIFICATION_EMAIL = os.environ.get("ADMIN_NOTIFICATION_EMAIL")
 
-SITE_URL = os.environ["SITE_URL"].rstrip("/")
+SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
 FLOW_API_KEY = os.environ["FLOW_API_KEY"]
 if not FLOW_API_KEY:
     raise ValueError("FLOW_API_KEY must be set")

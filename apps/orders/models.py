@@ -42,6 +42,10 @@ class Order(models.Model):
         default="pending",
     )
     is_paid = models.BooleanField(default=False)
+    order_created_email_sent = models.BooleanField(default=False)
+    payment_confirmed_email_sent = models.BooleanField(default=False)
+    order_cancelled_email_sent = models.BooleanField(default=False)
+    admin_new_order_email_sent = models.BooleanField(default=False)
 
     class Meta:
         ordering = ("-created_at",)

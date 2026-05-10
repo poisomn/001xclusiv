@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<body style="margin:0;background:#f4f4f4;color:#111;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f4;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="width:640px;max-width:100%;background:#ffffff;border:1px solid #e5e5e5;">
+          <tr>
+            <td style="background:#050505;padding:28px 32px;text-align:center;">
+              {% if has_logo %}<img src="cid:logo" width="120" alt="001xclusiv" style="display:block;margin:0 auto 14px;max-width:120px;height:auto;">{% endif %}
+              <div style="color:#ffffff;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Comprobante de pago</div>
+              <h1 style="margin:10px 0 0;color:#ffffff;font-size:26px;font-weight:700;">Pago confirmado</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:30px 32px;">
+              <p style="margin:0 0 18px;font-size:16px;line-height:1.5;">Hola {{ order.full_name }}, confirmamos el pago de tu pedido.</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 24px;">
+                <tr><td style="padding:8px 0;color:#777;">Orden</td><td align="right" style="padding:8px 0;font-weight:700;">#{{ order.id }}</td></tr>
+                <tr><td style="padding:8px 0;color:#777;">Fecha</td><td align="right" style="padding:8px 0;">{{ order.updated_at|date:"d/m/Y H:i" }}</td></tr>
+                <tr><td style="padding:8px 0;color:#777;">Estado</td><td align="right" style="padding:8px 0;">{{ order.get_status_display }}</td></tr>
+                <tr><td style="padding:8px 0;color:#777;">Cliente</td><td align="right" style="padding:8px 0;">{{ order.email }}</td></tr>
+              </table>
+              <h2 style="margin:0 0 12px;font-size:18px;">Productos</h2>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border-top:1px solid #e5e5e5;">
+                {% for item in order.items.all %}
+                <tr>
+                  <td style="padding:14px 0;border-bottom:1px solid #e5e5e5;">
+                    <strong>{{ item.product.name }}</strong>{% if item.variant %}<br><span style="color:#777;font-size:13px;">Talla {{ item.variant.size }}</span>{% endif %}
+                  </td>
+                  <td align="center" style="padding:14px 8px;border-bottom:1px solid #e5e5e5;color:#555;">x{{ item.quantity }}</td>
+                  <td align="right" style="padding:14px 0;border-bottom:1px solid #e5e5e5;">${{ item.get_cost }} CLP</td>
+                </tr>
+                {% endfor %}
+              </table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:18px 0 26px;">
+                <tr><td style="font-size:18px;font-weight:700;">Total pagado</td><td align="right" style="font-size:18px;font-weight:700;">${{ order.get_total_cost }} CLP</td></tr>
+              </table>
+              <div style="text-align:center;margin:0 0 24px;">
+                <a href="{{ order_url }}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:13px 24px;font-weight:700;">Ver pedido</a>
+              </div>
+              {% if has_qr %}<div style="text-align:center;margin:0 0 18px;"><img src="cid:qr" width="132" alt="QR del pedido" style="display:inline-block;width:132px;height:132px;"></div>{% endif %}
+              <p style="margin:0;color:#555;font-size:14px;line-height:1.5;">Gracias por comprar en 001xclusiv.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
