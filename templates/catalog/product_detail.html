@@ -117,8 +117,7 @@
                             {% for variant in available_variants %}
                             {% if variant.stock > 0 %}
                             <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}"
-                                value="{{ variant.id }}" autocomplete="off" required {% if forloop.first %}checked{%
-                                endif %}>
+                                value="{{ variant.id }}" autocomplete="off" required {% if forloop.first %}checked{% endif %}>
                             <label class="product-variant-tile" for="size-{{ variant.id }}">
                                 <span>{{ variant.size }}</span>
                                 <small>{{ variant.stock }} disp.</small>
@@ -148,11 +147,9 @@
                             <span>SKU</span>
                             <strong>{{ product.sku }}</strong>
                         </div>
-                        <button type="submit" class="btn-accent btn-lg product-purchase-card__button" {% if
-                            available_variants and not has_in_stock_variants %}disabled{% endif %}>
+                        <button type="submit" class="btn-accent btn-lg product-purchase-card__button" {% if available_variants and not has_in_stock_variants %}disabled{% endif %}>
                             <i class="bi bi-bag-plus"></i>
-                            {% if available_variants and not has_in_stock_variants %}Sin stock disponible{% else
-                            %}Agregar al carrito{% endif %}
+                            {% if available_variants and not has_in_stock_variants %}Sin stock disponible{% else %}Agregar al carrito{% endif %}
                         </button>
                     </div>
                 </form>
@@ -184,8 +181,7 @@
         <span>Desde</span>
         <strong>${{ product.effective_price }} CLP</strong>
     </div>
-    <button type="button" class="btn-accent product-sticky-bar__button" id="stickyAddToCart" {% if available_variants
-        and not has_in_stock_variants %}disabled{% endif %}>
+    <button type="button" class="btn-accent product-sticky-bar__button" id="stickyAddToCart" {% if available_variants and not has_in_stock_variants %}disabled{% endif %}>
         {% if available_variants and not has_in_stock_variants %}Sin stock{% else %}Agregar al carrito{% endif %}
     </button>
 </div>
