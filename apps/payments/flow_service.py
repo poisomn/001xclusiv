@@ -4,7 +4,7 @@ import json
 import logging
 from decimal import Decimal, ROUND_HALF_UP
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
 from django.conf import settings
@@ -144,14 +144,18 @@ def build_payment_create_params(order, request=None):
 
 def create_payment(order, request=None):
     params = build_payment_create_params(order, request=request)
+    flow_environment = "SANDBOX" if settings.FLOW_USE_SANDBOX else "PRODUCTION"
     logger.info(
-        "Flow create payment order_id=%s amount=%s sandbox=%s api_key=%s secret=%s",
+        "Flow create payment order_id=%s amount=%s environment=%s api_base=%s api_key=%s secret=%s",
         order.id,
         params["amount"],
-        settings.FLOW_USE_SANDBOX,
+        flow_environment,
+        _base_url(),
         mask_secret(settings.FLOW_API_KEY),
         "***hidden***",
     )
+    print("FLOW CREATE ENV:", flow_environment)
+    print("FLOW API BASE:", _base_url())
     response = _request_json(
         FLOW_PAYMENT_CREATE_PATH,
         "POST",
@@ -165,6 +169,8 @@ def create_payment(order, request=None):
         order.payment_id or "NONE",
         mask_secret(order.payment_token),
     )
+    payment_url_host = urlparse(str(response.get("url", ""))).netloc or "NO_HOST"
+    print("FLOW PAYMENT HOST:", payment_url_host)
 
     order.save(update_fields=["payment_id", "payment_token", "updated_at"])
     return response
