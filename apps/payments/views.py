@@ -17,6 +17,7 @@ from apps.payments.flow_service import (
     FLOW_PAID,
     FlowAPIError,
     get_payment_status,
+    get_payment_status_extended,
     mask_secret,
 )
 
@@ -32,6 +33,33 @@ def _flow_status_code(status):
         return int(status.get("status"))
     except (TypeError, ValueError):
         return status.get("status")
+
+
+def _flow_error_info(status):
+    if not status:
+        return ("NO_ERROR_CODE", "NO_ERROR_MESSAGE")
+
+    error = status.get("lastError") or status.get("error") or {}
+    if not isinstance(error, dict):
+        return ("NO_ERROR_CODE", str(error)[:160])
+
+    code = error.get("code") or error.get("errorCode") or error.get("status") or "NO_ERROR_CODE"
+    message = error.get("message") or error.get("description") or error.get("detail") or "NO_ERROR_MESSAGE"
+    return (str(code)[:80], str(message)[:160])
+
+
+def _get_flow_status(token):
+    status = get_payment_status(token)
+    status_code = _flow_status_code(status)
+    if status_code in FLOW_CANCELLED_STATUSES:
+        try:
+            extended_status = get_payment_status_extended(token)
+        except Exception as error:
+            print("FLOW EXTENDED STATUS ERROR:", error.__class__.__name__)
+        else:
+            if extended_status:
+                return extended_status
+    return status
 
 
 def _order_from_token(token):
@@ -114,7 +142,7 @@ def payment_return(request):
         return render(request, "payments/error.html", {"message": "Flow no envi\u00f3 token de pago."})
 
     try:
-        status = get_payment_status(token)
+        status = _get_flow_status(token)
     except Exception as e:
         print("FLOW RETURN ERROR:", e.__class__.__name__)
         return render(request, "payments/error.html", {"message": "Error confirmando el pago"})
@@ -126,6 +154,10 @@ def payment_return(request):
     print("COMMERCE ORDER:", status.get("commerceOrder") if status else "NO_COMMERCE_ORDER")
     print("ORDER ID:", order.id if order else "NONE")
     print("ORDER PAYMENT STATUS:", order.payment_status if order else "NONE")
+    if status_code in FLOW_CANCELLED_STATUSES:
+        error_code, error_message = _flow_error_info(status)
+        print("FLOW REJECT CODE:", error_code)
+        print("FLOW REJECT MESSAGE:", error_message)
 
     if order is None:
         return render(request, "payments/error.html", {"message": "No encontramos la orden asociada al pago."})
@@ -147,7 +179,7 @@ def payment_cancel(request):
     token = request.GET.get("token")
     if token:
         try:
-            status = get_payment_status(token)
+            status = _get_flow_status(token)
         except FlowAPIError:
             status = None
         if status:
@@ -176,7 +208,7 @@ def payment_webhook(request):
         return JsonResponse({"error": "token required"}, status=400)
 
     try:
-        status = get_payment_status(token)
+        status = _get_flow_status(token)
     except Exception as error:
         return JsonResponse({"error": str(error)}, status=400)
 
@@ -184,6 +216,10 @@ def payment_webhook(request):
     status_code = _flow_status_code(status)
     print("FLOW STATUS CODE:", status_code if status else "NO_STATUS")
     print("ORDER ID:", order.id if order else "NONE")
+    if status_code in FLOW_CANCELLED_STATUSES:
+        error_code, error_message = _flow_error_info(status)
+        print("FLOW REJECT CODE:", error_code)
+        print("FLOW REJECT MESSAGE:", error_message)
     if order is None:
         return JsonResponse({"error": "order not found"}, status=404)
 

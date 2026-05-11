@@ -15,6 +15,7 @@ FLOW_PRODUCTION_URL = "https://www.flow.cl/api"
 FLOW_SANDBOX_URL = "https://sandbox.flow.cl/api"
 FLOW_PAYMENT_CREATE_PATH = "/payment/create"
 FLOW_PAYMENT_STATUS_PATH = "/payment/getStatus"
+FLOW_PAYMENT_STATUS_EXTENDED_PATH = "/payment/getStatusExtended"
 
 FLOW_PAID = 2
 FLOW_CANCELLED_STATUSES = {3, 4}
@@ -172,6 +173,17 @@ def create_payment(order, request=None):
 def get_payment_status(token):
     return _request_json(
         FLOW_PAYMENT_STATUS_PATH,
+        "GET",
+        {
+            "apiKey": settings.FLOW_API_KEY,
+            "token": token,
+        },
+    )
+
+
+def get_payment_status_extended(token):
+    return _request_json(
+        FLOW_PAYMENT_STATUS_EXTENDED_PATH,
         "GET",
         {
             "apiKey": settings.FLOW_API_KEY,

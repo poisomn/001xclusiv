@@ -53,14 +53,21 @@ class PaymentViewsTests(TestCase):
         self.assertEqual(self.order.payment_status, "paid")
         self.assertTrue(self.order.is_paid)
 
+    @patch("apps.payments.views.get_payment_status_extended")
     @patch("apps.payments.views.get_payment_status")
-    def test_payment_return_marks_order_cancelled(self, get_payment_status):
+    def test_payment_return_marks_order_cancelled(self, get_payment_status, get_payment_status_extended):
         self.order.payment_token = "FLOW-TOKEN"
         self.order.save(update_fields=["payment_token"])
         get_payment_status.return_value = {
             "flowOrder": 123456,
             "commerceOrder": str(self.order.id),
             "status": 3,
+        }
+        get_payment_status_extended.return_value = {
+            "flowOrder": 123456,
+            "commerceOrder": str(self.order.id),
+            "status": 3,
+            "lastError": {"code": "REJECTED", "message": "Rejected by issuer"},
         }
         session = self.client.session
         session["pending_order_id"] = self.order.id
