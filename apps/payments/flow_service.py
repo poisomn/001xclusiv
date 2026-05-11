@@ -156,6 +156,7 @@ def create_payment(order, request=None):
     )
     print("FLOW CREATE ENV:", flow_environment)
     print("FLOW API BASE:", _base_url())
+    print("FLOW AMOUNT CLP:", params["amount"])
     response = _request_json(
         FLOW_PAYMENT_CREATE_PATH,
         "POST",
