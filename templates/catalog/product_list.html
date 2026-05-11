@@ -36,8 +36,7 @@
                     </button>
 
                     <form method="get" class="catalog-sort-inline">
-                        {% if active_filters.q %}<input type="hidden" name="q" value="{{ active_filters.q }}">{% endif
-                        %}
+                        {% if active_filters.q %}<input type="hidden" name="q" value="{{ active_filters.q }}">{% endif %}
                         {% if active_filters.category %}<input type="hidden" name="category"
                             value="{{ active_filters.category }}">{% endif %}
                         {% if active_filters.brand %}<input type="hidden" name="brand"
@@ -50,8 +49,7 @@
                         <select id="catalog-sort" name="sort" class="catalog-filter-select"
                             onchange="this.form.submit()">
                             {% for value, label in sort_options %}
-                            <option value="{{ value }}" {% if active_filters.sort==value %}selected{% endif %}>{{ label
-                                }}</option>
+                            <option value="{{ value }}" {% if active_filters.sort == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </form>
@@ -69,8 +67,7 @@
                 <span class="catalog-active-chip">Marca: {{ active_filters.brand }}</span>
                 {% endif %}
                 {% if active_filters.min_price or active_filters.max_price %}
-                <span class="catalog-active-chip">Precio: {{ active_filters.min_price|default:"0" }} - {{
-                    active_filters.max_price|default:"max" }}</span>
+                <span class="catalog-active-chip">Precio: {{ active_filters.min_price|default:"0" }} - {{ active_filters.max_price|default:"max" }}</span>
                 {% endif %}
                 {% if current_query %}
                 <a href="{% url 'catalog:list' %}" class="catalog-clear-link">Limpiar filtros</a>
