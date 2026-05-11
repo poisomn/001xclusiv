@@ -89,10 +89,6 @@ class CheckoutView(View):
                     payment_url = build_payment_url(response)
                     logger.info("Redirecting to Flow payment order_id=%s", order.id)
                     return redirect(payment_url)
-                except FlowAPIError as error:
-                    logger.warning("Flow payment creation rejected order_id=%s error=%s", order.id, error)
-                    messages.error(request, str(error))
-                    return render(request, 'checkout/checkout.html', self.get_context(cart, form))
                 except Exception:
                     logger.exception("Flow payment creation failed order_id=%s", order.id)
                     messages.error(request, "No pudimos iniciar el pago. Intenta nuevamente.")
