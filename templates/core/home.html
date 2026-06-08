@@ -691,7 +691,10 @@
             <p>Ingresa tu correo y entérate de todo antes que nadie.</p>
         </div>
 
-        <form class="newsletter-form" id="newsletter-form">
+        <p class="newsletter-cta__note">Registrate y recibe un 15% OFF en tu primer drop.</p>
+
+        <form class="newsletter-form" id="newsletter-form" method="post" action="{% url 'core:newsletter_subscribe' %}">
+            {% csrf_token %}
             <label for="newsletter-email" class="visually-hidden">Correo electrónico</label>
             <input type="email" id="newsletter-email" name="email" placeholder="tuemail@ejemplo.com" required>
             <button type="submit" class="btn-accent">¡Quiero acceso!</button>
@@ -808,11 +811,38 @@
     const newsletterForm = document.getElementById('newsletter-form');
     const newsletterFeedback = document.getElementById('newsletter-feedback');
 
-    newsletterForm.addEventListener('submit', event => {
+    newsletterForm.addEventListener('submit', async event => {
         event.preventDefault();
-        const emailField = document.getElementById('newsletter-email');
-        newsletterFeedback.textContent = `Gracias. ${emailField.value} quedo listo para recibir novedades del MVP.`;
-        newsletterForm.reset();
+        const submitButton = newsletterForm.querySelector('button[type="submit"]');
+        const formData = new FormData(newsletterForm);
+        const originalButtonText = submitButton.textContent;
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+        newsletterFeedback.textContent = 'Estamos registrando tu correo...';
+
+        try {
+            const response = await fetch(newsletterForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            const data = await response.json();
+
+            newsletterFeedback.textContent = data.message || 'No pudimos procesar tu registro. Intenta nuevamente.';
+            if (data.success === true) {
+                newsletterForm.reset();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            newsletterFeedback.textContent = 'No pudimos registrar tu correo. Intenta nuevamente.';
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     });
 </script>
 {% endblock %}

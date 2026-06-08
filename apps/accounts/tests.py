@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch
 
 from apps.orders.models import Order
 
@@ -44,6 +45,36 @@ class AccountOrderViewsTests(TestCase):
         self.client.login(username="other", password="pass12345")
         response = self.client.get(reverse("accounts:order_receipt", args=[self.order.id]))
         self.assertEqual(response.status_code, 404)
+
+
+class AccountAuthFlowTests(TestCase):
+    def test_login_wrong_password_shows_friendly_error_and_reset_link(self):
+        User.objects.create_user(username="loginuser", password="pass12345")
+
+        response = self.client.post(
+            reverse("accounts:login"),
+            {"username": "loginuser", "password": "wrong-pass"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Usuario o contraseña incorrectos")
+        self.assertContains(response, reverse("accounts:password_reset"))
+
+    @patch("apps.accounts.views.send_welcome_email", return_value=False)
+    def test_register_redirects_even_when_welcome_email_fails(self, mocked_send):
+        response = self.client.post(
+            reverse("accounts:register"),
+            {
+                "username": "newuser",
+                "email": "newuser@example.com",
+                "password1": "StrongPass12345",
+                "password2": "StrongPass12345",
+            },
+        )
+
+        self.assertRedirects(response, reverse("core:home"))
+        self.assertTrue(User.objects.filter(username="newuser").exists())
+        mocked_send.assert_called_once()
 
 
 class BackofficeAccessTests(TestCase):

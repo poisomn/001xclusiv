@@ -11,13 +11,23 @@
 
             <form method="post">
                 {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger rounded-4 small" role="alert">
+                    Usuario o contraseña incorrectos. Revisa tus datos e intenta nuevamente.
+                </div>
+                {% endif %}
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Usuario</label>
                     <input type="text" name="username" class="form-control" required autofocus>
                 </div>
-                <div class="mb-4">
+                <div class="mb-2">
                     <label class="form-label fw-semibold">Contraseña</label>
                     <input type="password" name="password" class="form-control" required>
+                </div>
+                <div class="text-end mb-4">
+                    <a href="{% url 'accounts:password_reset' %}" class="text-dark small fw-semibold text-decoration-none">
+                        ¿Olvidaste tu contraseña?
+                    </a>
                 </div>
 
                 <div class="d-grid gap-2">

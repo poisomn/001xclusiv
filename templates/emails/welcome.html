@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Bienvenido a 001xclusiv</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f4;padding:32px 12px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;">
+                    <tr>
+                        <td style="background:#111;color:#fff;padding:28px 32px;text-align:center;">
+                            <div style="font-size:13px;letter-spacing:4px;text-transform:uppercase;">{{ brand_name }}</div>
+                            <h1 style="margin:14px 0 0;font-size:28px;line-height:1.2;">Bienvenido a 001xclusiv</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:32px;">
+                            <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">Hola {{ user.username }},</p>
+                            <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">
+                                Tu cuenta ya esta lista. Desde ahora puedes guardar favoritos, revisar tus pedidos y estar atento a nuevos drops de 001xclusiv.
+                            </p>
+                            <p style="font-size:16px;line-height:1.6;margin:0 0 24px;">
+                                Gracias por sumarte a una seleccion streetwear curada con intencion.
+                            </p>
+                            {% if site_url %}
+                            <p style="margin:0 0 8px;">
+                                <a href="{{ site_url }}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;border-radius:999px;padding:13px 24px;font-weight:700;">Ir a la tienda</a>
+                            </p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

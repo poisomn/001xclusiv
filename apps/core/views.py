@@ -1,11 +1,15 @@
-from django.http import Http404
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
+from django.http import Http404, JsonResponse
 from django.db.models import Count, Prefetch, Q
 from django.shortcuts import render
 from django.contrib.staticfiles import finders
 from django.conf import settings
+from django.views.decorators.http import require_POST
 
 from apps.catalog.models import Category, Product, ProductVariant, Wishlist
-from apps.core.models import CommunityImage
+from apps.core.models import CommunityImage, NewsletterSubscriber
+from apps.notifications.services import send_newsletter_discount_email
 
 
 CATEGORY_VISUALS = {
@@ -384,6 +388,41 @@ def home(request):
         "wishlist_product_ids": wishlist_product_ids,
     }
     return render(request, "core/home.html", context)
+
+
+@require_POST
+def newsletter_subscribe(request):
+    email = (request.POST.get("email") or "").strip().lower()
+    validator = EmailValidator()
+
+    try:
+        validator(email)
+    except ValidationError:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Ingresa un correo valido para recibir novedades.",
+            },
+            status=400,
+        )
+
+    subscriber, created = NewsletterSubscriber.objects.get_or_create(email=email)
+
+    if not created and subscriber.welcome_email_sent:
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "Ya estabas registrado. Revisa tu correo para encontrar tu codigo 15% OFF.",
+            }
+        )
+
+    email_sent = send_newsletter_discount_email(subscriber)
+    if email_sent:
+        message = "Listo. Te enviamos tu 15% OFF y quedaste registrado para nuevos drops."
+    else:
+        message = "Te registramos correctamente. Si el correo no llega, revisa promociones o intenta mas tarde."
+
+    return JsonResponse({"success": True, "message": message})
 
 
 def info_page(request, slug):

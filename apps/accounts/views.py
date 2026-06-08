@@ -17,6 +17,7 @@ from uuid import uuid4
 from apps.catalog.forms import ProductForm, ProductImageFormSet, ProductVariantFormSet
 from apps.catalog.models import Brand, Category, Product
 from apps.core.models import CommunityImage
+from apps.notifications.services import send_welcome_email
 from apps.orders.models import Order
 from apps.orders.services import mark_order_cancelled, mark_order_paid
 
@@ -142,6 +143,7 @@ class RegisterView(View):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            send_welcome_email(user)
             login(request, user)
             return redirect('core:home')
         return render(request, 'accounts/register.html', {'form': form})

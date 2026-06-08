@@ -18,6 +18,13 @@ def _order_context(order):
     }
 
 
+def _site_context():
+    return {
+        "brand_name": getattr(settings, "GMAIL_SENDER_NAME", "001xclusiv"),
+        "site_url": getattr(settings, "SITE_URL", "").rstrip("/"),
+    }
+
+
 def _load_logo_inline():
     logo_path = finders.find("home/logoByN.webp")
     if not logo_path:
@@ -139,3 +146,81 @@ def send_admin_new_order_email(order):
         template_name="emails/admin_new_order.html",
         sent_field="admin_new_order_email_sent",
     )
+
+
+def send_welcome_email(user):
+    if not getattr(user, "email", None):
+        logger.warning("Welcome email skipped for user %s: empty recipient.", user.pk)
+        return False
+
+    if not gmail_credentials_available():
+        logger.warning("Welcome email skipped for user %s: Gmail API is not configured.", user.pk)
+        return False
+
+    try:
+        context = {
+            **_site_context(),
+            "user": user,
+        }
+        html_body = render_to_string("emails/welcome.html", context)
+        site_url = context["site_url"] or "https://001xclusiv.cl"
+        text_body = (
+            "Bienvenido a 001xclusiv\n\n"
+            "Tu cuenta ya esta lista. Ahora puedes guardar favoritos, revisar pedidos "
+            "y estar atento a nuevos drops.\n\n"
+            f"Visita la tienda: {site_url}"
+        )
+        return send_gmail_message(
+            to=user.email,
+            subject="Bienvenido a 001xclusiv",
+            html_body=html_body,
+            text_body=text_body,
+        )
+    except Exception:
+        logger.exception("Could not send welcome email for user %s", user.pk)
+        return False
+
+
+def send_newsletter_discount_email(subscriber):
+    if subscriber.welcome_email_sent:
+        return True
+
+    if not subscriber.email:
+        logger.warning("Newsletter email skipped for subscriber %s: empty recipient.", subscriber.pk)
+        return False
+
+    if not gmail_credentials_available():
+        logger.warning(
+            "Newsletter email skipped for subscriber %s: Gmail API is not configured.",
+            subscriber.pk,
+        )
+        return False
+
+    try:
+        context = {
+            **_site_context(),
+            "subscriber": subscriber,
+            "discount_code": subscriber.discount_code,
+        }
+        html_body = render_to_string("emails/newsletter_discount.html", context)
+        site_url = context["site_url"] or "https://001xclusiv.cl"
+        text_body = (
+            "Tu 15% OFF en 001xclusiv\n\n"
+            f"Codigo: {subscriber.discount_code}\n"
+            "Gracias por registrarte en novedades. Recibiras lanzamientos, descuentos "
+            "y acceso temprano a nuevos drops.\n\n"
+            f"Visita la tienda: {site_url}"
+        )
+        sent = send_gmail_message(
+            to=subscriber.email,
+            subject="Tu 15% OFF en 001xclusiv",
+            html_body=html_body,
+            text_body=text_body,
+        )
+        if sent:
+            subscriber.welcome_email_sent = True
+            subscriber.save(update_fields=["welcome_email_sent", "updated_at"])
+        return sent
+    except Exception:
+        logger.exception("Could not send newsletter discount email to %s", subscriber.email)
+        return False

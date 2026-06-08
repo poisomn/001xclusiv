@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Tu 15% OFF en 001xclusiv</title>
+</head>
+<body style="margin:0;padding:0;background:#111;font-family:Arial,sans-serif;color:#111;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#111;padding:32px 12px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;">
+                    <tr>
+                        <td style="background:#111;color:#fff;padding:30px 32px;text-align:center;">
+                            <div style="font-size:13px;letter-spacing:4px;text-transform:uppercase;">{{ brand_name }}</div>
+                            <h1 style="margin:14px 0 8px;font-size:34px;line-height:1.1;">15% OFF</h1>
+                            <p style="margin:0;color:#d7d7d7;">Tu acceso quedo activado.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:32px;text-align:center;">
+                            <p style="font-size:16px;line-height:1.6;margin:0 0 18px;">
+                                Gracias por registrarte en novedades. Te avisaremos sobre lanzamientos, descuentos y acceso temprano a nuevos drops.
+                            </p>
+                            <div style="display:inline-block;border:2px solid #111;border-radius:14px;padding:16px 28px;margin:6px 0 22px;">
+                                <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#555;">Codigo</div>
+                                <div style="font-size:28px;font-weight:800;letter-spacing:2px;">{{ discount_code }}</div>
+                            </div>
+                            <p style="font-size:14px;line-height:1.5;color:#555;margin:0 0 24px;">
+                                Usalo como referencia en tu primer drop. Por ahora el descuento es informativo y sera validado por el equipo 001xclusiv.
+                            </p>
+                            {% if site_url %}
+                            <p style="margin:0;">
+                                <a href="{{ site_url }}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;border-radius:999px;padding:13px 24px;font-weight:700;">Entrar a la tienda</a>
+                            </p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
