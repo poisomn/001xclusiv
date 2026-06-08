@@ -76,6 +76,25 @@ class AccountAuthFlowTests(TestCase):
         self.assertTrue(User.objects.filter(username="newuser").exists())
         mocked_send.assert_called_once()
 
+    @patch("apps.accounts.forms.send_gmail_message", return_value=True)
+    @patch("apps.accounts.forms.gmail_credentials_available", return_value=True)
+    def test_password_reset_uses_gmail_api(self, mocked_credentials, mocked_send):
+        User.objects.create_user(
+            username="resetuser",
+            email="reset@example.com",
+            password="pass12345",
+        )
+
+        response = self.client.post(
+            reverse("accounts:password_reset"),
+            {"email": "reset@example.com"},
+        )
+
+        self.assertRedirects(response, reverse("accounts:password_reset_done"))
+        mocked_credentials.assert_called_once()
+        mocked_send.assert_called_once()
+        self.assertEqual(mocked_send.call_args.kwargs["to"], "reset@example.com")
+
 
 class BackofficeAccessTests(TestCase):
     def setUp(self):

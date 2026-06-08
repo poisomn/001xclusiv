@@ -1,10 +1,19 @@
+import logging
+
 from django import forms
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.template.loader import render_to_string
+from django.utils.html import escape
 
 from apps.catalog.models import Brand, Category
 from apps.core.models import CommunityImage
+from apps.notifications.gmail_service import gmail_credentials_available, send_gmail_message
 from apps.orders.models import Order
+
+logger = logging.getLogger(__name__)
+
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
@@ -15,6 +24,40 @@ class UserRegistrationForm(UserCreationForm):
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+class GmailPasswordResetForm(PasswordResetForm):
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+        if not gmail_credentials_available():
+            logger.warning("Password reset email skipped for %s: Gmail API is not configured.", to_email)
+            return False
+
+        try:
+            subject = render_to_string(subject_template_name, context)
+            subject = "".join(subject.splitlines())
+            text_body = render_to_string(email_template_name, context)
+            if html_email_template_name:
+                html_body = render_to_string(html_email_template_name, context)
+            else:
+                html_body = "<br>".join(escape(text_body).splitlines())
+
+            return send_gmail_message(
+                to=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=text_body,
+            )
+        except Exception:
+            logger.exception("Could not send password reset email to %s", to_email)
+            return False
 
 
 class CategoryManagementForm(forms.ModelForm):

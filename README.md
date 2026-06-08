@@ -7,7 +7,7 @@
 - **Catalog**: Browse products with filtering by category and brand.
 - **Cart**: Session-based shopping cart.
 - **Checkout**: Simple checkout flow with order creation.
-- **Accounts**: User registration, login, and order history.
+- **Accounts**: User registration, login, password recovery, and order history.
 - **Design**: Minimalist, responsive design using Bootstrap 5 and custom CSS.
 
 ## Tech Stack
@@ -60,9 +60,9 @@
 - `static/`: Static files (CSS, images).
 - `templates/`: HTML templates.
 
-## Gmail API para correos de ordenes
+## Gmail API para correos transaccionales
 
-El proyecto envia comprobantes de orden con Gmail API usando OAuth refresh token. Si Gmail no esta configurado, el checkout y Flow continuan funcionando y el sistema solo registra un warning.
+El proyecto envia comprobantes de orden, newsletter, bienvenida y recuperacion de contrasena con Gmail API usando OAuth refresh token. Si Gmail no esta configurado, el checkout y Flow continuan funcionando y el sistema solo registra un warning.
 
 Variables de entorno:
 
@@ -86,18 +86,4 @@ El script lee `credentials.json`, abre el navegador con el scope:
 
 Luego imprime los valores que deben copiarse a Render. No subas `credentials.json`, `token.json` ni `gmail_token.json` al repositorio.
 
-## SMTP para recuperacion de contrasena
-
-El flujo estándar de recuperacion de contrasena de Django usa el backend de email configurado en `EMAIL_BACKEND`. En desarrollo puede quedar con `django.core.mail.backends.console.EmailBackend`, pero en Render debe configurarse SMTP para que los enlaces lleguen al correo del usuario y no queden solo en logs.
-
-Variables esperadas en Render:
-
-- `EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend`
-- `EMAIL_HOST=smtp.gmail.com`
-- `EMAIL_PORT=587`
-- `EMAIL_USE_TLS=True`
-- `EMAIL_HOST_USER=correo@gmail.com`
-- `EMAIL_HOST_PASSWORD=app_password`
-- `DEFAULT_FROM_EMAIL=001xclusiv <correo@gmail.com>`
-
-Estas variables son independientes de la integracion Gmail API usada para pedidos, newsletter y otros correos de marca.
+El flujo de recuperacion de contrasena usa `GmailPasswordResetForm`, que envia el enlace seguro por Gmail API y no depende de SMTP ni de `EMAIL_BACKEND`.
