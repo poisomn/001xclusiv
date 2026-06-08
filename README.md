@@ -85,3 +85,19 @@ El script lee `credentials.json`, abre el navegador con el scope:
 - `https://www.googleapis.com/auth/gmail.send`
 
 Luego imprime los valores que deben copiarse a Render. No subas `credentials.json`, `token.json` ni `gmail_token.json` al repositorio.
+
+## SMTP para recuperacion de contrasena
+
+El flujo estándar de recuperacion de contrasena de Django usa el backend de email configurado en `EMAIL_BACKEND`. En desarrollo puede quedar con `django.core.mail.backends.console.EmailBackend`, pero en Render debe configurarse SMTP para que los enlaces lleguen al correo del usuario y no queden solo en logs.
+
+Variables esperadas en Render:
+
+- `EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend`
+- `EMAIL_HOST=smtp.gmail.com`
+- `EMAIL_PORT=587`
+- `EMAIL_USE_TLS=True`
+- `EMAIL_HOST_USER=correo@gmail.com`
+- `EMAIL_HOST_PASSWORD=app_password`
+- `DEFAULT_FROM_EMAIL=001xclusiv <correo@gmail.com>`
+
+Estas variables son independientes de la integracion Gmail API usada para pedidos, newsletter y otros correos de marca.
