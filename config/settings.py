@@ -165,11 +165,11 @@ EMAIL_BACKEND = os.environ.get(
 )
 DEFAULT_FROM_EMAIL = os.environ.get(
     "DEFAULT_FROM_EMAIL",
-    "noreply@001xclusiv.cl",
+    "[DEFAULT_FROM_EMAIL]",
 )
 EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "25"))
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in {
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() in {
     "1",
     "true",
     "yes",
