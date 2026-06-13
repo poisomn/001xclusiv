@@ -162,6 +162,14 @@
                     </div>
                     {% endif %}
                     <div class="checkout-summary-row">
+                        <span>Neto</span>
+                        <strong>${{ cart.get_net_amount }} CLP</strong>
+                    </div>
+                    <div class="checkout-summary-row">
+                        <span>IVA 19% incluido</span>
+                        <strong>${{ cart.get_tax_amount }} CLP</strong>
+                    </div>
+                    <div class="checkout-summary-row">
                         <span>Envío</span>
                         <strong>Gratis</strong>
                     </div>

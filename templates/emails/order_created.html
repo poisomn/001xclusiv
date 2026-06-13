@@ -38,6 +38,8 @@
                 {% if order.discount_amount %}
                 <tr><td style="padding:5px 0;color:#777;">Descuento {{ order.promo_code }}</td><td align="right" style="padding:5px 0;">-${{ order.discount_amount }} CLP</td></tr>
                 {% endif %}
+                <tr><td style="padding:5px 0;color:#777;">Neto</td><td align="right" style="padding:5px 0;">${{ order.get_net_amount }} CLP</td></tr>
+                <tr><td style="padding:5px 0;color:#777;">IVA 19% incluido</td><td align="right" style="padding:5px 0;">${{ order.get_tax_amount }} CLP</td></tr>
                 <tr><td style="padding:8px 0;font-size:18px;font-weight:700;">Total</td><td align="right" style="padding:8px 0;font-size:18px;font-weight:700;">${{ order.get_total_cost }} CLP</td></tr>
               </table>
               <div style="text-align:center;margin:0 0 24px;">

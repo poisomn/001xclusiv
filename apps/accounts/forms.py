@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 
 from apps.catalog.models import Brand, Category
+from apps.cart.models import PromotionCode
 from apps.core.models import CommunityImage
 from apps.notifications.gmail_service import gmail_credentials_available, send_gmail_message
 from apps.orders.models import Order
@@ -105,3 +106,42 @@ class CommunityImageForm(forms.ModelForm):
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "ordering": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
         }
+
+
+class PromotionCodeForm(forms.ModelForm):
+    class Meta:
+        model = PromotionCode
+        fields = [
+            "code",
+            "description",
+            "discount_type",
+            "discount_value",
+            "is_active",
+            "valid_from",
+            "valid_until",
+            "minimum_order_amount",
+            "max_discount_amount",
+            "usage_limit",
+            "notes",
+        ]
+        widgets = {
+            "code": forms.TextInput(attrs={"class": "form-control", "placeholder": "XCLUSIV15"}),
+            "description": forms.TextInput(attrs={"class": "form-control", "placeholder": "15% OFF newsletter"}),
+            "discount_type": forms.Select(attrs={"class": "form-select"}),
+            "discount_value": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "valid_from": forms.DateTimeInput(attrs={"class": "form-control", "type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
+            "valid_until": forms.DateTimeInput(attrs={"class": "form-control", "type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
+            "minimum_order_amount": forms.NumberInput(attrs={"class": "form-control", "step": "1", "min": "0"}),
+            "max_discount_amount": forms.NumberInput(attrs={"class": "form-control", "step": "1", "min": "0"}),
+            "usage_limit": forms.NumberInput(attrs={"class": "form-control", "min": "0"}),
+            "notes": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ("valid_from", "valid_until"):
+            self.fields[field_name].input_formats = ["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S"]
+
+    def clean_code(self):
+        return "".join((self.cleaned_data["code"] or "").split()).upper()

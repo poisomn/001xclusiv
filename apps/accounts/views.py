@@ -15,6 +15,7 @@ from django.db.models.functions import TruncDate
 from uuid import uuid4
 
 from apps.catalog.forms import ProductForm, ProductImageFormSet, ProductVariantFormSet
+from apps.cart.models import PromotionCode
 from apps.catalog.models import Brand, Category, Product
 from apps.core.models import CommunityImage
 from apps.notifications.services import send_welcome_email
@@ -26,6 +27,7 @@ from .forms import (
     CategoryManagementForm,
     CommunityImageForm,
     OrderManagementForm,
+    PromotionCodeForm,
     UserRegistrationForm,
 )
 
@@ -105,6 +107,7 @@ def build_backoffice_context(active_section):
             {"label": "Pedidos", "icon": "bi-receipt", "url_name": "accounts:backoffice_orders", "key": "orders"},
             {"label": "Comunidad", "icon": "bi-images", "url_name": "accounts:backoffice_community", "key": "community"},
             {"label": "Mensajes", "icon": "bi-envelope", "url_name": "accounts:backoffice_messages", "key": "messages"},
+            {"label": "Promociones", "icon": "bi-ticket-perforated", "url_name": "accounts:backoffice_promotions", "key": "promotions"},
             {"label": "Marcas y categorias", "icon": "bi-tags", "url_name": "accounts:backoffice_taxonomy", "key": "taxonomy"},
             {"label": "Usuarios", "icon": "bi-people", "url_name": "accounts:backoffice_users", "key": "users"},
         ],
@@ -511,6 +514,89 @@ class BackofficeMessagesView(StaffRequiredMixin, View):
             **build_backoffice_context("messages"),
         }
         return render(request, "accounts/backoffice_messages.html", context)
+
+
+class BackofficePromotionListView(StaffRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get("q", "").strip()
+        status = request.GET.get("status", "").strip()
+        promotions = PromotionCode.objects.select_related("created_by").order_by("-created_at")
+        if query:
+            promotions = promotions.filter(Q(code__icontains=query) | Q(description__icontains=query))
+        if status == "active":
+            promotions = [promo for promo in promotions if promo.status_key == "active"]
+        elif status == "inactive":
+            promotions = [promo for promo in promotions if promo.status_key == "inactive"]
+        elif status == "expired":
+            promotions = [promo for promo in promotions if promo.status_key == "expired"]
+        elif status == "limit":
+            promotions = [promo for promo in promotions if promo.status_key == "limit"]
+
+        context = {
+            **build_backoffice_context("promotions"),
+            "promotions": promotions,
+            "query": query,
+            "active_status": status,
+            "status_filters": [
+                ("", "Todas"),
+                ("active", "Activas"),
+                ("inactive", "Inactivas"),
+                ("expired", "Vencidas"),
+                ("limit", "Limite alcanzado"),
+            ],
+        }
+        return render(request, "accounts/backoffice_promotions.html", context)
+
+
+class BackofficePromotionFormView(StaffRequiredMixin, View):
+    template_name = "accounts/backoffice_promotion_form.html"
+
+    def get_object(self, promotion_id):
+        if promotion_id is None:
+            return None
+        return get_object_or_404(PromotionCode, id=promotion_id)
+
+    def render_form(self, request, form, promotion=None):
+        context = {
+            **build_backoffice_context("promotions"),
+            "form": form,
+            "promotion": promotion,
+            "is_editing": promotion is not None,
+        }
+        return render(request, self.template_name, context)
+
+    def get(self, request, promotion_id=None):
+        promotion = self.get_object(promotion_id)
+        form = PromotionCodeForm(instance=promotion)
+        return self.render_form(request, form, promotion)
+
+    def post(self, request, promotion_id=None):
+        promotion = self.get_object(promotion_id)
+        form = PromotionCodeForm(request.POST, instance=promotion)
+        if form.is_valid():
+            saved_promotion = form.save(commit=False)
+            if saved_promotion.created_by_id is None:
+                saved_promotion.created_by = request.user
+            saved_promotion.save()
+            messages.success(request, f"Promocion {saved_promotion.code} guardada correctamente.")
+            return redirect("accounts:backoffice_promotion_edit", promotion_id=saved_promotion.id)
+        return self.render_form(request, form, promotion)
+
+
+class BackofficePromotionActionView(StaffRequiredMixin, View):
+    def post(self, request, promotion_id):
+        promotion = get_object_or_404(PromotionCode, id=promotion_id)
+        action = request.POST.get("action")
+        if action == "toggle_active":
+            promotion.is_active = not promotion.is_active
+            promotion.save(update_fields=["is_active", "updated_at"])
+            messages.success(
+                request,
+                f"{promotion.code}: {'activado' if promotion.is_active else 'desactivado'} correctamente.",
+            )
+        else:
+            messages.error(request, "Accion de promocion no valida.")
+        return redirect(request.POST.get("next_url") or reverse("accounts:backoffice_promotions"))
 
 
 class BackofficeCommunityListView(StaffRequiredMixin, View):

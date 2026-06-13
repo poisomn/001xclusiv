@@ -35,7 +35,13 @@
                 {% endfor %}
               </table>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:18px 0 26px;">
-                <tr><td style="font-size:18px;font-weight:700;">Total</td><td align="right" style="font-size:18px;font-weight:700;">${{ order.get_total_cost }} CLP</td></tr>
+                <tr><td style="padding:5px 0;color:#777;">Subtotal</td><td align="right" style="padding:5px 0;">${{ order.subtotal_amount|default:order.get_total_cost }} CLP</td></tr>
+                {% if order.discount_amount %}
+                <tr><td style="padding:5px 0;color:#777;">Descuento {{ order.promo_code }}</td><td align="right" style="padding:5px 0;">-${{ order.discount_amount }} CLP</td></tr>
+                {% endif %}
+                <tr><td style="padding:5px 0;color:#777;">Neto</td><td align="right" style="padding:5px 0;">${{ order.get_net_amount }} CLP</td></tr>
+                <tr><td style="padding:5px 0;color:#777;">IVA 19% incluido</td><td align="right" style="padding:5px 0;">${{ order.get_tax_amount }} CLP</td></tr>
+                <tr><td style="padding:8px 0;font-size:18px;font-weight:700;">Total</td><td align="right" style="padding:8px 0;font-size:18px;font-weight:700;">${{ order.get_total_cost }} CLP</td></tr>
               </table>
               <div style="text-align:center;margin:0 0 24px;">
                 <a href="{{ order_url }}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:13px 24px;font-weight:700;">Ver pedido</a>

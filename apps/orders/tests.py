@@ -5,7 +5,7 @@ from django.test import TestCase
 from apps.cart.models import PromotionCode
 from apps.catalog.models import Product, ProductVariant
 from apps.orders.models import Order, OrderItem
-from apps.orders.services import mark_order_paid
+from apps.orders.services import mark_order_cancelled, mark_order_paid
 
 
 class OrderCommitTests(TestCase):
@@ -69,3 +69,13 @@ class OrderCommitTests(TestCase):
         self.assertEqual(self.variant.stock, 3)
         self.assertEqual(self.promo.used_count, 1)
         self.assertEqual(mocked_email.call_count, 2)
+
+    @patch("apps.orders.services.send_order_cancelled_email", return_value=True)
+    def test_cancelled_order_does_not_commit_promotion(self, mocked_email):
+        mark_order_cancelled(self.order, payment_id="FLOW-CANCEL")
+        self.order.refresh_from_db()
+        self.promo.refresh_from_db()
+
+        self.assertEqual(self.order.payment_status, "cancelled")
+        self.assertFalse(self.order.promotion_committed)
+        self.assertEqual(self.promo.used_count, 0)

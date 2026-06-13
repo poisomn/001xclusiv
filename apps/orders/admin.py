@@ -20,6 +20,8 @@ class OrderAdmin(admin.ModelAdmin):
         "full_name",
         "subtotal_amount",
         "discount_amount",
+        "net_amount",
+        "tax_amount",
         "total_amount",
         "promo_code",
         "status",
@@ -30,7 +32,18 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ["status", "payment_status", "is_paid", "created_at"]
     search_fields = ["id", "full_name", "email", "payment_id", "payment_token", "promo_code"]
     list_editable = ["status", "payment_status"]
-    readonly_fields = ["created_at", "updated_at", "subtotal_amount", "discount_amount", "total_amount", "stock_committed", "promotion_committed"]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "subtotal_amount",
+        "discount_amount",
+        "net_amount",
+        "tax_amount",
+        "tax_rate",
+        "total_amount",
+        "stock_committed",
+        "promotion_committed",
+    ]
     save_on_top = True
     inlines = [OrderItemInline]
     fieldsets = (
@@ -43,6 +56,9 @@ class OrderAdmin(admin.ModelAdmin):
                     "total_amount",
                     "subtotal_amount",
                     "discount_amount",
+                    "net_amount",
+                    "tax_amount",
+                    "tax_rate",
                     "promo_code",
                     "status",
                     "payment_status",

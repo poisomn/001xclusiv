@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -27,6 +28,14 @@ class PromotionCode(models.Model):
     max_discount_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     usage_limit = models.PositiveIntegerField(null=True, blank=True)
     used_count = models.PositiveIntegerField(default=0)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="promotion_codes",
+    )
+    notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -39,7 +48,7 @@ class PromotionCode(models.Model):
         return self.code
 
     def save(self, *args, **kwargs):
-        self.code = (self.code or "").strip().upper()
+        self.code = "".join((self.code or "").split()).upper()
         super().save(*args, **kwargs)
 
     def is_valid_now(self):
@@ -62,13 +71,13 @@ class PromotionCode(models.Model):
         subtotal = Decimal(subtotal)
         now = timezone.now()
         if not self.is_active:
-            return "Este codigo promocional no esta activo."
+            return "Este codigo promocional no esta disponible."
         if self.valid_from and self.valid_from > now:
-            return "Este codigo promocional aun no esta disponible."
+            return "Este codigo promocional no esta disponible."
         if self.valid_until and self.valid_until < now:
-            return "Este codigo promocional expiro."
+            return "Este codigo promocional no esta disponible."
         if self.usage_limit is not None and self.used_count >= self.usage_limit:
-            return "Este codigo promocional alcanzo su limite de uso."
+            return "Este codigo ya alcanzo su limite de uso."
         if subtotal < self.minimum_order_amount:
             return f"Este codigo requiere un minimo de ${int(self.minimum_order_amount):,} CLP.".replace(",", ".")
         return ""
@@ -91,3 +100,26 @@ class PromotionCode(models.Model):
             updated_at=timezone.now(),
         )
         self.refresh_from_db(fields=["used_count", "updated_at"])
+
+    @property
+    def status_key(self):
+        now = timezone.now()
+        if not self.is_active:
+            return "inactive"
+        if self.usage_limit is not None and self.used_count >= self.usage_limit:
+            return "limit"
+        if self.valid_until and self.valid_until < now:
+            return "expired"
+        if self.valid_from and self.valid_from > now:
+            return "future"
+        return "active"
+
+    @property
+    def status_label(self):
+        return {
+            "inactive": "Inactivo",
+            "limit": "Limite alcanzado",
+            "expired": "Vencido",
+            "future": "Programado",
+            "active": "Activo",
+        }.get(self.status_key, "Activo")

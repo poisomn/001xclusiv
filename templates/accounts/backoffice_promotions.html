@@ -1,0 +1,107 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}Promociones - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<section class="bo-section">
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Promociones</span>
+            <h1>Codigos promocionales</h1>
+            <p>Crea, programa y activa descuentos aplicables desde el carrito.</p>
+        </div>
+        <a href="{% url 'accounts:backoffice_promotion_create' %}" class="bo-button bo-button--primary">
+            <i class="bi bi-plus-lg"></i>
+            Nueva promocion
+        </a>
+    </div>
+
+    <article class="bo-card">
+        <form method="get" class="bo-toolbar">
+            <div class="bo-search">
+                <i class="bi bi-search"></i>
+                <input type="search" name="q" value="{{ query }}" placeholder="Buscar codigo o descripcion">
+            </div>
+            <div class="bo-toolbar__filters">
+                <select name="status" class="bo-input">
+                    {% for value, label in status_filters %}
+                    <option value="{{ value }}" {% if active_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="bo-button bo-button--secondary">
+                    <i class="bi bi-sliders"></i>
+                    Filtrar
+                </button>
+            </div>
+        </form>
+
+        <div class="bo-table-wrap">
+            <table class="bo-table">
+                <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Vigencia</th>
+                        <th>Usos</th>
+                        <th>Minimo</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for promotion in promotions %}
+                    <tr>
+                        <td>
+                            <strong>{{ promotion.code }}</strong>
+                            <p>{{ promotion.description|default:"Sin descripcion" }}</p>
+                        </td>
+                        <td>
+                            <strong>
+                                {% if promotion.discount_type == "percent" %}{{ promotion.discount_value }}%{% else %}${{ promotion.discount_value }} CLP{% endif %}
+                            </strong>
+                            <p>{{ promotion.get_discount_type_display }}</p>
+                        </td>
+                        <td>
+                            <span class="bo-badge {% if promotion.status_key == 'inactive' %}bo-badge--muted{% elif promotion.status_key == 'expired' or promotion.status_key == 'limit' %}bo-badge--danger{% elif promotion.status_key == 'future' %}bo-badge--warning{% endif %}">
+                                {{ promotion.status_label }}
+                            </span>
+                        </td>
+                        <td>
+                            <p>Desde: {{ promotion.valid_from|date:"d/m/Y H:i"|default:"Sin inicio" }}</p>
+                            <p>Hasta: {{ promotion.valid_until|date:"d/m/Y H:i"|default:"Sin termino" }}</p>
+                        </td>
+                        <td>
+                            <strong>{{ promotion.used_count }}</strong>
+                            <p>{% if promotion.usage_limit %}de {{ promotion.usage_limit }}{% else %}Sin limite{% endif %}</p>
+                        </td>
+                        <td>${{ promotion.minimum_order_amount }} CLP</td>
+                        <td>
+                            <div class="bo-table-actions">
+                                <form method="post" action="{% url 'accounts:backoffice_promotion_action' promotion.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle_active">
+                                    <input type="hidden" name="next_url" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="bo-button bo-button--secondary bo-button--sm">
+                                        {% if promotion.is_active %}Desactivar{% else %}Activar{% endif %}
+                                    </button>
+                                </form>
+                                <a href="{% url 'accounts:backoffice_promotion_edit' promotion.id %}" class="bo-button bo-button--secondary bo-button--sm">
+                                    <i class="bi bi-pencil-square"></i>
+                                    Editar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="bo-empty">No encontramos promociones con ese criterio.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}

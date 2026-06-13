@@ -1,0 +1,123 @@
+{% extends "accounts/backoffice_base.html" %}
+
+{% block title %}{% if is_editing %}Editar promocion{% else %}Nueva promocion{% endif %} - Backoffice{% endblock %}
+
+{% block backoffice_content %}
+<form method="post" class="bo-section">
+    {% csrf_token %}
+
+    <div class="bo-page-bar">
+        <div class="bo-page-heading">
+            <span class="bo-kicker">Promociones</span>
+            <h1>{% if is_editing %}Editar {{ promotion.code }}{% else %}Nueva promocion{% endif %}</h1>
+            <p>Configura descuentos aplicables desde el carrito antes del checkout.</p>
+        </div>
+        <div class="bo-action-row">
+            <a href="{% url 'accounts:backoffice_promotions' %}" class="bo-button bo-button--secondary">
+                <i class="bi bi-arrow-left"></i>
+                Volver
+            </a>
+            <button type="submit" class="bo-button bo-button--primary">
+                <i class="bi bi-check2"></i>
+                Guardar
+            </button>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="bo-form-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="bo-grid bo-grid--two">
+        <article class="bo-card">
+            <div class="bo-card__header">
+                <div>
+                    <span class="bo-kicker">Configuracion</span>
+                    <h2>Datos del codigo</h2>
+                    <p>Define el identificador, valor y tipo de descuento.</p>
+                </div>
+            </div>
+
+            <div class="bo-form-grid">
+                <div class="bo-field">
+                    <label for="{{ form.code.id_for_label }}">Codigo</label>
+                    {{ form.code }}
+                    {{ form.code.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ form.discount_type.id_for_label }}">Tipo</label>
+                    {{ form.discount_type }}
+                    {{ form.discount_type.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ form.discount_value.id_for_label }}">Valor</label>
+                    {{ form.discount_value }}
+                    {{ form.discount_value.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ form.minimum_order_amount.id_for_label }}">Minimo de compra</label>
+                    {{ form.minimum_order_amount }}
+                    {{ form.minimum_order_amount.errors }}
+                </div>
+                <div class="bo-field bo-form-grid__full">
+                    <label for="{{ form.description.id_for_label }}">Descripcion</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+            </div>
+        </article>
+
+        <aside class="bo-section">
+            <article class="bo-card">
+                <div class="bo-card__header">
+                    <div>
+                        <span class="bo-kicker">Control</span>
+                        <h2>Estado y limites</h2>
+                    </div>
+                </div>
+
+                <div class="bo-form-stack">
+                    <label class="bo-check">
+                        {{ form.is_active }}
+                        <span>Codigo activo</span>
+                    </label>
+                    <div class="bo-field">
+                        <label for="{{ form.valid_from.id_for_label }}">Inicio de vigencia</label>
+                        {{ form.valid_from }}
+                        {{ form.valid_from.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.valid_until.id_for_label }}">Fin de vigencia</label>
+                        {{ form.valid_until }}
+                        {{ form.valid_until.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.max_discount_amount.id_for_label }}">Tope de descuento</label>
+                        {{ form.max_discount_amount }}
+                        {{ form.max_discount_amount.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.usage_limit.id_for_label }}">Limite de usos</label>
+                        {{ form.usage_limit }}
+                        {{ form.usage_limit.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ form.notes.id_for_label }}">Notas internas</label>
+                        {{ form.notes }}
+                        {{ form.notes.errors }}
+                    </div>
+                    {% if is_editing %}
+                    <div class="bo-list-row">
+                        <div>
+                            <strong>{{ promotion.used_count }}</strong>
+                            <p>Usos registrados</p>
+                        </div>
+                        <span class="bo-badge">{{ promotion.status_label }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+        </aside>
+    </div>
+</form>
+{% endblock %}

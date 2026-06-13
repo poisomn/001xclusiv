@@ -7,6 +7,7 @@ from .models import PromotionCode
 class PromotionCodeAdmin(admin.ModelAdmin):
     list_display = (
         "code",
+        "description",
         "discount_type",
         "discount_value",
         "is_active",
@@ -15,7 +16,8 @@ class PromotionCodeAdmin(admin.ModelAdmin):
         "usage_limit",
         "used_count",
     )
-    list_filter = ("is_active", "discount_type")
+    list_filter = ("is_active", "discount_type", "valid_from", "valid_until")
     search_fields = ("code", "description")
     readonly_fields = ("used_count", "created_at", "updated_at")
     list_editable = ("is_active",)
+    ordering = ("-created_at",)

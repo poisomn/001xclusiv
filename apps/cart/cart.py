@@ -2,6 +2,7 @@ from decimal import Decimal
 from django.conf import settings
 from apps.catalog.models import Product, ProductVariant
 from .models import PromotionCode
+from .tax import calculate_tax_breakdown
 
 class Cart:
     def __init__(self, request):
@@ -106,7 +107,7 @@ class Cart:
         try:
             promotion = PromotionCode.objects.get(code=code)
         except PromotionCode.DoesNotExist:
-            return False, "Codigo promocional no encontrado."
+            return False, "El codigo ingresado no existe."
 
         subtotal = self.get_subtotal_price()
         if not promotion.can_apply_to_amount(subtotal):
@@ -142,6 +143,15 @@ class Cart:
         if not promotion.can_apply_to_amount(subtotal):
             return Decimal("0")
         return promotion.calculate_discount(subtotal)
+
+    def get_tax_breakdown(self):
+        return calculate_tax_breakdown(self.get_total_price())
+
+    def get_net_amount(self):
+        return self.get_tax_breakdown()["net"]
+
+    def get_tax_amount(self):
+        return self.get_tax_breakdown()["tax"]
 
     def clear(self):
         # remove cart from session

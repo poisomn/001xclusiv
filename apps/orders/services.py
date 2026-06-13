@@ -5,6 +5,7 @@ from django.db.models import F
 
 from apps.cart.cart import Cart
 from apps.cart.models import PromotionCode
+from apps.cart.tax import calculate_tax_breakdown
 from apps.catalog.models import ProductVariant
 from apps.notifications.services import (
     send_admin_new_order_email,
@@ -42,6 +43,10 @@ def build_order_from_cart(request, form):
     order.discount_amount = cart.get_discount_amount()
     order.promo_code = cart.get_promo_code() or ""
     order.total_amount = cart.get_total_price()
+    tax = calculate_tax_breakdown(order.total_amount)
+    order.net_amount = tax["net"]
+    order.tax_amount = tax["tax"]
+    order.tax_rate = 19
     order.save()
 
     order_items = []

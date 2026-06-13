@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 
 from apps.catalog.models import Product, ProductVariant
+from apps.cart.tax import calculate_tax_breakdown
 
 
 class Order(models.Model):
@@ -32,6 +33,9 @@ class Order(models.Model):
     subtotal_amount = models.DecimalField("Subtotal", max_digits=12, decimal_places=2, default=0)
     discount_amount = models.DecimalField("Descuento", max_digits=12, decimal_places=2, default=0)
     promo_code = models.CharField("Codigo promocional", max_length=40, blank=True)
+    net_amount = models.DecimalField("Neto", max_digits=12, decimal_places=2, default=0)
+    tax_amount = models.DecimalField("IVA", max_digits=12, decimal_places=2, default=0)
+    tax_rate = models.DecimalField("Tasa IVA", max_digits=5, decimal_places=2, default=19)
     total_amount = models.DecimalField("Total", max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -69,9 +73,31 @@ class Order(models.Model):
         if not self.subtotal_amount:
             self.subtotal_amount = sum(item.get_cost() for item in self.items.all())
         self.total_amount = max(self.subtotal_amount - self.discount_amount, 0)
+        tax = calculate_tax_breakdown(self.total_amount)
+        self.net_amount = tax["net"]
+        self.tax_amount = tax["tax"]
+        self.tax_rate = 19
         if save:
-            self.save(update_fields=["subtotal_amount", "discount_amount", "total_amount", "updated_at"])
+            self.save(update_fields=[
+                "subtotal_amount",
+                "discount_amount",
+                "net_amount",
+                "tax_amount",
+                "tax_rate",
+                "total_amount",
+                "updated_at",
+            ])
         return self.total_amount
+
+    def get_net_amount(self):
+        if self.net_amount:
+            return self.net_amount
+        return calculate_tax_breakdown(self.get_total_cost())["net"]
+
+    def get_tax_amount(self):
+        if self.tax_amount:
+            return self.tax_amount
+        return calculate_tax_breakdown(self.get_total_cost())["tax"]
 
 
 class OrderItem(models.Model):

@@ -1,8 +1,11 @@
+from decimal import Decimal
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from apps.cart.models import PromotionCode
+from apps.cart.tax import calculate_tax_breakdown
 from apps.catalog.models import Product, ProductVariant
 
 
@@ -67,7 +70,20 @@ class CartPromotionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("no esta activo", response.json()["message"])
+        self.assertIn("no esta disponible", response.json()["message"])
+
+    def test_future_code_returns_error(self):
+        self.promo.valid_from = timezone.now() + timezone.timedelta(days=1)
+        self.promo.save(update_fields=["valid_from"])
+
+        response = self.client.post(
+            reverse("cart:cart_apply_promo"),
+            {"code": "XCLUSIV15"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("no esta disponible", response.json()["message"])
 
     def test_minimum_amount_code_returns_error(self):
         self.promo.minimum_order_amount = 150000
@@ -82,6 +98,20 @@ class CartPromotionTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("minimo", response.json()["message"])
 
+    def test_usage_limit_code_returns_error(self):
+        self.promo.usage_limit = 2
+        self.promo.used_count = 2
+        self.promo.save(update_fields=["usage_limit", "used_count"])
+
+        response = self.client.post(
+            reverse("cart:cart_apply_promo"),
+            {"code": "XCLUSIV15"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("limite de uso", response.json()["message"])
+
     def test_expired_code_returns_error(self):
         self.promo.valid_until = timezone.now() - timezone.timedelta(days=1)
         self.promo.save(update_fields=["valid_until"])
@@ -93,7 +123,7 @@ class CartPromotionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("expiro", response.json()["message"])
+        self.assertIn("no esta disponible", response.json()["message"])
 
     def test_remove_code_restores_total(self):
         self.client.post(reverse("cart:cart_apply_promo"), {"code": "XCLUSIV15"})
@@ -103,6 +133,16 @@ class CartPromotionTests(TestCase):
         summary = self.client.get(reverse("cart:cart_summary")).json()
         self.assertEqual(summary["discount_amount"], 0.0)
         self.assertEqual(summary["total"], 100000.0)
+
+    def test_tax_breakdown_for_discounted_total(self):
+        self.client.post(reverse("cart:cart_apply_promo"), {"code": "XCLUSIV15"})
+        summary = self.client.get(reverse("cart:cart_summary")).json()
+        tax = calculate_tax_breakdown(Decimal("85000"))
+
+        self.assertEqual(summary["net_amount"], float(tax["net"]))
+        self.assertEqual(summary["tax_amount"], float(tax["tax"]))
+        self.assertEqual(tax["net"], Decimal("71429"))
+        self.assertEqual(tax["tax"], Decimal("13571"))
 
 
 class CartStockTests(TestCase):

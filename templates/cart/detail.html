@@ -91,6 +91,14 @@
                     </div>
                     {% endif %}
                     <div class="cart-summary__row">
+                        <span>Neto</span>
+                        <strong id="cartNet">${{ cart.get_net_amount }} CLP</strong>
+                    </div>
+                    <div class="cart-summary__row">
+                        <span>IVA 19% incluido</span>
+                        <strong id="cartTax">${{ cart.get_tax_amount }} CLP</strong>
+                    </div>
+                    <div class="cart-summary__row">
                         <span>Envío</span>
                         <span>Se calcula en checkout</span>
                     </div>
@@ -138,7 +146,11 @@
     function applyCartSummary(data) {
         const subtotal = document.getElementById('cartSubtotal');
         const total = document.getElementById('cartTotal');
+        const net = document.getElementById('cartNet');
+        const tax = document.getElementById('cartTax');
         if (subtotal) subtotal.textContent = data.raw_subtotal_formatted || data.subtotal_formatted;
+        if (net) net.textContent = data.net_amount_formatted;
+        if (tax) tax.textContent = data.tax_amount_formatted;
         if (total) total.textContent = data.total_formatted || data.subtotal_formatted;
     }
 

@@ -7,7 +7,11 @@ Resumen:
 - {{ item.quantity }} x {{ item.product.name }}{% if item.variant %} (Talla {{ item.variant.size }}){% endif %}: ${{ item.get_cost }} CLP
 {% endfor %}
 
-Total: ${{ order.total_amount }} CLP
+Subtotal: ${{ order.subtotal_amount|default:order.total_amount }} CLP
+{% if order.discount_amount %}Descuento {{ order.promo_code }}: -${{ order.discount_amount }} CLP
+{% endif %}Neto: ${{ order.get_net_amount }} CLP
+IVA 19% incluido: ${{ order.get_tax_amount }} CLP
+Total: ${{ order.get_total_cost }} CLP
 Estado: {{ order.get_status_display }}
 
 Gracias por comprar en 001xclusiv.

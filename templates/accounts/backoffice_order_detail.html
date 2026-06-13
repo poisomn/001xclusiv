@@ -94,6 +94,14 @@
                 </div>
                 {% endif %}
                 <div class="bo-invoice-summary__row">
+                    <span class="bo-muted">Neto</span>
+                    <span>${{ order.get_net_amount }} CLP</span>
+                </div>
+                <div class="bo-invoice-summary__row">
+                    <span class="bo-muted">IVA 19%</span>
+                    <span>${{ order.get_tax_amount }} CLP</span>
+                </div>
+                <div class="bo-invoice-summary__row">
                     <span class="bo-muted">Total</span>
                     <strong>${{ order.get_total_cost }} CLP</strong>
                 </div>

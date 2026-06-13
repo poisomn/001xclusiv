@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch
 
+from apps.cart.models import PromotionCode
 from apps.orders.models import Order
 
 
@@ -119,10 +120,42 @@ class BackofficeAccessTests(TestCase):
         response = self.client.get(reverse("accounts:backoffice_dashboard"))
         self.assertEqual(response.status_code, 302)
 
+    def test_backoffice_promotions_requires_admin(self):
+        self.client.login(username="shopper", password="pass12345")
+        response = self.client.get(reverse("accounts:backoffice_promotions"))
+        self.assertEqual(response.status_code, 302)
+
     def test_admin_can_access_backoffice_dashboard(self):
         self.client.login(username="admin", password="pass12345")
         response = self.client.get(reverse("accounts:backoffice_dashboard"))
         self.assertEqual(response.status_code, 200)
+
+    def test_admin_can_access_backoffice_promotions(self):
+        self.client.login(username="admin", password="pass12345")
+        response = self.client.get(reverse("accounts:backoffice_promotions"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_can_create_promotion_and_code_is_normalized(self):
+        self.client.login(username="admin", password="pass12345")
+        response = self.client.post(
+            reverse("accounts:backoffice_promotion_create"),
+            {
+                "code": " drop 10 ",
+                "description": "Drop 10",
+                "discount_type": PromotionCode.DISCOUNT_PERCENT,
+                "discount_value": "10",
+                "is_active": "on",
+                "minimum_order_amount": "0",
+                "max_discount_amount": "",
+                "usage_limit": "",
+                "notes": "Campana interna",
+            },
+        )
+
+        promotion = PromotionCode.objects.get(code="DROP10")
+        self.assertRedirects(response, reverse("accounts:backoffice_promotion_edit", args=[promotion.id]))
+        self.assertEqual(promotion.created_by, self.staff)
+        self.assertTrue(promotion.is_active)
 
     def test_admin_can_access_receipt_from_other_user(self):
         self.client.login(username="admin", password="pass12345")

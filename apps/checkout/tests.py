@@ -108,6 +108,9 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(order.subtotal_amount, 100000)
         self.assertEqual(order.discount_amount, 15000)
         self.assertEqual(order.total_amount, 85000)
+        self.assertEqual(order.net_amount, 71429)
+        self.assertEqual(order.tax_amount, 13571)
+        self.assertEqual(order.tax_rate, 19)
         self.assertEqual(order.promo_code, "XCLUSIV15")
         self.assertEqual(create_payment.call_args.args[0].total_amount, 85000)
         self.assertRedirects(

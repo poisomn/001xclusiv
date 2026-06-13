@@ -118,6 +118,14 @@
             </div>
             {% endif %}
             <div>
+                <span>Neto</span>
+                <strong>${{ order.get_net_amount }} CLP</strong>
+            </div>
+            <div>
+                <span>IVA 19% incluido</span>
+                <strong>${{ order.get_tax_amount }} CLP</strong>
+            </div>
+            <div>
                 <span>Total pagado</span>
                 <strong>${{ order.get_total_cost|default:"0" }} CLP</strong>
             </div>
