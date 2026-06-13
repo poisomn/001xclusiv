@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from apps.catalog.models import Product, ProductVariant
@@ -36,10 +37,66 @@ def _serialize_cart(cart):
     return {
         "items": items,
         "cart_count": len(cart),
-        "subtotal": float(cart.get_total_price()),
+        "subtotal": float(cart.get_subtotal_price()),
         "subtotal_formatted": _format_clp(cart.get_total_price()),
+        "raw_subtotal_formatted": _format_clp(cart.get_subtotal_price()),
+        "discount_amount": float(cart.get_discount_amount()),
+        "discount_amount_formatted": _format_clp(cart.get_discount_amount()),
+        "promo_code": cart.get_promo_code(),
+        "total": float(cart.get_total_price()),
+        "total_formatted": _format_clp(cart.get_total_price()),
         "is_empty": len(items) == 0,
     }
+
+
+def _is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json'
+
+
+def _cart_error_response(request, message, redirect_to="cart:cart_detail"):
+    if _is_ajax(request):
+        return JsonResponse({"success": False, "message": message}, status=400)
+    messages.error(request, message)
+    return redirect(redirect_to)
+
+
+def _parse_quantity(value, default=1):
+    try:
+        return max(1, int(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _get_cart_key(product, variant=None):
+    return f"{product.id}-{variant.id}" if variant else str(product.id)
+
+
+def _validate_product_variant(product, variant_id):
+    active_variants = product.variants.filter(is_active=True)
+    if active_variants.exists() and not variant_id:
+        return None, "Selecciona una talla disponible."
+    if not variant_id:
+        return None, ""
+    try:
+        variant = ProductVariant.objects.get(id=variant_id, product=product)
+    except ProductVariant.DoesNotExist:
+        return None, "La talla seleccionada no es valida."
+    if not variant.is_active:
+        return None, "Esta talla no esta disponible."
+    if variant.stock <= 0:
+        return None, "Esta talla esta sin stock."
+    return variant, ""
+
+
+def _validate_stock_for_cart(cart, product, variant, quantity, update_quantity=False):
+    if not variant:
+        return ""
+    cart_key = _get_cart_key(product, variant)
+    current_quantity = cart.cart.get(cart_key, {}).get("quantity", 0)
+    requested_quantity = quantity if update_quantity else current_quantity + quantity
+    if requested_quantity > variant.stock:
+        return f"Solo quedan {variant.stock} unidades disponibles."
+    return ""
 
 @require_POST
 def cart_add(request, product_id):
@@ -50,18 +107,21 @@ def cart_add(request, product_id):
     if request.content_type == 'application/json':
         data = json.loads(request.body)
         variant_id = data.get('variant')
-        quantity = int(data.get('quantity', 1))
+        quantity = _parse_quantity(data.get('quantity', 1))
     else:
         variant_id = request.POST.get('variant')
-        quantity = int(request.POST.get('quantity', 1))
+        quantity = _parse_quantity(request.POST.get('quantity', 1))
 
-    variant = None
-    if variant_id:
-        variant = get_object_or_404(ProductVariant, id=variant_id)
+    variant, variant_error = _validate_product_variant(product, variant_id)
+    if variant_error:
+        return _cart_error_response(request, variant_error)
+    stock_error = _validate_stock_for_cart(cart, product, variant, quantity)
+    if stock_error:
+        return _cart_error_response(request, stock_error)
 
     cart.add(product=product, quantity=quantity, variant=variant)
     
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+    if _is_ajax(request):
         cart_data = _serialize_cart(cart)
         return JsonResponse({
             'success': True,
@@ -94,12 +154,14 @@ def cart_remove(request, product_id):
 def cart_update(request, product_id):
     cart = Cart(request)
     variant_id = request.POST.get('variant_id')
-    quantity = max(1, int(request.POST.get('quantity', 1)))
+    quantity = _parse_quantity(request.POST.get('quantity', 1))
     product = get_object_or_404(Product, id=product_id)
-    variant = None
-
-    if variant_id:
-        variant = get_object_or_404(ProductVariant, id=variant_id)
+    variant, variant_error = _validate_product_variant(product, variant_id)
+    if variant_error:
+        return _cart_error_response(request, variant_error)
+    stock_error = _validate_stock_for_cart(cart, product, variant, quantity, update_quantity=True)
+    if stock_error:
+        return _cart_error_response(request, stock_error)
 
     cart.add(product=product, quantity=quantity, variant=variant, update_quantity=True)
 
@@ -122,3 +184,29 @@ def cart_summary(request):
 def cart_detail(request):
     cart = Cart(request)
     return render(request, 'cart/detail.html', {'cart': cart})
+
+
+@require_POST
+def cart_apply_promo(request):
+    cart = Cart(request)
+    code = request.POST.get("code", "")
+    success, message = cart.apply_promo_code(code)
+    if _is_ajax(request):
+        status = 200 if success else 400
+        return JsonResponse({"success": success, "message": message, **_serialize_cart(cart)}, status=status)
+    if success:
+        messages.success(request, message)
+    else:
+        messages.error(request, message)
+    return redirect("cart:cart_detail")
+
+
+@require_POST
+def cart_remove_promo(request):
+    cart = Cart(request)
+    cart.remove_promo_code()
+    message = "Codigo promocional quitado."
+    if _is_ajax(request):
+        return JsonResponse({"success": True, "message": message, **_serialize_cart(cart)})
+    messages.success(request, message)
+    return redirect("cart:cart_detail")

@@ -457,16 +457,21 @@
                 </a>
 
                 <div class="home-product-card__actions">
-                    {% if product.variants.all|length == 1 %}
+                    {% if product.purchasable_variants|length == 1 %}
                     <form method="post" action="{% url 'cart:cart_add' product.id %}" class="js-ajax-cart-form">
                         {% csrf_token %}
-                        <input type="hidden" name="variant" value="{{ product.variants.all.0.id }}">
+                        <input type="hidden" name="variant" value="{{ product.single_purchasable_variant.id }}">
                         <input type="hidden" name="quantity" value="1">
                         <button type="submit" class="btn-primary home-product-card__button">
                             <i class="bi bi-bag-plus"></i>
                             Agregar al carrito
                         </button>
                     </form>
+                    {% elif product.variants.all|length > 0 and product.purchasable_variants|length == 0 %}
+                    <button type="button" class="btn-secondary home-product-card__button" disabled>
+                        <i class="bi bi-slash-circle"></i>
+                        Sin stock
+                    </button>
                     {% elif product.variants.all|length == 0 %}
                     <form method="post" action="{% url 'cart:cart_add' product.id %}" class="js-ajax-cart-form">
                         {% csrf_token %}

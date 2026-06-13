@@ -85,11 +85,17 @@
             <div class="bo-invoice-summary">
                 <div class="bo-invoice-summary__row">
                     <span class="bo-muted">Subtotal</span>
-                    <span>${{ order.total_amount }} CLP</span>
+                    <span>${{ order.subtotal_amount|default:order.total_amount }} CLP</span>
                 </div>
+                {% if order.discount_amount %}
+                <div class="bo-invoice-summary__row">
+                    <span class="bo-muted">Descuento {{ order.promo_code }}</span>
+                    <span>-${{ order.discount_amount }} CLP</span>
+                </div>
+                {% endif %}
                 <div class="bo-invoice-summary__row">
                     <span class="bo-muted">Total</span>
-                    <strong>${{ order.total_amount }} CLP</strong>
+                    <strong>${{ order.get_total_cost }} CLP</strong>
                 </div>
             </div>
         </article>

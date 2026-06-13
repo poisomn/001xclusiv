@@ -73,8 +73,18 @@
 
         <footer class="order-receipt__footer">
             <div>
+                <span>Subtotal</span>
+                <strong>${{ order.subtotal_amount|default:order.total_amount }} CLP</strong>
+            </div>
+            {% if order.discount_amount %}
+            <div>
+                <span>Descuento {{ order.promo_code }}</span>
+                <strong>-${{ order.discount_amount }} CLP</strong>
+            </div>
+            {% endif %}
+            <div>
                 <span>Total del pedido</span>
-                <strong>${{ order.total_amount }} CLP</strong>
+                <strong>${{ order.get_total_cost }} CLP</strong>
             </div>
             <p>Documento generado desde tu cuenta 001xclusiv.</p>
         </footer>

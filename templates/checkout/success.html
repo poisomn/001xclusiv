@@ -108,6 +108,16 @@
         <!-- TOTAL -->
         <footer class="order-receipt__footer">
             <div>
+                <span>Subtotal</span>
+                <strong>${{ order.subtotal_amount|default:order.total_amount }} CLP</strong>
+            </div>
+            {% if order.discount_amount %}
+            <div>
+                <span>Descuento {{ order.promo_code }}</span>
+                <strong>-${{ order.discount_amount }} CLP</strong>
+            </div>
+            {% endif %}
+            <div>
                 <span>Total pagado</span>
                 <strong>${{ order.get_total_cost|default:"0" }} CLP</strong>
             </div>

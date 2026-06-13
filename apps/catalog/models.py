@@ -129,6 +129,15 @@ class Product(TimeStampedModel):
             ]
         return []
 
+    @property
+    def purchasable_variants(self):
+        return [variant for variant in self.variants.all() if variant.is_active and variant.stock > 0]
+
+    @property
+    def single_purchasable_variant(self):
+        variants = self.purchasable_variants
+        return variants[0] if len(variants) == 1 else None
+
 
 class ProductImage(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")

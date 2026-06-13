@@ -29,6 +29,9 @@ class Order(models.Model):
     address = models.CharField("Dirección", max_length=250)
     city = models.CharField("Ciudad", max_length=100)
     postal_code = models.CharField("Código Postal", max_length=20)
+    subtotal_amount = models.DecimalField("Subtotal", max_digits=12, decimal_places=2, default=0)
+    discount_amount = models.DecimalField("Descuento", max_digits=12, decimal_places=2, default=0)
+    promo_code = models.CharField("Codigo promocional", max_length=40, blank=True)
     total_amount = models.DecimalField("Total", max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -46,6 +49,8 @@ class Order(models.Model):
     payment_confirmed_email_sent = models.BooleanField(default=False)
     order_cancelled_email_sent = models.BooleanField(default=False)
     admin_new_order_email_sent = models.BooleanField(default=False)
+    stock_committed = models.BooleanField(default=False)
+    promotion_committed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ("-created_at",)
@@ -61,9 +66,11 @@ class Order(models.Model):
         return sum(item.get_cost() for item in self.items.all())
 
     def recalculate_total_amount(self, save=True):
-        self.total_amount = sum(item.get_cost() for item in self.items.all())
+        if not self.subtotal_amount:
+            self.subtotal_amount = sum(item.get_cost() for item in self.items.all())
+        self.total_amount = max(self.subtotal_amount - self.discount_amount, 0)
         if save:
-            self.save(update_fields=["total_amount", "updated_at"])
+            self.save(update_fields=["subtotal_amount", "discount_amount", "total_amount", "updated_at"])
         return self.total_amount
 
 

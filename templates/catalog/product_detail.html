@@ -374,6 +374,8 @@
                         window.openMiniCart();
                     }
                     showDetailToast(`${data.product_name} fue agregado al carrito.`);
+                } else {
+                    showDetailToast(data.message || 'No pudimos agregar el producto.');
                 }
             } catch (error) {
                 console.error('Error:', error);

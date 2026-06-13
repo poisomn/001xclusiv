@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -20,6 +22,8 @@ from apps.payments.flow_service import (
     get_payment_status_extended,
     mask_secret,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _payment_id_from_status(status):
@@ -147,7 +151,11 @@ def payment_return(request):
         print("FLOW RETURN ERROR:", e.__class__.__name__)
         return render(request, "payments/error.html", {"message": "Error confirmando el pago"})
 
-    order = _apply_flow_status(status, token=token)
+    try:
+        order = _apply_flow_status(status, token=token)
+    except Exception:
+        logger.exception("Could not apply Flow status for token %s", mask_secret(token))
+        return render(request, "payments/error.html", {"message": "No pudimos confirmar stock para este pago. Contacta a soporte."})
     status_code = _flow_status_code(status)
     print("FLOW STATUS CODE:", status_code if status else "NO_STATUS")
     print("FLOW ORDER:", status.get("flowOrder") if status else "NO_FLOW_ORDER")
@@ -212,7 +220,11 @@ def payment_webhook(request):
     except Exception as error:
         return JsonResponse({"error": str(error)}, status=400)
 
-    order = _apply_flow_status(status, token=token)
+    try:
+        order = _apply_flow_status(status, token=token)
+    except Exception as error:
+        logger.exception("Could not apply Flow webhook status for token %s", mask_secret(token))
+        return JsonResponse({"error": str(error)}, status=400)
     status_code = _flow_status_code(status)
     print("FLOW STATUS CODE:", status_code if status else "NO_STATUS")
     print("ORDER ID:", order.id if order else "NONE")
@@ -224,7 +236,11 @@ def payment_webhook(request):
         return JsonResponse({"error": "order not found"}, status=404)
 
     # evitar reprocesamiento
-    if order.payment_status in {"paid", "cancelled"}:
+    if order.payment_status == "paid":
+        if not order.stock_committed or (order.promo_code and not order.promotion_committed):
+            mark_order_paid(order)
+        return JsonResponse({"ok": True})
+    if order.payment_status == "cancelled":
         return JsonResponse({"ok": True})
 
     if status_code == FLOW_PAID:

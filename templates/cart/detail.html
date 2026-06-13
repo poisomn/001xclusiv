@@ -32,6 +32,7 @@
                             </h2>
                             {% if item.variant %}
                             <p class="cart-item__variant">Talla seleccionada: {{ item.variant.size }}</p>
+                            <p class="text-muted small mb-0">Stock disponible: {{ item.variant.stock }}</p>
                             {% endif %}
                         </div>
 
@@ -44,6 +45,7 @@
                                 {% endif %}
                                 <label for="qty-{{ forloop.counter }}" class="visually-hidden">Cantidad</label>
                                 <input id="qty-{{ forloop.counter }}" type="number" name="quantity" min="1"
+                                    {% if item.variant %}max="{{ item.variant.stock }}"{% endif %}
                                     value="{{ item.quantity }}">
                                 <button type="submit" class="btn-secondary btn-sm">Actualizar</button>
                             </form>
@@ -80,8 +82,14 @@
                 <div class="cart-summary__rows">
                     <div class="cart-summary__row">
                         <span>Subtotal</span>
-                        <strong id="cartSubtotal">${{ cart.get_total_price }} CLP</strong>
+                        <strong id="cartSubtotal">${{ cart.get_subtotal_price }} CLP</strong>
                     </div>
+                    {% if cart.get_promo_code %}
+                    <div class="cart-summary__row">
+                        <span>Descuento {{ cart.get_promo_code }}</span>
+                        <strong id="cartDiscount">-${{ cart.get_discount_amount }} CLP</strong>
+                    </div>
+                    {% endif %}
                     <div class="cart-summary__row">
                         <span>Envío</span>
                         <span>Se calcula en checkout</span>
@@ -91,6 +99,25 @@
                         <strong id="cartTotal">${{ cart.get_total_price }} CLP</strong>
                     </div>
                 </div>
+
+                <form method="post" action="{% url 'cart:cart_apply_promo' %}" class="mt-3">
+                    {% csrf_token %}
+                    <label for="promo-code" class="form-label small fw-semibold">Codigo promocional</label>
+                    <div class="d-flex gap-2">
+                        <input id="promo-code" type="text" name="code" class="form-control" placeholder="Codigo promocional"
+                            value="{{ cart.get_promo_code }}">
+                        <button type="submit" class="btn-secondary">Aplicar</button>
+                    </div>
+                </form>
+                {% if cart.get_promo_code %}
+                <form method="post" action="{% url 'cart:cart_remove_promo' %}" class="mt-2">
+                    {% csrf_token %}
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <span class="text-muted small">Codigo aplicado: {{ cart.get_promo_code }}</span>
+                        <button type="submit" class="btn-secondary btn-sm">Quitar</button>
+                    </div>
+                </form>
+                {% endif %}
 
                 <div class="cart-summary__actions">
                     {% if cart %}
@@ -111,8 +138,8 @@
     function applyCartSummary(data) {
         const subtotal = document.getElementById('cartSubtotal');
         const total = document.getElementById('cartTotal');
-        if (subtotal) subtotal.textContent = data.subtotal_formatted;
-        if (total) total.textContent = data.subtotal_formatted;
+        if (subtotal) subtotal.textContent = data.raw_subtotal_formatted || data.subtotal_formatted;
+        if (total) total.textContent = data.total_formatted || data.subtotal_formatted;
     }
 
     document.querySelectorAll('.js-cart-update-form').forEach(form => {

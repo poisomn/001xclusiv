@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.conf import settings
 from apps.catalog.models import Product, ProductVariant
+from .models import PromotionCode
 
 class Cart:
     def __init__(self, request):
@@ -13,6 +14,7 @@ class Cart:
             # save an empty cart in the session
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
+        self.promo_session_key = "cart_promo_code"
 
     def add(self, product, quantity=1, variant=None, update_quantity=False):
         """
@@ -91,10 +93,59 @@ class Cart:
         return sum(item['quantity'] for item in self.cart.values())
 
     def get_total_price(self):
+        total = self.get_subtotal_price() - self.get_discount_amount()
+        return max(total, Decimal("0"))
+
+    def get_subtotal_price(self):
         return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
+
+    def apply_promo_code(self, code):
+        code = (code or "").strip().upper()
+        if not code:
+            return False, "Ingresa un codigo promocional."
+        try:
+            promotion = PromotionCode.objects.get(code=code)
+        except PromotionCode.DoesNotExist:
+            return False, "Codigo promocional no encontrado."
+
+        subtotal = self.get_subtotal_price()
+        if not promotion.can_apply_to_amount(subtotal):
+            return False, promotion.get_rejection_message(subtotal) or "Este codigo no se puede aplicar."
+
+        self.session[self.promo_session_key] = promotion.code
+        self.save()
+        return True, f"Codigo aplicado: {promotion.code}"
+
+    def remove_promo_code(self):
+        if self.promo_session_key in self.session:
+            del self.session[self.promo_session_key]
+            self.save()
+
+    def get_promo_code(self):
+        return self.session.get(self.promo_session_key, "")
+
+    def get_promotion(self):
+        code = self.get_promo_code()
+        if not code:
+            return None
+        try:
+            return PromotionCode.objects.get(code=code)
+        except PromotionCode.DoesNotExist:
+            self.remove_promo_code()
+            return None
+
+    def get_discount_amount(self):
+        promotion = self.get_promotion()
+        if promotion is None:
+            return Decimal("0")
+        subtotal = self.get_subtotal_price()
+        if not promotion.can_apply_to_amount(subtotal):
+            return Decimal("0")
+        return promotion.calculate_discount(subtotal)
 
     def clear(self):
         # remove cart from session
         if settings.CART_SESSION_ID in self.session:
             del self.session[settings.CART_SESSION_ID]
-            self.save()
+        self.remove_promo_code()
+        self.save()

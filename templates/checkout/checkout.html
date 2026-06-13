@@ -153,8 +153,14 @@
                 <div class="checkout-summary-totals">
                     <div class="checkout-summary-row">
                         <span>Subtotal</span>
-                        <strong>${{ cart.get_total_price }} CLP</strong>
+                        <strong>${{ cart.get_subtotal_price }} CLP</strong>
                     </div>
+                    {% if cart.get_discount_amount %}
+                    <div class="checkout-summary-row">
+                        <span>Descuento {{ cart.get_promo_code }}</span>
+                        <strong>-${{ cart.get_discount_amount }} CLP</strong>
+                    </div>
+                    {% endif %}
                     <div class="checkout-summary-row">
                         <span>Envío</span>
                         <strong>Gratis</strong>

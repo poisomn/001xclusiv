@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from apps.cart.cart import Cart
 from apps.orders.models import Order
-from apps.orders.services import build_order_from_cart
+from apps.orders.services import build_order_from_cart, validate_cart_stock
 from apps.payments.flow_service import FlowAPIError, build_payment_url, create_payment
 from .forms import CheckoutForm
 
@@ -73,6 +73,14 @@ class CheckoutView(View):
 
             form = CheckoutForm(request.POST)
             if form.is_valid():
+                stock_errors = validate_cart_stock(cart)
+                if stock_errors:
+                    for error in stock_errors:
+                        messages.error(request, error)
+                    return redirect("cart:cart_detail")
+                if cart.get_total_price() <= 0:
+                    messages.error(request, "El total del pedido es cero o negativo. No se puede proceder al pago.")
+                    return render(request, 'checkout/checkout.html', self.get_context(cart, form))
                 order = build_order_from_cart(request, form)
                 logger.info("Checkout order created order_id=%s", order.id)
                 if order.get_total_cost() <= 0:
