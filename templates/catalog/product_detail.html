@@ -56,9 +56,9 @@
                 <div class="product-detail-copy">
                     <span class="section-kicker">Detalle del producto</span>
                     <h1>{{ product.name }}</h1>
+                    {% firstof product.short_description product.description "Selección exclusiva para ti." as display_description %}
                     <p class="product-detail-copy__description">
-                        {{ product.short_description|default:product.description|default:"Selección exclusiva para ti."
-                        }}
+                        {{ display_description }}
                     </p>
                 </div>
 
