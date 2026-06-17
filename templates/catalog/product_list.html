@@ -35,15 +35,30 @@
 
             <div class="catalog-landing-hero__visual" aria-label="Productos destacados">
                 {% for product in hero_products %}
-                <a href="{% url 'catalog:detail' product.slug %}"
-                    class="catalog-hero-product catalog-hero-product--{{ forloop.counter }}">
-                    <span class="catalog-hero-product__image"
-                        style="background-image: url('{{ product.primary_image_url }}');" aria-hidden="true"></span>
-                    <span>{{ product.brand.name|default:"001xclusiv" }}</span>
-                    <strong>{{ product.name }}</strong>
-                </a>
+                <article class="catalog-feature-card">
+                    <a class="catalog-feature-card__media" href="{% url 'catalog:detail' product.slug %}">
+                        <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" loading="lazy">
+                        {% if product.discount_price %}
+                        <span class="badge-sale">Oferta</span>
+                        {% endif %}
+                    </a>
+                    <div class="catalog-feature-card__body">
+                        <p class="catalog-feature-card__brand">{{ product.brand.name|default:"Seleccion 001xclusiv" }}</p>
+                        <h3 class="catalog-feature-card__title">
+                            <a href="{% url 'catalog:detail' product.slug %}">{{ product.name }}</a>
+                        </h3>
+                        <div class="catalog-feature-card__price">
+                            {% if product.discount_price %}
+                            <span class="price-old">${{ product.price }} CLP</span>
+                            <strong class="price-new">${{ product.discount_price }} CLP</strong>
+                            {% else %}
+                            <strong class="price">${{ product.price }} CLP</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
                 {% empty %}
-                <div class="catalog-hero-empty">
+                <div class="catalog-feature-empty">
                     <span class="section-kicker">Catalogo</span>
                     <strong>Pronto nuevos drops.</strong>
                 </div>
@@ -78,12 +93,13 @@
                 {% for tile in category_tiles %}
                 <a href="{{ tile.url }}" class="catalog-story-card">
                     {% if tile.image_url %}
-                    <span class="catalog-story-card__image"
-                        style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
+                    <span class="catalog-story-card__media">
+                        <span class="catalog-story-card__image"
+                            style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
+                    </span>
                     {% endif %}
-                    <span class="catalog-story-card__shade"></span>
-                    <span class="catalog-story-card__eyebrow">{{ tile.eyebrow }}</span>
                     <div class="catalog-story-card__content">
+                        <span class="catalog-story-card__eyebrow">{{ tile.eyebrow }}</span>
                         <h3>{{ tile.name }}</h3>
                         <p>{{ tile.product_count }} producto{{ tile.product_count|pluralize }} disponible{{ tile.product_count|pluralize }}</p>
                     </div>
@@ -107,10 +123,12 @@
                 {% for tile in brand_tiles %}
                 <a href="{{ tile.url }}" class="catalog-brand-tile">
                     {% if tile.image_url %}
-                    <span class="catalog-brand-tile__image"
-                        style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
+                    <span class="catalog-brand-tile__media">
+                        <span class="catalog-brand-tile__image"
+                            style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
+                    </span>
                     {% endif %}
-                    <span>{{ tile.eyebrow }}</span>
+                    <span class="catalog-brand-tile__eyebrow">{{ tile.eyebrow }}</span>
                     <strong>{{ tile.name }}</strong>
                     <small>{{ tile.product_count }} producto{{ tile.product_count|pluralize }}</small>
                 </a>
