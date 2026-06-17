@@ -30,6 +30,47 @@ CATALOG_REASSURANCE = [
     },
 ]
 
+CATALOG_LANDING_FEATURES = [
+    {
+        "icon": "bi-stars",
+        "title": "Curaduria visual",
+        "text": "Drops organizados para explorar por silueta, marca y presencia.",
+    },
+    {
+        "icon": "bi-bag-check",
+        "title": "Compra directa",
+        "text": "Carrito, stock y favoritos siguen a un toque desde cada producto.",
+    },
+    {
+        "icon": "bi-layers",
+        "title": "Categorias vivas",
+        "text": "Entra por sneakers, hoodies, jackets o marcas sin perder filtros.",
+    },
+]
+
+CATALOG_CATEGORY_LABELS = {
+    "accesories-xclusiv": "Accesories",
+    "bags-001xclusiv": "Bags",
+    "clothing-001xclusiv": "Clothing",
+    "hoodies-001xclusiv": "Hoodies",
+    "jackets-001xclusiv": "Jackets",
+    "outerwear-001xclusiv": "Outerwear",
+    "pants-001xclusiv": "Pants",
+    "sneakers-xclusiv": "Sneakers",
+    "t-shirts-001xclusiv": "T-Shirts",
+}
+
+CATALOG_BRAND_LABELS = {
+    "adidas": "Adidas",
+    "asics": "ASICS",
+    "bape": "BAPE",
+    "chrome-hearts": "Chrome Hearts",
+    "jordan-air": "Jordan Air",
+    "nike": "Nike",
+    "nike-sb": "Nike SB",
+    "puma": "Puma",
+}
+
 
 def build_product_reassurance(product, has_in_stock_variants):
     stock_text = (
@@ -118,6 +159,78 @@ def build_catalog_seo(active_filters, results_count):
         )
 
     return seo_title, seo_description
+
+
+def get_active_filter_labels(active_filters):
+    labels = {
+        "category": active_filters.get("category", ""),
+        "brand": active_filters.get("brand", ""),
+    }
+
+    if labels["category"]:
+        category = Category.objects.filter(slug=labels["category"]).first()
+        labels["category"] = (
+            category.name if category else CATALOG_CATEGORY_LABELS.get(labels["category"], labels["category"])
+        )
+
+    if labels["brand"]:
+        brand = Brand.objects.filter(slug=labels["brand"]).first()
+        labels["brand"] = brand.name if brand else CATALOG_BRAND_LABELS.get(labels["brand"], labels["brand"])
+
+    return labels
+
+
+def build_catalog_story_tiles(categories, brands):
+    product_qs = (
+        Product.objects.filter(is_active=True)
+        .select_related("brand")
+        .prefetch_related("images", "categories", "variants")
+        .order_by("-is_featured", "-created_at")
+    )
+
+    category_tiles = []
+    for category in categories:
+        category_products = product_qs.filter(categories=category)
+        representative = category_products.first()
+        category_tiles.append(
+            {
+                "name": category.name,
+                "slug": category.slug,
+                "url": f"?category={category.slug}",
+                "image_url": representative.primary_image_url if representative else "",
+                "product_count": category_products.count(),
+                "eyebrow": "Categoria",
+            }
+        )
+
+    brand_tiles = []
+    for brand in brands:
+        brand_products = product_qs.filter(brand=brand)
+        representative = brand_products.first()
+        brand_tiles.append(
+            {
+                "name": brand.name,
+                "slug": brand.slug,
+                "url": f"?brand={brand.slug}",
+                "image_url": representative.primary_image_url if representative else "",
+                "product_count": brand_products.count(),
+                "eyebrow": "Marca",
+            }
+        )
+
+    hero_products = list(product_qs[:4])
+    enrich_product_cards(hero_products)
+
+    edit_products = list(product_qs[4:8])
+    enrich_product_cards(edit_products)
+
+    return {
+        "hero_products": hero_products,
+        "category_tiles": category_tiles,
+        "brand_tiles": brand_tiles,
+        "edit_products": edit_products,
+        "features": CATALOG_LANDING_FEATURES,
+    }
 
 
 def is_staff_or_superuser(user):
@@ -217,8 +330,10 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         enrich_product_cards(context["products"])
-        context["categories"] = Category.objects.filter(is_active=True)
-        context["brands"] = Brand.objects.filter(is_active=True)
+        categories = Category.objects.filter(is_active=True)
+        brands = Brand.objects.filter(is_active=True)
+        context["categories"] = categories
+        context["brands"] = brands
         context["sort_options"] = [
             ("newest", "Novedades"),
             ("price_asc", "Precio: menor a mayor"),
@@ -241,6 +356,18 @@ class ProductListView(ListView):
             context["active_filters"],
             context["results_count"],
         )
+        context["is_catalog_landing"] = not any(
+            [
+                context["active_filters"]["q"],
+                context["active_filters"]["category"],
+                context["active_filters"]["brand"],
+                context["active_filters"]["min_price"],
+                context["active_filters"]["max_price"],
+            ]
+        )
+        context["active_filter_labels"] = get_active_filter_labels(context["active_filters"])
+        if context["is_catalog_landing"]:
+            context.update(build_catalog_story_tiles(categories, brands))
         if self.request.user.is_authenticated:
             context["wishlist_product_ids"] = set(
                 Wishlist.objects.filter(user=self.request.user).values_list("product_id", flat=True)

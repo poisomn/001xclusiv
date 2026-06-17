@@ -7,13 +7,204 @@
 {% block og_description %}{{ seo_description }}{% endblock %}
 
 {% block content %}
-<section class="catalog-page">
+<section class="catalog-page {% if is_catalog_landing %}catalog-page--landing{% endif %}">
+    {% if is_catalog_landing %}
+    <div class="catalog-landing">
+        <section class="catalog-landing-hero" aria-label="Catalogo 001xclusiv">
+            <div class="catalog-landing-hero__copy">
+                <span class="section-kicker">001xclusiv catalog</span>
+                <h1>Catalogo 001xclusiv.</h1>
+                <p>
+                    Explora drops, marcas y categorias con compra rapida y filtros siempre disponibles.
+                </p>
+                <form method="get" class="catalog-landing-search">
+                    <label for="catalog-landing-q" class="visually-hidden">Buscar productos</label>
+                    <i class="bi bi-search"></i>
+                    <input id="catalog-landing-q" type="text" name="q" placeholder="Buscar por nombre, SKU o descripcion">
+                    <button type="submit" class="btn-primary">Buscar</button>
+                </form>
+                <div class="catalog-landing-hero__actions">
+                    <a href="#catalog-categories" class="btn-accent">Explorar categorias</a>
+                    <button class="btn-secondary" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#catalogFilters" aria-controls="catalogFilters">
+                        <i class="bi bi-sliders"></i>
+                        Filtros
+                    </button>
+                </div>
+            </div>
+
+            <div class="catalog-landing-hero__visual" aria-label="Productos destacados">
+                {% for product in hero_products %}
+                <a href="{% url 'catalog:detail' product.slug %}"
+                    class="catalog-hero-product catalog-hero-product--{{ forloop.counter }}">
+                    <span class="catalog-hero-product__image"
+                        style="background-image: url('{{ product.primary_image_url }}');" aria-hidden="true"></span>
+                    <span>{{ product.brand.name|default:"001xclusiv" }}</span>
+                    <strong>{{ product.name }}</strong>
+                </a>
+                {% empty %}
+                <div class="catalog-hero-empty">
+                    <span class="section-kicker">Catalogo</span>
+                    <strong>Pronto nuevos drops.</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="catalog-landing-strip" aria-label="Beneficios del catalogo">
+            {% for item in features %}
+            <article class="catalog-landing-feature">
+                <i class="bi {{ item.icon }}"></i>
+                <div>
+                    <strong>{{ item.title }}</strong>
+                    <p>{{ item.text }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+
+        <section class="catalog-landing-section" id="catalog-categories">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Categorias</span>
+                    <h2>Entra por la pieza que define el look.</h2>
+                </div>
+                <p class="section-heading__text">
+                    El catalogo se abre por capas: sneakers, ropa, bolsos y accesorios con filtros siempre disponibles.
+                </p>
+            </div>
+
+            <div class="catalog-story-grid catalog-story-grid--categories">
+                {% for tile in category_tiles %}
+                <a href="{{ tile.url }}" class="catalog-story-card">
+                    {% if tile.image_url %}
+                    <span class="catalog-story-card__image"
+                        style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
+                    {% endif %}
+                    <span class="catalog-story-card__shade"></span>
+                    <span class="catalog-story-card__eyebrow">{{ tile.eyebrow }}</span>
+                    <div class="catalog-story-card__content">
+                        <h3>{{ tile.name }}</h3>
+                        <p>{{ tile.product_count }} producto{{ tile.product_count|pluralize }} disponible{{ tile.product_count|pluralize }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="catalog-landing-section catalog-landing-section--brands">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Marcas</span>
+                    <h2>Seleccion por nombre, no por ruido.</h2>
+                </div>
+                <p class="section-heading__text">
+                    Marcas activas del catalogo, organizadas para llegar rapido al producto que importa.
+                </p>
+            </div>
+
+            <div class="catalog-brand-rail" aria-label="Marcas disponibles">
+                {% for tile in brand_tiles %}
+                <a href="{{ tile.url }}" class="catalog-brand-tile">
+                    {% if tile.image_url %}
+                    <span class="catalog-brand-tile__image"
+                        style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
+                    {% endif %}
+                    <span>{{ tile.eyebrow }}</span>
+                    <strong>{{ tile.name }}</strong>
+                    <small>{{ tile.product_count }} producto{{ tile.product_count|pluralize }}</small>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if edit_products %}
+        <section class="catalog-landing-section">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Drop edit</span>
+                    <h2>Piezas para empezar.</h2>
+                </div>
+                <p class="section-heading__text">Una primera lectura del catalogo actual, lista para guardar o comprar.</p>
+            </div>
+
+            <div class="product-grid catalog-product-grid">
+                {% for product in edit_products %}
+                {% include "catalog/partials/product_card.html" %}
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="catalog-landing-section catalog-landing-section--all" id="catalog-all">
+            <div class="catalog-list-toolbar">
+                <div>
+                    <span class="section-kicker">Ultimos ingresos</span>
+                    <h2>{{ results_count }} producto{{ results_count|pluralize }} en catalogo.</h2>
+                </div>
+                <form method="get" class="catalog-sort-inline">
+                    <label for="catalog-sort" class="visually-hidden">Ordenar productos</label>
+                    <select id="catalog-sort" name="sort" class="catalog-filter-select" onchange="this.form.submit()">
+                        {% for value, label in sort_options %}
+                        <option value="{{ value }}" {% if active_filters.sort == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <div class="product-grid catalog-product-grid">
+                {% for product in products %}
+                {% include "catalog/partials/product_card.html" %}
+                {% empty %}
+                <div class="catalog-empty-state">
+                    <span class="section-kicker">Sin productos</span>
+                    <h2>No hay productos activos por ahora</h2>
+                    <p>Cuando el catalogo vuelva a tener stock activo, aparecera aqui.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if is_paginated %}
+            <nav class="catalog-pagination" aria-label="Paginacion del catalogo">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+                            aria-label="Anterior">
+                            &laquo;
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in paginator.page_range %}
+                    <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                        <a class="page-link"
+                            href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+                            aria-label="Siguiente">
+                            &raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </section>
+    </div>
+    {% else %}
     <div class="catalog-shell">
         <aside class="catalog-sidebar d-none d-lg-block">
             <div class="catalog-sidebar__card">
-                <span class="section-kicker">Filtra tu búsqueda</span>
+                <span class="section-kicker">Filtra tu busqueda</span>
                 <h2>Encuentra lo que buscas</h2>
-                <p>Filtra por categoría, marca, rango de precio y más.</p>
+                <p>Filtra por categoria, marca, rango de precio y mas.</p>
                 {% include "catalog/partials/filter_form.html" with filter_prefix="desktop-filters" %}
             </div>
         </aside>
@@ -21,10 +212,10 @@
         <div class="catalog-content">
             <header class="catalog-header">
                 <div>
-                    <span class="section-kicker">Catálogo</span>
-                    <h1>Selección 001xclusiv</h1>
+                    <span class="section-kicker">Catalogo</span>
+                    <h1>Seleccion 001xclusiv</h1>
                     <p class="catalog-header__text">
-                        {{ results_count }} resultado{{ results_count|pluralize }} para ti.
+                        {{ results_count }} resultado{{ results_count|pluralize }} para tu busqueda.
                     </p>
                 </div>
 
@@ -45,8 +236,8 @@
                             value="{{ active_filters.min_price }}">{% endif %}
                         {% if active_filters.max_price %}<input type="hidden" name="max_price"
                             value="{{ active_filters.max_price }}">{% endif %}
-                        <label for="catalog-sort" class="visually-hidden">Ordenar productos</label>
-                        <select id="catalog-sort" name="sort" class="catalog-filter-select"
+                        <label for="catalog-sort-filtered" class="visually-hidden">Ordenar productos</label>
+                        <select id="catalog-sort-filtered" name="sort" class="catalog-filter-select"
                             onchange="this.form.submit()">
                             {% for value, label in sort_options %}
                             <option value="{{ value }}" {% if active_filters.sort == value %}selected{% endif %}>{{ label }}</option>
@@ -58,13 +249,13 @@
 
             <div class="catalog-active-filters">
                 {% if active_filters.q %}
-                <span class="catalog-active-chip">Búsqueda: {{ active_filters.q }}</span>
+                <span class="catalog-active-chip">Busqueda: {{ active_filters.q }}</span>
                 {% endif %}
                 {% if active_filters.category %}
-                <span class="catalog-active-chip">Categoría: {{ active_filters.category }}</span>
+                <span class="catalog-active-chip">Categoria: {{ active_filter_labels.category }}</span>
                 {% endif %}
                 {% if active_filters.brand %}
-                <span class="catalog-active-chip">Marca: {{ active_filters.brand }}</span>
+                <span class="catalog-active-chip">Marca: {{ active_filter_labels.brand }}</span>
                 {% endif %}
                 {% if active_filters.min_price or active_filters.max_price %}
                 <span class="catalog-active-chip">Precio: {{ active_filters.min_price|default:"0" }} - {{ active_filters.max_price|default:"max" }}</span>
@@ -93,9 +284,9 @@
                 <div class="catalog-empty-state">
                     <span class="section-kicker">Sin coincidencias</span>
                     <h2>No encontramos productos con esos filtros</h2>
-                    <p>Prueba ampliando el rango de precio o limpiando la búsqueda para volver a explorar la colección
+                    <p>Prueba ampliando el rango de precio o limpiando la busqueda para volver a explorar la coleccion
                         completa.</p>
-                    <a href="{% url 'catalog:list' %}" class="btn-accent">Ver todo el catálogo</a>
+                    <a href="{% url 'catalog:list' %}" class="btn-accent">Ver todo el catalogo</a>
                 </div>
                 {% endfor %}
             </div>
@@ -134,6 +325,7 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
 </section>
 
 <div class="offcanvas offcanvas-end catalog-offcanvas" tabindex="-1" id="catalogFilters"
@@ -141,7 +333,7 @@
     <div class="offcanvas-header">
         <div>
             <span class="section-kicker">Filtros</span>
-            <h2 class="offcanvas-title" id="catalogFiltersLabel">Ajusta tu búsqueda</h2>
+            <h2 class="offcanvas-title" id="catalogFiltersLabel">Ajusta tu busqueda</h2>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
