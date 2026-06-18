@@ -130,11 +130,11 @@ def validate_cart_stock(cart):
         if variant is None:
             continue
         if not variant.is_active:
-            errors.append(f"{product.name} talla {variant.size}: esta talla no esta disponible.")
+            errors.append(f"{product.name} talla {variant.size_display}: esta talla no esta disponible.")
         elif variant.stock <= 0:
-            errors.append(f"{product.name} talla {variant.size}: esta talla esta sin stock.")
+            errors.append(f"{product.name} talla {variant.size_display}: esta talla esta sin stock.")
         elif quantity > variant.stock:
-            errors.append(f"{product.name} talla {variant.size}: solo quedan {variant.stock} unidades disponibles.")
+            errors.append(f"{product.name} talla {variant.size_display}: solo quedan {variant.stock} unidades disponibles.")
     return errors
 
 
@@ -163,7 +163,7 @@ def commit_order_stock(order):
                 item.quantity,
                 variant.stock,
             )
-            raise ValueError(f"Stock insuficiente para {item.product.name} talla {variant.size}.")
+            raise ValueError(f"Stock insuficiente para {item.product.name} talla {variant.size_display}.")
 
     for item in items:
         if item.variant_id:

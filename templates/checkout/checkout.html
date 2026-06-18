@@ -140,7 +140,7 @@
                         <div class="checkout-summary-item__copy">
                             <strong>{{ item.product.name }}</strong>
                             {% if item.variant %}
-                            <span>Talla {{ item.variant.size }}</span>
+                            <span>Talla {{ item.variant.size_display }}</span>
                             {% endif %}
                             <span>{{ item.product.brand.name|default:"Seleccion 001xclusiv" }}</span>
                         </div>

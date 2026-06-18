@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch
 
+from apps.catalog.models import Category, Product, ProductVariant
 from apps.core.models import NewsletterSubscriber
 
 
@@ -9,6 +10,30 @@ class CoreInfoPagesTests(TestCase):
     def test_home_page_loads(self):
         response = self.client.get(reverse("core:home"))
         self.assertEqual(response.status_code, 200)
+
+    def test_home_uses_category_configured_image(self):
+        category = Category.objects.create(
+            name="Clothing",
+            slug="clothing-001xclusiv",
+            image_path="home/ropa.jpg",
+            visual_eyebrow="Clothing edit",
+            is_active=True,
+        )
+        product = Product.objects.create(
+            name="Home Category Product",
+            slug="home-category-product",
+            sku="HOME-CAT-001",
+            price=50000,
+            is_active=True,
+        )
+        product.categories.add(category)
+        ProductVariant.objects.create(product=product, size="M", stock=1, is_active=True)
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "/static/home/ropa.jpg")
+        self.assertContains(response, "Clothing edit")
 
     def test_faq_page_loads(self):
         response = self.client.get(reverse("core:info_page", args=["faq"]))

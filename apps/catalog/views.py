@@ -52,6 +52,7 @@ CATALOG_CATEGORY_LABELS = {
     "accesories-xclusiv": "Accesories",
     "bags-001xclusiv": "Bags",
     "clothing-001xclusiv": "Clothing",
+    "hoodies--001xclusiv": "Hoodies",
     "hoodies-001xclusiv": "Hoodies",
     "jackets-001xclusiv": "Jackets",
     "outerwear-001xclusiv": "Outerwear",
@@ -197,9 +198,9 @@ def build_catalog_story_tiles(categories, brands):
                 "name": category.name,
                 "slug": category.slug,
                 "url": f"?category={category.slug}",
-                "image_url": representative.primary_image_url if representative else "",
+                "image_url": category.visual_image_url or (representative.primary_image_url if representative else ""),
                 "product_count": category_products.count(),
-                "eyebrow": "Categoria",
+                "eyebrow": category.visual_eyebrow or "Categoria",
             }
         )
 
@@ -241,7 +242,10 @@ def product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
         image_formset = ProductImageFormSet(request.POST, request.FILES)
-        variant_formset = ProductVariantFormSet(request.POST)
+        variant_formset = ProductVariantFormSet(
+            request.POST,
+            product_categories=request.POST.getlist("categories"),
+        )
         
         if form.is_valid() and image_formset.is_valid() and variant_formset.is_valid():
             with transaction.atomic():

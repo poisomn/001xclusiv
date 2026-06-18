@@ -59,7 +59,7 @@
                         <strong>{{ item.product.name }}</strong>
                         <p>
                             Cantidad: {{ item.quantity }}
-                            {% if item.variant %} | Talla: {{ item.variant.size }}{% endif %}
+                            {% if item.variant %} | Talla: {{ item.variant.size_display }}{% endif %}
                         </p>
                     </div>
                     <div class="text-end">

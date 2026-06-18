@@ -9,7 +9,7 @@
             <div>
                 <span class="bo-kicker">Edicion</span>
                 <h2>{{ title }}</h2>
-                <p>Actualiza nombre, slug y visibilidad.</p>
+                <p>Actualiza los datos de administracion.</p>
             </div>
             <a href="{% url 'accounts:backoffice_taxonomy' %}" class="bo-button bo-button--secondary">
                 <i class="bi bi-arrow-left"></i>
@@ -19,20 +19,21 @@
 
         <form method="post" class="bo-form-stack">
             {% csrf_token %}
-            <div class="bo-field">
-                <label for="{{ form.name.id_for_label }}">Nombre</label>
-                {{ form.name }}
-                {{ form.name.errors }}
-            </div>
-            <div class="bo-field">
-                <label for="{{ form.slug.id_for_label }}">Slug</label>
-                {{ form.slug }}
-                {{ form.slug.errors }}
-            </div>
-            <label class="bo-check">
-                {{ form.is_active }}
-                <span>{{ object_label|capfirst }} activa</span>
-            </label>
+            {% for field in form.visible_fields %}
+                {% if field.field.widget.input_type == "checkbox" %}
+                <label class="bo-check">
+                    {{ field }}
+                    <span>{{ field.label }}</span>
+                </label>
+                {{ field.errors }}
+                {% else %}
+                <div class="bo-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            {% endfor %}
             <button type="submit" class="bo-button bo-button--primary">
                 <i class="bi bi-check2"></i>
                 Guardar {{ object_label }}

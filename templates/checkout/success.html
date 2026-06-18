@@ -88,7 +88,7 @@
                         <p>
                             Cantidad: {{ item.quantity|default:"1" }}
                             {% if item.variant %}
-                            | Talla: {{ item.variant.size|default:"-" }}
+                            | Talla: {{ item.variant.size_display|default:"-" }}
                             {% endif %}
                         </p>
                     </div>

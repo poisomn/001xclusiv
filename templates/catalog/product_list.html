@@ -89,19 +89,25 @@
                 </p>
             </div>
 
-            <div class="catalog-story-grid catalog-story-grid--categories">
+            <div class="catalog-category-immersion">
                 {% for tile in category_tiles %}
-                <a href="{{ tile.url }}" class="catalog-story-card">
+                <a href="{{ tile.url }}" class="catalog-category-panel {% if forloop.first %}catalog-category-panel--lead{% endif %}">
                     {% if tile.image_url %}
-                    <span class="catalog-story-card__media">
-                        <span class="catalog-story-card__image"
+                    <span class="catalog-category-panel__media">
+                        <span class="catalog-category-panel__image"
                             style="background-image: url('{{ tile.image_url }}');" aria-hidden="true"></span>
                     </span>
                     {% endif %}
-                    <div class="catalog-story-card__content">
-                        <span class="catalog-story-card__eyebrow">{{ tile.eyebrow }}</span>
+                    <span class="catalog-category-panel__shade" aria-hidden="true"></span>
+                    <span class="catalog-category-panel__index">0{{ forloop.counter }}</span>
+                    <div class="catalog-category-panel__content">
+                        <span class="catalog-category-panel__eyebrow">{{ tile.eyebrow }}</span>
                         <h3>{{ tile.name }}</h3>
                         <p>{{ tile.product_count }} producto{{ tile.product_count|pluralize }} disponible{{ tile.product_count|pluralize }}</p>
+                        <span class="catalog-category-panel__cta">
+                            Explorar
+                            <i class="bi bi-arrow-up-right"></i>
+                        </span>
                     </div>
                 </a>
                 {% endfor %}

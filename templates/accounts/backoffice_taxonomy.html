@@ -34,6 +34,31 @@
                     {{ category_form.slug }}
                     {{ category_form.slug.errors }}
                 </div>
+                <div class="bo-field">
+                    <label for="{{ category_form.image_url.id_for_label }}">Imagen URL</label>
+                    {{ category_form.image_url }}
+                    {{ category_form.image_url.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ category_form.image_path.id_for_label }}">Imagen static</label>
+                    {{ category_form.image_path }}
+                    {{ category_form.image_path.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ category_form.visual_eyebrow.id_for_label }}">Etiqueta visual</label>
+                    {{ category_form.visual_eyebrow }}
+                    {{ category_form.visual_eyebrow.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ category_form.image_alt_text.id_for_label }}">Texto alternativo</label>
+                    {{ category_form.image_alt_text }}
+                    {{ category_form.image_alt_text.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ category_form.size_options.id_for_label }}">Tallas disponibles</label>
+                    {{ category_form.size_options }}
+                    {{ category_form.size_options.errors }}
+                </div>
                 <label class="bo-check">
                     {{ category_form.is_active }}
                     <span>Activa</span>
@@ -82,6 +107,102 @@
         <article class="bo-card">
             <div class="bo-card__header">
                 <div>
+                    <span class="bo-kicker">Tallas</span>
+                    <h2>Crear nueva talla</h2>
+                    <p>Define opciones reutilizables para asignarlas a categorias.</p>
+                </div>
+            </div>
+            <form method="post" class="bo-form-stack">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="size">
+                <div class="bo-field">
+                    <label for="{{ size_form.name.id_for_label }}">Nombre visible</label>
+                    {{ size_form.name }}
+                    {{ size_form.name.errors }}
+                </div>
+                <div class="bo-field">
+                    <label for="{{ size_form.code.id_for_label }}">Codigo</label>
+                    {{ size_form.code }}
+                    {{ size_form.code.errors }}
+                </div>
+                <div class="bo-form-grid">
+                    <div class="bo-field">
+                        <label for="{{ size_form.size_type.id_for_label }}">Tipo</label>
+                        {{ size_form.size_type }}
+                        {{ size_form.size_type.errors }}
+                    </div>
+                    <div class="bo-field">
+                        <label for="{{ size_form.ordering.id_for_label }}">Orden</label>
+                        {{ size_form.ordering }}
+                        {{ size_form.ordering.errors }}
+                    </div>
+                </div>
+                <label class="bo-check">
+                    {{ size_form.is_active }}
+                    <span>Activa</span>
+                </label>
+                <button type="submit" class="bo-button bo-button--primary">
+                    <i class="bi bi-plus-lg"></i>
+                    Crear talla
+                </button>
+            </form>
+        </article>
+
+        <article class="bo-card">
+            <div class="bo-card__header">
+                <div>
+                    <span class="bo-kicker">Listado</span>
+                    <h2>Tallas existentes</h2>
+                </div>
+            </div>
+            <div class="bo-table-wrap">
+                <table class="bo-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Codigo</th>
+                            <th>Tipo</th>
+                            <th>Orden</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for size in size_options %}
+                        <tr>
+                            <td><strong>{{ size.name }}</strong></td>
+                            <td>{{ size.code }}</td>
+                            <td>{{ size.get_size_type_display }}</td>
+                            <td>{{ size.ordering }}</td>
+                            <td>
+                                <span class="bo-badge {% if not size.is_active %}bo-badge--muted{% endif %}">
+                                    {% if size.is_active %}Activa{% else %}Inactiva{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="bo-table-actions">
+                                    <a href="{% url 'accounts:backoffice_size_edit' size.id %}" class="bo-button bo-button--secondary bo-button--sm">
+                                        <i class="bi bi-pencil-square"></i>
+                                        Editar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6"><div class="bo-empty">Aun no hay tallas creadas.</div></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </div>
+
+    <div class="bo-grid bo-grid--split">
+        <article class="bo-card">
+            <div class="bo-card__header">
+                <div>
                     <span class="bo-kicker">Listado</span>
                     <h2>Categorias existentes</h2>
                 </div>
@@ -90,8 +211,10 @@
                 <table class="bo-table">
                     <thead>
                         <tr>
+                            <th>Imagen</th>
                             <th>Nombre</th>
                             <th>Slug</th>
+                            <th>Tallas</th>
                             <th>Estado</th>
                             <th class="text-end">Acciones</th>
                         </tr>
@@ -99,8 +222,22 @@
                     <tbody>
                         {% for category in categories %}
                         <tr>
+                            <td>
+                                {% if category.visual_image_url %}
+                                <img src="{{ category.visual_image_url }}" alt="{{ category.visual_alt_text }}" class="bo-product-thumb">
+                                {% else %}
+                                <span class="bo-badge bo-badge--muted">Sin imagen</span>
+                                {% endif %}
+                            </td>
                             <td><strong>{{ category.name }}</strong></td>
                             <td>{{ category.slug }}</td>
+                            <td>
+                                {% for size in category.size_options.all|slice:":5" %}
+                                <span class="bo-badge">{{ size.name }}</span>
+                                {% empty %}
+                                <span class="bo-badge bo-badge--muted">Sin tallas</span>
+                                {% endfor %}
+                            </td>
                             <td>
                                 <span class="bo-badge {% if not category.is_active %}bo-badge--muted{% endif %}">
                                     {% if category.is_active %}Activa{% else %}Inactiva{% endif %}
@@ -117,7 +254,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4"><div class="bo-empty">Aun no hay categorias creadas.</div></td>
+                            <td colspan="6"><div class="bo-empty">Aun no hay categorias creadas.</div></td>
                         </tr>
                         {% endfor %}
                     </tbody>

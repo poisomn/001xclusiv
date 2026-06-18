@@ -119,12 +119,12 @@
                             <input type="radio" class="btn-check" name="variant" id="size-{{ variant.id }}"
                                 value="{{ variant.id }}" autocomplete="off" required {% if forloop.first %}checked{% endif %}>
                             <label class="product-variant-tile" for="size-{{ variant.id }}">
-                                <span>{{ variant.size }}</span>
+                                <span>{{ variant.size_display }}</span>
                                 <small>{{ variant.stock }} disp.</small>
                             </label>
                             {% else %}
                             <button type="button" class="product-variant-tile is-disabled" disabled>
-                                <span>{{ variant.size }}</span>
+                                <span>{{ variant.size_display }}</span>
                                 <small>Agotado</small>
                             </button>
                             {% endif %}

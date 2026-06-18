@@ -21,7 +21,7 @@ def _serialize_cart(cart):
                 "product_name": item["product"].name,
                 "product_slug": item["product"].slug,
                 "product_image": item["product"].primary_image_url,
-                "variant": item["variant"].size if item["variant"] else None,
+                "variant": item["variant"].size_display if item["variant"] else None,
                 "variant_id": item["variant"].id if item["variant"] else None,
                 "quantity": item["quantity"],
                 "price": float(item["price"]),
@@ -132,7 +132,7 @@ def cart_add(request, product_id):
             'product_name': product.name,
             'product_image': product.primary_image_url,
             'price': float(product.discount_price if product.discount_price else product.price),
-            'variant': variant.size if variant else None,
+            'variant': variant.size_display if variant else None,
             'quantity': quantity,
             **cart_data,
         })

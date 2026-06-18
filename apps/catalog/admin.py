@@ -3,7 +3,8 @@ from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Brand, Category, Product, ProductImage, ProductVariant
+from .forms import ProductVariantForm
+from .models import Brand, Category, Product, ProductImage, ProductVariant, SizeOption
 
 
 class ProductImageInline(admin.TabularInline):
@@ -14,6 +15,7 @@ class ProductImageInline(admin.TabularInline):
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
+    form = ProductVariantForm
     extra = 1
     fields = ("size", "stock", "is_active")
 
@@ -140,11 +142,40 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "is_active")
+    list_display = ("name", "slug", "category_preview", "size_summary", "is_active")
     list_filter = ("is_active",)
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
     list_editable = ("is_active",)
+    filter_horizontal = ("size_options",)
+    fields = (
+        "name",
+        "slug",
+        "image_url",
+        "image_path",
+        "image_alt_text",
+        "visual_eyebrow",
+        "size_options",
+        "is_active",
+    )
+
+    @admin.display(description="Imagen")
+    def category_preview(self, obj):
+        if not obj.visual_image_url:
+            return "Sin imagen"
+        return format_html(
+            '<img src="{}" alt="{}" style="width:52px;height:52px;object-fit:cover;border-radius:12px;border:1px solid rgba(17,17,17,.08);" />',
+            obj.visual_image_url,
+            obj.visual_alt_text,
+        )
+
+    @admin.display(description="Tallas")
+    def size_summary(self, obj):
+        names = list(obj.size_options.order_by("ordering", "name").values_list("name", flat=True)[:5])
+        if not names:
+            return "Sin tallas"
+        suffix = "..." if obj.size_options.count() > len(names) else ""
+        return ", ".join(names) + suffix
 
 
 @admin.register(Brand)
@@ -154,6 +185,15 @@ class BrandAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
     list_editable = ("is_active",)
+
+
+@admin.register(SizeOption)
+class SizeOptionAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "size_type", "ordering", "is_active")
+    list_filter = ("is_active", "size_type")
+    search_fields = ("name", "code")
+    list_editable = ("ordering", "is_active")
+    ordering = ("size_type", "ordering", "name")
 
 
 @admin.register(ProductImage)
@@ -174,7 +214,12 @@ class ProductImageAdmin(admin.ModelAdmin):
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    list_display = ("product", "size", "stock", "is_active")
+    form = ProductVariantForm
+    list_display = ("product", "size_display", "stock", "is_active")
     list_filter = ("is_active", "size")
     search_fields = ("product__name",)
     list_editable = ("stock", "is_active")
+
+    @admin.display(description="Talla", ordering="size")
+    def size_display(self, obj):
+        return obj.size_display

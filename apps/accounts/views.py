@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from apps.catalog.forms import ProductForm, ProductImageFormSet, ProductVariantFormSet
 from apps.cart.models import PromotionCode
-from apps.catalog.models import Brand, Category, Product
+from apps.catalog.models import Brand, Category, Product, SizeOption
 from apps.core.models import CommunityImage
 from apps.notifications.services import send_welcome_email
 from apps.orders.models import Order
@@ -28,6 +28,7 @@ from .forms import (
     CommunityImageForm,
     OrderManagementForm,
     PromotionCodeForm,
+    SizeOptionManagementForm,
     UserRegistrationForm,
 )
 
@@ -296,14 +297,25 @@ class BackofficeProductFormView(StaffRequiredMixin, View):
 
     def build_forms(self, request, product=None):
         product_instance = product or Product()
+        product_categories = None
         if request.method == "POST":
+            product_categories = request.POST.getlist("categories")
             form = ProductForm(request.POST, instance=product_instance)
             image_formset = ProductImageFormSet(request.POST, request.FILES, instance=product_instance)
-            variant_formset = ProductVariantFormSet(request.POST, instance=product_instance)
+            variant_formset = ProductVariantFormSet(
+                request.POST,
+                instance=product_instance,
+                product_categories=product_categories,
+            )
         else:
+            if product_instance.pk:
+                product_categories = list(product_instance.categories.values_list("id", flat=True))
             form = ProductForm(instance=product_instance)
             image_formset = ProductImageFormSet(instance=product_instance)
-            variant_formset = ProductVariantFormSet(instance=product_instance)
+            variant_formset = ProductVariantFormSet(
+                instance=product_instance,
+                product_categories=product_categories,
+            )
         return form, image_formset, variant_formset
 
     def render_form(self, request, form, image_formset, variant_formset, product=None):
@@ -370,7 +382,11 @@ def backoffice_product_autosave(request):
         data = normalize_product_autosave_data(request.POST, product)
         form = ProductForm(data, instance=product)
         image_formset = ProductImageFormSet(data, request.FILES, instance=product)
-        variant_formset = ProductVariantFormSet(data, instance=product)
+        variant_formset = ProductVariantFormSet(
+            data,
+            instance=product,
+            product_categories=data.getlist("categories"),
+        )
 
         form_valid = form.is_valid()
         image_formset_valid = image_formset.is_valid()
@@ -668,8 +684,10 @@ class BackofficeTaxonomyView(StaffRequiredMixin, View):
             **build_backoffice_context("taxonomy"),
             "category_form": CategoryManagementForm(prefix="category"),
             "brand_form": BrandManagementForm(prefix="brand"),
+            "size_form": SizeOptionManagementForm(prefix="size"),
             "categories": Category.objects.order_by("name"),
             "brands": Brand.objects.order_by("name"),
+            "size_options": SizeOption.objects.order_by("size_type", "ordering", "name"),
         }
         return render(request, "accounts/backoffice_taxonomy.html", context)
 
@@ -677,6 +695,7 @@ class BackofficeTaxonomyView(StaffRequiredMixin, View):
         form_type = request.POST.get("form_type")
         category_form = CategoryManagementForm(prefix="category")
         brand_form = BrandManagementForm(prefix="brand")
+        size_form = SizeOptionManagementForm(prefix="size")
 
         if form_type == "category":
             category_form = CategoryManagementForm(request.POST, prefix="category")
@@ -690,13 +709,21 @@ class BackofficeTaxonomyView(StaffRequiredMixin, View):
                 brand_form.save()
                 messages.success(request, "Marca creada correctamente.")
                 return redirect("accounts:backoffice_taxonomy")
+        elif form_type == "size":
+            size_form = SizeOptionManagementForm(request.POST, prefix="size")
+            if size_form.is_valid():
+                size_form.save()
+                messages.success(request, "Talla creada correctamente.")
+                return redirect("accounts:backoffice_taxonomy")
 
         context = {
             **build_backoffice_context("taxonomy"),
             "category_form": category_form,
             "brand_form": brand_form,
+            "size_form": size_form,
             "categories": Category.objects.order_by("name"),
             "brands": Brand.objects.order_by("name"),
+            "size_options": SizeOption.objects.order_by("size_type", "ordering", "name"),
         }
         return render(request, "accounts/backoffice_taxonomy.html", context)
 
@@ -753,6 +780,34 @@ class BackofficeBrandEditView(StaffRequiredMixin, View):
             "form": form,
             "object_label": "marca",
             "title": f"Editar marca: {brand.name}",
+        }
+        return render(request, "accounts/backoffice_taxonomy_form.html", context)
+
+
+class BackofficeSizeOptionEditView(StaffRequiredMixin, View):
+    def get(self, request, size_id):
+        size_option = get_object_or_404(SizeOption, id=size_id)
+        form = SizeOptionManagementForm(instance=size_option)
+        context = {
+            **build_backoffice_context("taxonomy"),
+            "form": form,
+            "object_label": "talla",
+            "title": f"Editar talla: {size_option.name}",
+        }
+        return render(request, "accounts/backoffice_taxonomy_form.html", context)
+
+    def post(self, request, size_id):
+        size_option = get_object_or_404(SizeOption, id=size_id)
+        form = SizeOptionManagementForm(request.POST, instance=size_option)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Talla actualizada.")
+            return redirect("accounts:backoffice_taxonomy")
+        context = {
+            **build_backoffice_context("taxonomy"),
+            "form": form,
+            "object_label": "talla",
+            "title": f"Editar talla: {size_option.name}",
         }
         return render(request, "accounts/backoffice_taxonomy_form.html", context)
 

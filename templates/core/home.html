@@ -310,7 +310,7 @@
             {% for item in featured_categories %}
             <a href="{% url 'catalog:list' %}?category={{ item.category.slug }}" class="category-showcase__card">
                 <div class="parallax-shell">
-                    <img src="{% static item.image %}" alt="{{ item.category.name }}" class="parallax-image">
+                    <img src="{{ item.image_url }}" alt="{{ item.category.visual_alt_text }}" class="parallax-image">
                 </div>
                 <div class="category-showcase__overlay"></div>
                 <div class="category-showcase__content">

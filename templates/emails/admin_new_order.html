@@ -27,7 +27,7 @@
                 {% for item in order.items.all %}
                 <tr>
                   <td style="padding:14px 0;border-bottom:1px solid #e5e5e5;">
-                    <strong>{{ item.product.name }}</strong>{% if item.variant %}<br><span style="color:#777;font-size:13px;">Talla {{ item.variant.size }}</span>{% endif %}
+                    <strong>{{ item.product.name }}</strong>{% if item.variant %}<br><span style="color:#777;font-size:13px;">Talla {{ item.variant.size_display }}</span>{% endif %}
                   </td>
                   <td align="center" style="padding:14px 8px;border-bottom:1px solid #e5e5e5;color:#555;">x{{ item.quantity }}</td>
                   <td align="right" style="padding:14px 0;border-bottom:1px solid #e5e5e5;">${{ item.get_cost }} CLP</td>

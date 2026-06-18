@@ -71,7 +71,7 @@
                             <a href="{{ item.product.get_absolute_url }}" target="_blank" rel="noopener" style="text-decoration: none; color: inherit;">
                                 <strong>{{ item.product.name }}</strong>
                             </a>
-                            <p>Cantidad: {{ item.quantity }}{% if item.variant %} - Talla {{ item.variant.size }}{% endif %}</p>
+                            <p>Cantidad: {{ item.quantity }}{% if item.variant %} - Talla {{ item.variant.size_display }}{% endif %}</p>
                         </div>
                     </div>
                     <div class="text-end">

@@ -13,6 +13,46 @@ from apps.notifications.services import send_newsletter_discount_email
 
 
 CATEGORY_VISUALS = {
+    "accesories-xclusiv": {
+        "image": "home/airmutblackhome.jpg",
+        "eyebrow": "Detalles xclusiv",
+    },
+    "bags-001xclusiv": {
+        "image": "home/20251204_072107000_iOS.jpg",
+        "eyebrow": "Carry pieces",
+    },
+    "clothing-001xclusiv": {
+        "image": "home/ropa.jpg",
+        "eyebrow": "Clothing edit",
+    },
+    "hoodies--001xclusiv": {
+        "image": "home/hombreCate.jpg",
+        "eyebrow": "Hoodies",
+    },
+    "hoodies-001xclusiv": {
+        "image": "home/hombreCate.jpg",
+        "eyebrow": "Hoodies",
+    },
+    "jackets-001xclusiv": {
+        "image": "home/retro4bcathome.jpg",
+        "eyebrow": "Outer layers",
+    },
+    "outerwear-001xclusiv": {
+        "image": "home/airforcehome.jpg",
+        "eyebrow": "Outerwear",
+    },
+    "pants-001xclusiv": {
+        "image": "home/mujerCate.jpg",
+        "eyebrow": "Pants",
+    },
+    "sneakers-xclusiv": {
+        "image": "home/airmutblackhome2.png",
+        "eyebrow": "Sneakers",
+    },
+    "t-shirts-001xclusiv": {
+        "image": "home/airforcelv8black.jpg",
+        "eyebrow": "T-Shirts",
+    },
     "hombre": {
         "image": "home/hombreCate.jpg",
         "eyebrow": "Para los sangres",
@@ -311,13 +351,19 @@ def _category_visual(category):
         or CATEGORY_VISUALS.get(category.name.strip().lower())
         or {}
     )
-    image = visual.get("image", HOME_CATEGORY_FALLBACK)
-    if not _static_asset_exists(image):
-        image = HOME_CATEGORY_FALLBACK
+    image_url = category.image_url.strip() if category.image_url else ""
+    image_path = category.image_path.strip() if category.image_path else ""
+    if not image_url and image_path and _static_asset_exists(image_path):
+        image_url = _home_static_url(image_path)
+    if not image_url:
+        image = visual.get("image", HOME_CATEGORY_FALLBACK)
+        if not _static_asset_exists(image):
+            image = HOME_CATEGORY_FALLBACK
+        image_url = _home_static_url(image)
     return {
         "category": category,
-        "image": image,
-        "eyebrow": visual.get("eyebrow", "Curado para ti"),
+        "image_url": image_url,
+        "eyebrow": category.visual_eyebrow or visual.get("eyebrow", "Curado para ti"),
     }
 
 

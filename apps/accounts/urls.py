@@ -60,6 +60,7 @@ urlpatterns = [
     path('backoffice/taxonomy/', views.BackofficeTaxonomyView.as_view(), name='backoffice_taxonomy'),
     path('backoffice/categories/<int:category_id>/edit/', views.BackofficeCategoryEditView.as_view(), name='backoffice_category_edit'),
     path('backoffice/brands/<int:brand_id>/edit/', views.BackofficeBrandEditView.as_view(), name='backoffice_brand_edit'),
+    path('backoffice/sizes/<int:size_id>/edit/', views.BackofficeSizeOptionEditView.as_view(), name='backoffice_size_edit'),
     path('backoffice/users/', views.BackofficeUserListView.as_view(), name='backoffice_users'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('orders/', views.ProfileView.as_view(), name='my_orders'),

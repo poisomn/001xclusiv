@@ -31,7 +31,7 @@
                                 <a href="{% url 'catalog:detail' item.product.slug %}">{{ item.product.name }}</a>
                             </h2>
                             {% if item.variant %}
-                            <p class="cart-item__variant">Talla seleccionada: {{ item.variant.size }}</p>
+                            <p class="cart-item__variant">Talla seleccionada: {{ item.variant.size_display }}</p>
                             <p class="text-muted small mb-0">Stock disponible: {{ item.variant.stock }}</p>
                             {% endif %}
                         </div>

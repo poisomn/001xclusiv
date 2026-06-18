@@ -16,6 +16,21 @@ class TimeStampedModel(models.Model):
 class Category(TimeStampedModel):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True)
+    image_url = models.URLField("Imagen categoria URL", blank=True)
+    image_path = models.CharField(
+        "Imagen categoria static",
+        max_length=255,
+        blank=True,
+        help_text="Ruta dentro de static, por ejemplo home/ropa.jpg.",
+    )
+    image_alt_text = models.CharField("Texto alternativo", max_length=160, blank=True)
+    visual_eyebrow = models.CharField("Etiqueta visual", max_length=80, blank=True)
+    size_options = models.ManyToManyField(
+        "SizeOption",
+        related_name="categories",
+        blank=True,
+        verbose_name="Tallas disponibles",
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -25,6 +40,18 @@ class Category(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def visual_image_url(self):
+        if self.image_url:
+            return self.image_url
+        if self.image_path:
+            return f"{settings.STATIC_URL}{self.image_path.lstrip('/')}"
+        return ""
+
+    @property
+    def visual_alt_text(self):
+        return self.image_alt_text or self.name
 
 
 class Brand(TimeStampedModel):
@@ -163,24 +190,37 @@ class ProductImage(TimeStampedModel):
         return SimpleNamespace(url=self.display_url)
 
 
-SHOE_SIZE_CHOICES = [
-    ("36", "36"),
-    ("37", "37"),
-    ("38", "38"),
-    ("39", "39"),
-    ("40", "40"),
-    ("41", "41"),
-    ("42", "42"),
-    ("43", "43"),
-    ("44", "44"),
-    ("45", "45"),
-    ("46", "46"),
-]
+class SizeOption(TimeStampedModel):
+    TYPE_CLOTHING = "clothing"
+    TYPE_SHOES = "shoes"
+    TYPE_ACCESSORY = "accessory"
+    TYPE_OTHER = "other"
+
+    SIZE_TYPE_CHOICES = [
+        (TYPE_CLOTHING, "Ropa"),
+        (TYPE_SHOES, "Calzado"),
+        (TYPE_ACCESSORY, "Accesorio"),
+        (TYPE_OTHER, "Otro"),
+    ]
+
+    name = models.CharField("Nombre visible", max_length=40)
+    code = models.CharField("Codigo", max_length=20, unique=True)
+    size_type = models.CharField("Tipo", max_length=20, choices=SIZE_TYPE_CHOICES, default=TYPE_OTHER)
+    ordering = models.PositiveIntegerField("Orden", default=0)
+    is_active = models.BooleanField("Activa", default=True)
+
+    class Meta:
+        verbose_name = "Talla"
+        verbose_name_plural = "Tallas"
+        ordering = ["size_type", "ordering", "name"]
+
+    def __str__(self):
+        return self.name
 
 
 class ProductVariant(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
-    size = models.CharField("Talla", max_length=5, choices=SHOE_SIZE_CHOICES)
+    size = models.CharField("Talla", max_length=20)
     stock = models.PositiveIntegerField("Stock", default=0)
     is_active = models.BooleanField("Disponible", default=True)
 
@@ -191,7 +231,14 @@ class ProductVariant(TimeStampedModel):
         ordering = ["product", "size"]
 
     def __str__(self):
-        return f"{self.product.name} - Talla {self.size}"
+        return f"{self.product.name} - Talla {self.size_display}"
+
+    @property
+    def size_display(self):
+        if not self.size:
+            return ""
+        option = SizeOption.objects.filter(code=self.size).only("name").first()
+        return option.name if option else self.size
 
 
 class Wishlist(TimeStampedModel):

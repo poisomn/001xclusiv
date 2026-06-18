@@ -69,7 +69,7 @@
                 <div class="account-order-card__item">
                     <span>{{ item.quantity }}x {{ item.product.name }}</span>
                     {% if item.variant %}
-                    <small>Talla {{ item.variant.size }}</small>
+                    <small>Talla {{ item.variant.size_display }}</small>
                     {% endif %}
                 </div>
                 {% endfor %}

@@ -142,7 +142,7 @@
                         class="mini-cart-item__image">
                     <div class="mini-cart-item__copy">
                         <strong>{{ item.product.name }}</strong>
-                        {% if item.variant %}<span>Talla {{ item.variant.size }}</span>{% endif %}
+                        {% if item.variant %}<span>Talla {{ item.variant.size_display }}</span>{% endif %}
                         <span>{{ item.quantity }} x ${{ item.price }} CLP</span>
                     </div>
                 </article>

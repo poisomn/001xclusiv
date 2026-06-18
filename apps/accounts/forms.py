@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.html import escape
 
-from apps.catalog.models import Brand, Category
+from apps.catalog.models import Brand, Category, SizeOption
 from apps.cart.models import PromotionCode
 from apps.core.models import CommunityImage
 from apps.notifications.gmail_service import gmail_credentials_available, send_gmail_message
@@ -64,12 +64,30 @@ class GmailPasswordResetForm(PasswordResetForm):
 class CategoryManagementForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ["name", "slug", "is_active"]
+        fields = [
+            "name",
+            "slug",
+            "image_url",
+            "image_path",
+            "image_alt_text",
+            "visual_eyebrow",
+            "size_options",
+            "is_active",
+        ]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej. Jordan"}),
             "slug": forms.TextInput(attrs={"class": "form-control", "placeholder": "jordan"}),
+            "image_url": forms.URLInput(attrs={"class": "form-control", "placeholder": "https://..."}),
+            "image_path": forms.TextInput(attrs={"class": "form-control", "placeholder": "home/ropa.jpg"}),
+            "image_alt_text": forms.TextInput(attrs={"class": "form-control", "placeholder": "Imagen de categoria"}),
+            "visual_eyebrow": forms.TextInput(attrs={"class": "form-control", "placeholder": "Curado para ti"}),
+            "size_options": forms.SelectMultiple(attrs={"class": "form-select"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["size_options"].queryset = SizeOption.objects.order_by("size_type", "ordering", "name")
 
 
 class BrandManagementForm(forms.ModelForm):
@@ -81,6 +99,23 @@ class BrandManagementForm(forms.ModelForm):
             "slug": forms.TextInput(attrs={"class": "form-control", "placeholder": "nike"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+
+class SizeOptionManagementForm(forms.ModelForm):
+    class Meta:
+        model = SizeOption
+        fields = ["name", "code", "size_type", "ordering", "is_active"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej. XS, 42, One Size"}),
+            "code": forms.TextInput(attrs={"class": "form-control", "placeholder": "XS, 42, ONE_SIZE"}),
+            "size_type": forms.Select(attrs={"class": "form-select"}),
+            "ordering": forms.NumberInput(attrs={"class": "form-control", "min": 0}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def clean_code(self):
+        value = self.cleaned_data["code"]
+        return "_".join(value.strip().upper().split())
 
 
 class OrderManagementForm(forms.ModelForm):
