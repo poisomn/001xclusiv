@@ -102,6 +102,20 @@
     /* === LAYOUT === */
     --container-max-width: 1280px;
     --grid-gap: var(--space-6);
+
+    /* === 001XCLUSIV PREMIUM UI === */
+    --x-bg: #f7f7f4;
+    --x-surface: #ffffff;
+    --x-surface-muted: #f1f0ec;
+    --x-text: #111111;
+    --x-muted: #626262;
+    --x-line: rgba(17, 17, 17, 0.1);
+    --x-line-strong: rgba(17, 17, 17, 0.18);
+    --x-shadow-premium: 0 18px 45px rgba(17, 17, 17, 0.08);
+    --x-shadow-soft: 0 10px 24px rgba(17, 17, 17, 0.06);
+    --x-radius: 8px;
+    --x-radius-lg: 14px;
+    --x-section: clamp(3rem, 7vw, 6rem);
 }
 
 /* ============================================
@@ -117,7 +131,7 @@ h6 {
     font-family: var(--font-primary);
     font-weight: var(--font-weight-bold);
     line-height: var(--line-height-tight);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     margin: 0;
     color: var(--black);
 }
@@ -151,6 +165,57 @@ p {
     line-height: var(--line-height-normal);
     margin: 0;
     color: var(--black);
+}
+
+.x-card {
+    background: var(--x-surface);
+    border: 1px solid var(--x-line);
+    border-radius: var(--x-radius);
+    box-shadow: var(--x-shadow-soft);
+}
+
+.x-input,
+.x-select,
+.x-textarea {
+    width: 100%;
+    border: 1px solid var(--x-line);
+    border-radius: var(--x-radius);
+    background: var(--x-surface);
+    color: var(--x-text);
+    min-height: 48px;
+    padding: 0.85rem 1rem;
+    transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+}
+
+.x-input:focus,
+.x-select:focus,
+.x-textarea:focus {
+    border-color: var(--x-text);
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.08);
+    outline: none;
+}
+
+.x-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--x-line);
+    border-radius: var(--radius-full);
+    color: var(--x-text);
+    background: var(--x-surface);
+    padding: 0.45rem 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--x-text);
+    outline-offset: 3px;
 }
 
 .text-uppercase-spaced {

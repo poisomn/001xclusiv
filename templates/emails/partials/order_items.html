@@ -1,0 +1,40 @@
+<h2 style="margin:0 0 12px;color:#111111;font-size:18px;line-height:1.2;">Productos</h2>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border-top:1px solid #e5e5e5;margin:0 0 18px;">
+  {% for item in order.items.all %}
+  <tr>
+    <td style="padding:14px 0;border-bottom:1px solid #e5e5e5;">
+      <strong style="font-size:14px;color:#111111;">{{ item.product.name }}</strong>
+      {% if item.variant %}
+      <br><span style="color:#777777;font-size:13px;">Talla {{ item.variant.size_display }}</span>
+      {% endif %}
+    </td>
+    <td align="center" style="padding:14px 8px;border-bottom:1px solid #e5e5e5;color:#555555;font-size:14px;">x{{ item.quantity }}</td>
+    <td align="right" style="padding:14px 0;border-bottom:1px solid #e5e5e5;font-size:14px;">${{ item.get_cost }} CLP</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 26px;border-collapse:collapse;">
+  <tr>
+    <td style="padding:5px 0;color:#777777;font-size:14px;">Subtotal</td>
+    <td align="right" style="padding:5px 0;font-size:14px;">${{ order.subtotal_amount|default:order.get_total_cost }} CLP</td>
+  </tr>
+  {% if order.discount_amount %}
+  <tr>
+    <td style="padding:5px 0;color:#777777;font-size:14px;">Descuento {% if order.promo_code %}{{ order.promo_code }}{% endif %}</td>
+    <td align="right" style="padding:5px 0;font-size:14px;">-${{ order.discount_amount }} CLP</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <td style="padding:5px 0;color:#777777;font-size:14px;">Neto</td>
+    <td align="right" style="padding:5px 0;font-size:14px;">${{ order.get_net_amount }} CLP</td>
+  </tr>
+  <tr>
+    <td style="padding:5px 0;color:#777777;font-size:14px;">IVA 19% incluido</td>
+    <td align="right" style="padding:5px 0;font-size:14px;">${{ order.get_tax_amount }} CLP</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 0 0;font-size:18px;font-weight:800;color:#111111;">{{ total_label|default:"Total" }}</td>
+    <td align="right" style="padding:10px 0 0;font-size:18px;font-weight:800;color:#111111;">${{ order.get_total_cost }} CLP</td>
+  </tr>
+</table>

@@ -17,14 +17,28 @@ logger = logging.getLogger(__name__)
 
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={"class": "form-control auth-input"}))
 
     class Meta:
         model = User
         fields = ['username', 'email']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'username': forms.TextInput(attrs={"class": "form-control auth-input"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        autocomplete = {
+            "username": "username",
+            "email": "email",
+            "password1": "new-password",
+            "password2": "new-password",
+        }
+        for field_name, field in self.fields.items():
+            css_class = field.widget.attrs.get("class", "")
+            if "auth-input" not in css_class:
+                field.widget.attrs["class"] = f"{css_class} auth-input".strip()
+            field.widget.attrs.setdefault("autocomplete", autocomplete.get(field_name, "off"))
 
 
 class GmailPasswordResetForm(PasswordResetForm):

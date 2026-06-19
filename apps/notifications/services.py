@@ -15,6 +15,7 @@ def _order_context(order):
         "order": order,
         "order_url": get_order_absolute_url(order),
         "brand_name": getattr(settings, "GMAIL_SENDER_NAME", "001xclusiv"),
+        "site_url": getattr(settings, "SITE_URL", "").rstrip("/"),
     }
 
 

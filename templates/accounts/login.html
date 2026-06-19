@@ -2,46 +2,81 @@
 {% load static %}
 
 {% block title %}Iniciar Sesión - 001xclusiv{% endblock %}
+{% block main_class %}auth-page{% endblock %}
+{% block main_container_class %}container{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
-            <h2 class="fw-bold mb-4 text-center">Bienvenido de nuevo</h2>
+<section class="auth-shell" aria-labelledby="loginTitle">
+    <div class="auth-card">
+        <a href="{% url 'catalog:list' %}" class="auth-return">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Volver al catálogo
+        </a>
+        <span class="section-kicker">Acceso cliente</span>
+        <h1 id="loginTitle">Bienvenido de nuevo</h1>
+        <p>Entra para revisar pedidos, guardar favoritos y seguir armando tu rotación 001xclusiv.</p>
 
-            <form method="post">
-                {% csrf_token %}
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger rounded-4 small" role="alert">
-                    Usuario o contraseña incorrectos. Revisa tus datos e intenta nuevamente.
-                </div>
-                {% endif %}
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Usuario</label>
-                    <input type="text" name="username" class="form-control" required autofocus>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label fw-semibold">Contraseña</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <div class="text-end mb-4">
-                    <a href="{% url 'accounts:password_reset' %}" class="text-dark small fw-semibold text-decoration-none">
-                        ¿Olvidaste tu contraseña?
-                    </a>
-                </div>
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-dark btn-lg rounded-pill">Iniciar Sesión</button>
-                </div>
-            </form>
-
-            <div class="text-center mt-4">
-                <p class="text-muted small">
-                    ¿No tienes cuenta? <a href="{% url 'accounts:register' %}"
-                        class="text-dark fw-bold text-decoration-none">Regístrate aquí</a>
-                </p>
+            {% if form.non_field_errors %}
+            <div class="auth-alert" role="alert">
+                Usuario o contraseña incorrectos. Revisa tus datos e intenta nuevamente.
             </div>
+            {% endif %}
+
+            <div class="auth-field">
+                <label for="id_username">Usuario o correo</label>
+                <input id="id_username" type="text" name="username" class="auth-input" autocomplete="username"
+                    required autofocus value="{{ form.username.value|default_if_none:'' }}">
+                {% if form.username.errors %}
+                <div class="auth-error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="auth-field">
+                <label for="id_password">Contraseña</label>
+                <input id="id_password" type="password" name="password" class="auth-input"
+                    autocomplete="current-password" required>
+                {% if form.password.errors %}
+                <div class="auth-error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="auth-form__meta">
+                <label class="auth-check" for="rememberMe">
+                    <input id="rememberMe" type="checkbox" name="remember_me" value="1">
+                    <span>Recordarme</span>
+                </label>
+                <a href="{% url 'accounts:password_reset' %}">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="btn-accent auth-submit">
+                Iniciar sesión
+                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </button>
+        </form>
+
+        <div class="auth-switch">
+            <span>¿No tienes cuenta?</span>
+            <a href="{% url 'accounts:register' %}">Regístrate aquí</a>
         </div>
     </div>
-</div>
+
+    <aside class="auth-panel" aria-label="001xclusiv confianza">
+        <div class="auth-panel__content">
+            <span>001xclusiv club</span>
+            <h2>Drops curados, stock real y checkout seguro.</h2>
+            <p>Una cuenta te deja guardar wishlist, seguir tus compras y volver rápido a tus piezas favoritas.</p>
+        </div>
+        <div class="auth-panel__grid" aria-hidden="true">
+            <span>Sneakers</span>
+            <span>Streetwear</span>
+            <span>Acceso temprano</span>
+        </div>
+    </aside>
+</section>
 {% endblock %}

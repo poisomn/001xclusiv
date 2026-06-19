@@ -7,7 +7,7 @@ from . import views
 app_name = 'accounts'
 
 urlpatterns = [
-    path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    path('login/', views.AccountLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='core:home'), name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
     path(
@@ -16,6 +16,7 @@ urlpatterns = [
             form_class=GmailPasswordResetForm,
             template_name='accounts/password_reset_form.html',
             email_template_name='accounts/password_reset_email.txt',
+            html_email_template_name='emails/password_reset.html',
             subject_template_name='accounts/password_reset_subject.txt',
             success_url=reverse_lazy('accounts:password_reset_done'),
         ),

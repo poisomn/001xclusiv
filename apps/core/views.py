@@ -86,6 +86,51 @@ CATEGORY_VISUALS = {
 HOME_CATEGORY_FALLBACK = "home/airforcelv8blackbrown.jpg"
 CATEGORY_VISUALS["ni\u00f1os"] = CATEGORY_VISUALS["ninos"]
 
+HOME_CATEGORY_SLUGS = [
+    "sneakers-xclusiv",
+    "clothing-001xclusiv",
+    "hoodies--001xclusiv",
+    "jackets-001xclusiv",
+    "pants-001xclusiv",
+    "t-shirts-001xclusiv",
+    "bags-001xclusiv",
+    "accesories-xclusiv",
+]
+
+HOME_FEATURED_BRANDS = [
+    {"name": "Nike", "slug": "nike"},
+    {"name": "Jordan Air", "slug": "jordan-air"},
+    {"name": "Adidas", "slug": "adidas"},
+    {"name": "Nike SB", "slug": "nike-sb"},
+    {"name": "BAPE", "slug": "bape"},
+    {"name": "Chrome Hearts", "slug": "chrome-hearts"},
+    {"name": "ASICS", "slug": "asics"},
+    {"name": "Puma", "slug": "puma"},
+]
+
+HOME_TRUST_ITEMS = [
+    {
+        "icon": "bi-lightning-charge",
+        "title": "Drops curados",
+        "text": "Selección corta, visual y pensada para rotar.",
+    },
+    {
+        "icon": "bi-shield-check",
+        "title": "Compra segura",
+        "text": "Checkout claro y pagos protegidos por Flow.",
+    },
+    {
+        "icon": "bi-box-seam",
+        "title": "Stock real",
+        "text": "Disponibilidad conectada a variantes y tallas.",
+    },
+    {
+        "icon": "bi-chat-dots",
+        "title": "Soporte directo",
+        "text": "Acompañamiento antes y después del pedido.",
+    },
+]
+
 HOME_TESTIMONIALS = [
     {
         "quote": "Buenas, por aquí el Admin, les doy las gracias por su compra, espero disfruten su pedido cabros (obvio que me quedé con unas black cat fichitas 😼).",
@@ -367,6 +412,30 @@ def _category_visual(category):
     }
 
 
+def _home_featured_categories():
+    categories = (
+        Category.objects.filter(is_active=True)
+        .annotate(
+            active_products=Count(
+                "products",
+                filter=Q(products__is_active=True),
+                distinct=True,
+            )
+        )
+    )
+    priority = {slug: index for index, slug in enumerate(HOME_CATEGORY_SLUGS)}
+    selected = list(categories.filter(slug__in=HOME_CATEGORY_SLUGS))
+    selected.sort(key=lambda category: priority.get(category.slug, 999))
+
+    if len(selected) < 8:
+        selected_ids = [category.id for category in selected]
+        selected.extend(
+            categories.exclude(id__in=selected_ids).order_by("-active_products", "name")[: 8 - len(selected)]
+        )
+
+    return [_category_visual(category) for category in selected[:8]]
+
+
 def home(request):
     product_qs = _home_product_queryset()
 
@@ -388,19 +457,9 @@ def home(request):
     if not new_arrivals:
         new_arrivals = list(product_qs.order_by("-created_at")[:6])
 
-    category_qs = (
-        Category.objects.filter(is_active=True)
-        .annotate(
-            active_products=Count(
-                "products",
-                filter=Q(products__is_active=True),
-                distinct=True,
-            )
-        )
-        .filter(active_products__gt=0)
-        .order_by("-active_products", "name")[:6]
-    )
-    featured_categories = [_category_visual(category) for category in category_qs]
+    featured_categories = _home_featured_categories()
+    hero_product = featured_products[0] if featured_products else (new_arrivals[0] if new_arrivals else None)
+    popular_products = featured_products[:4] or new_arrivals[:4]
     community_images = list(
         CommunityImage.objects.filter(is_active=True).order_by("ordering", "-created_at")[:12]
     )
@@ -417,7 +476,11 @@ def home(request):
         "seo_description": "Explora 001xclusiv, una experiencia editorial de streetwear, sneakers y accesorios con selección premium y compra más clara.",
         "featured_products": featured_products,
         "new_arrivals": new_arrivals,
+        "popular_products": popular_products,
+        "hero_product": hero_product,
         "featured_categories": featured_categories,
+        "featured_brands": HOME_FEATURED_BRANDS,
+        "trust_items": HOME_TRUST_ITEMS,
         "testimonials": HOME_TESTIMONIALS,
         "immersive_metrics": HOME_IMMERSIVE_METRICS,
         "editorial_panels": HOME_EDITORIAL_PANELS,

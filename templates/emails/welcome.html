@@ -1,39 +1,28 @@
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <title>Bienvenido a 001xclusiv</title>
-</head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#111;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f4;padding:32px 12px;">
-        <tr>
-            <td align="center">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;">
-                    <tr>
-                        <td style="background:#111;color:#fff;padding:28px 32px;text-align:center;">
-                            <div style="font-size:13px;letter-spacing:4px;text-transform:uppercase;">{{ brand_name }}</div>
-                            <h1 style="margin:14px 0 0;font-size:28px;line-height:1.2;">Bienvenido a 001xclusiv</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:32px;">
-                            <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">Hola {{ user.username }},</p>
-                            <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">
-                                Tu cuenta ya esta lista. Desde ahora puedes guardar favoritos, revisar tus pedidos y estar atento a nuevos drops de 001xclusiv.
-                            </p>
-                            <p style="font-size:16px;line-height:1.6;margin:0 0 24px;">
-                                Gracias por sumarte a una seleccion streetwear curada con intencion.
-                            </p>
-                            {% if site_url %}
-                            <p style="margin:0 0 8px;">
-                                <a href="{{ site_url }}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;border-radius:999px;padding:13px 24px;font-weight:700;">Ir a la tienda</a>
-                            </p>
-                            {% endif %}
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
+{% extends "emails/base_email.html" %}
+
+{% block email_title %}Bienvenido a 001xclusiv{% endblock %}
+{% block preheader %}Tu cuenta ya está lista para wishlist, pedidos y drops.{% endblock %}
+{% block email_eyebrow %}Cuenta 001{% endblock %}
+{% block email_heading %}Bienvenido a 001xclusiv{% endblock %}
+
+{% block email_body %}
+<p style="margin:0 0 16px;color:#111111;font-size:16px;line-height:1.55;">Hola {{ user.username }},</p>
+<p style="margin:0 0 16px;color:#111111;font-size:16px;line-height:1.55;">
+  Tu cuenta ya está lista. Desde ahora puedes guardar favoritos, revisar pedidos y volver rápido a las piezas que te interesan.
+</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:20px 0 24px;">
+  <tr>
+    <td style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;color:#555555;font-size:14px;line-height:1.5;">
+      Drops curados, compra segura, stock real y soporte directo para construir tu rotación.
+    </td>
+  </tr>
+</table>
+{% endblock %}
+
+{% block email_cta %}
+{% if site_url %}
+<div style="text-align:center;margin:0 0 8px;">
+  <a href="{{ site_url }}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;border-radius:999px;padding:14px 26px;font-weight:800;">Ir a la tienda</a>
+</div>
+{% endif %}
+{% endblock %}

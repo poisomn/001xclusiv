@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import LoginView
 from django.db import transaction
 from django.db.models import Avg, Count, DecimalField, IntegerField, Q, Sum, Value
 from django.db.models.functions import Coalesce
@@ -137,6 +138,19 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return super().handle_no_permission()
         messages.error(self.request, "Esta seccion es solo para administradores.")
         return redirect("core:home")
+
+
+class AccountLoginView(LoginView):
+    template_name = "accounts/login.html"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.POST.get("remember_me"):
+            self.request.session.set_expiry(60 * 60 * 24 * 30)
+        else:
+            self.request.session.set_expiry(0)
+        return response
+
 
 class RegisterView(View):
     def get(self, request):
