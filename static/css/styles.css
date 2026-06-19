@@ -55,6 +55,7 @@ body {
     display: flex;
     align-items: center;
     gap: clamp(1rem, 2vw, 1.5rem);
+    padding-inline: clamp(1rem, 3vw, 3.5rem);
 }
 
 .site-nav__brand {
@@ -79,7 +80,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.15rem;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 0;
 }
 
@@ -122,7 +123,7 @@ body {
 }
 
 .site-nav__search {
-    width: min(25vw, 340px);
+    width: min(20vw, 320px);
     min-width: 220px;
     min-height: 42px;
     display: flex;
@@ -366,7 +367,7 @@ body {
     padding: 0 0.8rem;
 }
 
-@media (max-width: 1399.98px) {
+@media (max-width: 1499.98px) {
     .site-nav__links {
         display: none;
     }
@@ -2788,6 +2789,175 @@ body {
         grid-column: auto;
         grid-row: auto;
         min-height: 340px;
+    }
+}
+
+/* Home category refresh: preserves the original home while making this block editorial. */
+.home-category-editorial {
+    background: #edf0ec;
+    border: 1px solid #d8ded7;
+    border-radius: 8px;
+    color: #111111;
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.home-category-editorial .section-heading {
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+
+.home-category-editorial .section-heading h2,
+.home-category-editorial .section-link {
+    color: #111111;
+}
+
+.home-category-editorial .section-kicker {
+    color: #56605a;
+}
+
+.home-category-editorial__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, clamp(185px, 16vw, 270px));
+    grid-template-areas:
+        "lead lead clothing hoodies"
+        "lead lead jackets pants"
+        "shirts bags accessories accessories";
+    gap: 0.75rem;
+}
+
+.home-category-tile {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #cdd3cd;
+    color: #ffffff;
+    isolation: isolate;
+    text-decoration: none;
+}
+
+.home-category-tile--lead,
+.home-category-tile:nth-child(1) {
+    grid-area: lead;
+}
+
+.home-category-tile:nth-child(2) {
+    grid-area: clothing;
+}
+
+.home-category-tile:nth-child(3) {
+    grid-area: hoodies;
+}
+
+.home-category-tile:nth-child(4) {
+    grid-area: jackets;
+}
+
+.home-category-tile:nth-child(5) {
+    grid-area: pants;
+}
+
+.home-category-tile:nth-child(6) {
+    grid-area: shirts;
+}
+
+.home-category-tile:nth-child(7) {
+    grid-area: bags;
+}
+
+.home-category-tile:nth-child(8) {
+    grid-area: accessories;
+}
+
+.home-category-tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.01);
+    transition: transform 320ms ease, filter 320ms ease;
+    z-index: -2;
+}
+
+.home-category-tile:hover img {
+    filter: saturate(1.04);
+    transform: scale(1.04);
+}
+
+.home-category-tile__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(17, 17, 17, 0.02) 28%, rgba(17, 17, 17, 0.68) 100%);
+    z-index: -1;
+}
+
+.home-category-tile__content {
+    padding: clamp(0.9rem, 1.8vw, 1.35rem);
+}
+
+.home-category-tile__content span {
+    display: inline-flex;
+    border: 1px solid rgba(255, 255, 255, 0.44);
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.home-category-tile__content h3 {
+    margin: 0.55rem 0 0.2rem;
+    color: #ffffff;
+    font-size: clamp(1.35rem, 2.5vw, 2.65rem);
+    line-height: 1;
+}
+
+.home-category-tile__content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.84rem;
+}
+
+@media (max-width: 1199.98px) {
+    .home-category-editorial__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(6, clamp(190px, 24vw, 260px));
+        grid-template-areas:
+            "lead lead"
+            "lead lead"
+            "clothing hoodies"
+            "jackets pants"
+            "shirts bags"
+            "accessories accessories";
+    }
+}
+
+@media (max-width: 767.98px) {
+    .home-category-editorial {
+        padding: 1rem;
+    }
+
+    .home-category-editorial__grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        grid-template-areas: none;
+        grid-auto-rows: 260px;
+    }
+
+    .home-category-tile,
+    .home-category-tile--lead,
+    .home-category-tile:nth-child(n) {
+        grid-area: auto;
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .home-category-tile--lead {
+        min-height: 390px;
     }
 }
 

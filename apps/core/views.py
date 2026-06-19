@@ -97,40 +97,6 @@ HOME_CATEGORY_SLUGS = [
     "accesories-xclusiv",
 ]
 
-HOME_FEATURED_BRANDS = [
-    {"name": "Nike", "slug": "nike"},
-    {"name": "Jordan Air", "slug": "jordan-air"},
-    {"name": "Adidas", "slug": "adidas"},
-    {"name": "Nike SB", "slug": "nike-sb"},
-    {"name": "BAPE", "slug": "bape"},
-    {"name": "Chrome Hearts", "slug": "chrome-hearts"},
-    {"name": "ASICS", "slug": "asics"},
-    {"name": "Puma", "slug": "puma"},
-]
-
-HOME_TRUST_ITEMS = [
-    {
-        "icon": "bi-lightning-charge",
-        "title": "Drops curados",
-        "text": "Selección corta, visual y pensada para rotar.",
-    },
-    {
-        "icon": "bi-shield-check",
-        "title": "Compra segura",
-        "text": "Checkout claro y pagos protegidos por Flow.",
-    },
-    {
-        "icon": "bi-box-seam",
-        "title": "Stock real",
-        "text": "Disponibilidad conectada a variantes y tallas.",
-    },
-    {
-        "icon": "bi-chat-dots",
-        "title": "Soporte directo",
-        "text": "Acompañamiento antes y después del pedido.",
-    },
-]
-
 HOME_TESTIMONIALS = [
     {
         "quote": "Buenas, por aquí el Admin, les doy las gracias por su compra, espero disfruten su pedido cabros (obvio que me quedé con unas black cat fichitas 😼).",
@@ -458,8 +424,6 @@ def home(request):
         new_arrivals = list(product_qs.order_by("-created_at")[:6])
 
     featured_categories = _home_featured_categories()
-    hero_product = featured_products[0] if featured_products else (new_arrivals[0] if new_arrivals else None)
-    popular_products = featured_products[:4] or new_arrivals[:4]
     community_images = list(
         CommunityImage.objects.filter(is_active=True).order_by("ordering", "-created_at")[:12]
     )
@@ -476,11 +440,7 @@ def home(request):
         "seo_description": "Explora 001xclusiv, una experiencia editorial de streetwear, sneakers y accesorios con selección premium y compra más clara.",
         "featured_products": featured_products,
         "new_arrivals": new_arrivals,
-        "popular_products": popular_products,
-        "hero_product": hero_product,
         "featured_categories": featured_categories,
-        "featured_brands": HOME_FEATURED_BRANDS,
-        "trust_items": HOME_TRUST_ITEMS,
         "testimonials": HOME_TESTIMONIALS,
         "immersive_metrics": HOME_IMMERSIVE_METRICS,
         "editorial_panels": HOME_EDITORIAL_PANELS,
