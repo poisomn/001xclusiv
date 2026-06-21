@@ -1,10 +1,11 @@
 from unittest.mock import patch
 
 from django.test import TestCase
+from django.utils import timezone
 
 from apps.cart.models import PromotionCode
 from apps.catalog.models import Product, ProductVariant
-from apps.orders.models import Order, OrderItem
+from apps.orders.models import Order, OrderItem, OrderShippingEvent
 from apps.orders.services import mark_order_cancelled, mark_order_paid
 
 
@@ -79,3 +80,25 @@ class OrderCommitTests(TestCase):
         self.assertEqual(self.order.payment_status, "cancelled")
         self.assertFalse(self.order.promotion_committed)
         self.assertEqual(self.promo.used_count, 0)
+
+
+class OrderShippingTrackingTests(TestCase):
+    def test_record_shipping_event_keeps_customer_timeline_and_dates(self):
+        order = Order.objects.create(
+            full_name="Shipping User",
+            email="shipping@example.com",
+            address="Calle 123",
+            city="Santiago",
+            postal_code="7500000",
+            shipping_status="delivered",
+        )
+        occurred_at = timezone.now()
+
+        event = order.record_shipping_event("Tu pedido fue entregado.", occurred_at)
+        order.refresh_from_db()
+
+        self.assertEqual(event.status, "delivered")
+        self.assertEqual(OrderShippingEvent.objects.filter(order=order).count(), 1)
+        self.assertEqual(order.shipped_at, occurred_at)
+        self.assertEqual(order.delivered_at, occurred_at)
+        self.assertEqual(order.shipping_status_tone, "success")

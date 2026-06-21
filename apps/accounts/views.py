@@ -29,6 +29,7 @@ from .forms import (
     CommunityImageForm,
     OrderManagementForm,
     PromotionCodeForm,
+    ShippingUpdateForm,
     SizeOptionManagementForm,
     UserRegistrationForm,
 )
@@ -123,7 +124,7 @@ def build_backoffice_context(active_section):
 
 
 def get_order_for_request(request, order_id):
-    queryset = Order.objects.prefetch_related("items__product", "items__variant")
+    queryset = Order.objects.prefetch_related("items__product", "items__variant", "shipping_events")
     if request.user.is_staff or request.user.is_superuser:
         return get_object_or_404(queryset, id=order_id)
     return get_object_or_404(queryset.filter(user=request.user), id=order_id)
@@ -492,7 +493,9 @@ class BackofficeOrderActionView(StaffRequiredMixin, View):
 class BackofficeOrderDetailView(StaffRequiredMixin, View):
     def get_order(self, order_id):
         return get_object_or_404(
-            Order.objects.select_related("user").prefetch_related("items__product", "items__variant"),
+            Order.objects.select_related("user").prefetch_related(
+                "items__product", "items__variant", "shipping_events"
+            ),
             id=order_id,
         )
 
@@ -503,6 +506,7 @@ class BackofficeOrderDetailView(StaffRequiredMixin, View):
             **build_backoffice_context("orders"),
             "order": order,
             "form": form,
+            "shipment_form": ShippingUpdateForm(instance=order),
         }
         return render(request, "accounts/backoffice_order_detail.html", context)
 
@@ -534,6 +538,49 @@ class BackofficeOrderDetailView(StaffRequiredMixin, View):
             **build_backoffice_context("orders"),
             "order": order,
             "form": form,
+            "shipment_form": ShippingUpdateForm(instance=order),
+        }
+        return render(request, "accounts/backoffice_order_detail.html", context)
+
+
+class BackofficeOrderShippingUpdateView(StaffRequiredMixin, View):
+    def post(self, request, order_id):
+        order = get_object_or_404(
+            Order.objects.select_related("user").prefetch_related(
+                "items__product", "items__variant", "shipping_events"
+            ),
+            id=order_id,
+        )
+        shipment_form = ShippingUpdateForm(request.POST, instance=order)
+
+        if shipment_form.is_valid():
+            shipping_fields = set(ShippingUpdateForm.Meta.fields)
+            shipping_changed = bool(shipping_fields.intersection(shipment_form.changed_data))
+            customer_message = shipment_form.cleaned_data["event_message"]
+            occurred_at = shipment_form.cleaned_data["event_occurred_at"]
+
+            with transaction.atomic():
+                updated_order = shipment_form.save()
+                if shipping_changed or customer_message:
+                    if not customer_message:
+                        if "estimated_delivery_date" in shipment_form.changed_data:
+                            customer_message = "Actualizamos la fecha estimada de entrega."
+                        elif {"carrier_name", "tracking_number"}.intersection(shipment_form.changed_data):
+                            customer_message = "Actualizamos la información de despacho."
+                        else:
+                            customer_message = (
+                                f"Actualizamos el estado de envío a {updated_order.get_shipping_status_display()}."
+                            )
+                    updated_order.record_shipping_event(customer_message, occurred_at)
+
+            messages.success(request, f"Seguimiento del pedido #{order.id} actualizado.")
+            return redirect("accounts:backoffice_order_detail", order_id=order.id)
+
+        context = {
+            **build_backoffice_context("orders"),
+            "order": order,
+            "form": OrderManagementForm(instance=order),
+            "shipment_form": shipment_form,
         }
         return render(request, "accounts/backoffice_order_detail.html", context)
 

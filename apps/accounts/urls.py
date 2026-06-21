@@ -49,6 +49,7 @@ urlpatterns = [
     path('backoffice/orders/', views.BackofficeOrderListView.as_view(), name='backoffice_orders'),
     path('backoffice/orders/<int:order_id>/action/', views.BackofficeOrderActionView.as_view(), name='backoffice_order_action'),
     path('backoffice/orders/<int:order_id>/', views.BackofficeOrderDetailView.as_view(), name='backoffice_order_detail'),
+    path('backoffice/orders/<int:order_id>/shipping/', views.BackofficeOrderShippingUpdateView.as_view(), name='backoffice_order_shipping_update'),
     path('backoffice/community/', views.BackofficeCommunityListView.as_view(), name='backoffice_community'),
     path('backoffice/community/new/', views.BackofficeCommunityFormView.as_view(), name='backoffice_community_create'),
     path('backoffice/community/<int:image_id>/edit/', views.BackofficeCommunityFormView.as_view(), name='backoffice_community_edit'),

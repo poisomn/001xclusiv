@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.html import escape
+from django.utils import timezone
 
 from apps.catalog.models import Brand, Category, SizeOption
 from apps.cart.models import PromotionCode
@@ -142,6 +143,52 @@ class OrderManagementForm(forms.ModelForm):
             "payment_id": forms.TextInput(attrs={"class": "form-control", "placeholder": "ID de pago"}),
             "is_paid": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+
+class ShippingUpdateForm(forms.ModelForm):
+    event_message = forms.CharField(
+        label="Mensaje visible para cliente",
+        max_length=500,
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Ej. Tu pedido ya fue recibido por el transportista.",
+            }
+        ),
+    )
+    event_occurred_at = forms.DateTimeField(
+        label="Fecha y hora del evento",
+        initial=timezone.now,
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(
+            attrs={"class": "form-control", "type": "datetime-local"},
+            format="%Y-%m-%dT%H:%M",
+        ),
+    )
+
+    class Meta:
+        model = Order
+        fields = ["shipping_status", "carrier_name", "tracking_number", "estimated_delivery_date"]
+        widgets = {
+            "shipping_status": forms.Select(attrs={"class": "form-select"}),
+            "carrier_name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Ej. Chilexpress"}
+            ),
+            "tracking_number": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Opcional"}
+            ),
+            "estimated_delivery_date": forms.DateInput(
+                attrs={"class": "form-control", "type": "date"},
+                format="%Y-%m-%d",
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["event_occurred_at"].initial = timezone.localtime()
 
 
 class CommunityImageForm(forms.ModelForm):

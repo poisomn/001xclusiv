@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from apps.catalog.models import Product, ProductVariant
 from apps.cart.tax import calculate_tax_breakdown
@@ -17,6 +18,31 @@ class Order(models.Model):
         ("cancelled", "Cancelado"),
         ("failed", "Fallido"),
     )
+    SHIPPING_STATUS_CHOICES = (
+        ("not_started", "Aún no preparado"),
+        ("preparing", "Preparando pedido"),
+        ("packed", "Pedido empaquetado"),
+        ("ready_to_ship", "Listo para despacho"),
+        ("shipped", "Despachado"),
+        ("in_transit", "En tránsito"),
+        ("out_for_delivery", "En reparto"),
+        ("delivered", "Entregado"),
+        ("delayed", "Con demora"),
+        ("failed_delivery", "Entrega fallida"),
+        ("returned", "Devuelto"),
+        ("cancelled", "Envío cancelado"),
+    )
+
+    SHIPPING_PROGRESS_STATUSES = {
+        "not_started": 0,
+        "preparing": 1,
+        "packed": 1,
+        "ready_to_ship": 2,
+        "shipped": 3,
+        "in_transit": 3,
+        "out_for_delivery": 3,
+        "delivered": 4,
+    }
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -49,6 +75,17 @@ class Order(models.Model):
         default="pending",
     )
     is_paid = models.BooleanField(default=False)
+    shipping_status = models.CharField(
+        "Estado de envío",
+        max_length=20,
+        choices=SHIPPING_STATUS_CHOICES,
+        default="not_started",
+    )
+    carrier_name = models.CharField("Transportista", max_length=100, blank=True)
+    tracking_number = models.CharField("Número de seguimiento", max_length=100, blank=True)
+    estimated_delivery_date = models.DateField("Fecha estimada de entrega", null=True, blank=True)
+    shipped_at = models.DateTimeField("Fecha de despacho", null=True, blank=True)
+    delivered_at = models.DateTimeField("Fecha de entrega", null=True, blank=True)
     order_created_email_sent = models.BooleanField(default=False)
     payment_confirmed_email_sent = models.BooleanField(default=False)
     order_cancelled_email_sent = models.BooleanField(default=False)
@@ -99,6 +136,55 @@ class Order(models.Model):
             return self.tax_amount
         return calculate_tax_breakdown(self.get_total_cost())["tax"]
 
+    @property
+    def shipping_status_tone(self):
+        if self.shipping_status == "delivered":
+            return "success"
+        if self.shipping_status in {"delayed", "failed_delivery", "returned", "cancelled"}:
+            return "alert"
+        if self.shipping_status in {"shipped", "in_transit", "out_for_delivery"}:
+            return "moving"
+        return "pending"
+
+    def get_shipping_progress_steps(self):
+        current_step = self.SHIPPING_PROGRESS_STATUSES.get(self.shipping_status, 0)
+        steps = (
+            ("received", "Pedido recibido"),
+            ("preparing", "En preparación"),
+            ("ready_to_ship", "Listo para despacho"),
+            ("in_transit", "En tránsito"),
+            ("delivered", "Entregado"),
+        )
+        return [
+            {
+                "key": key,
+                "label": label,
+                "state": "complete" if index < current_step else "active" if index == current_step else "pending",
+            }
+            for index, (key, label) in enumerate(steps)
+        ]
+
+    def record_shipping_event(self, message="", occurred_at=None):
+        occurred_at = occurred_at or timezone.now()
+        event = OrderShippingEvent.objects.create(
+            order=self,
+            status=self.shipping_status,
+            message=message.strip(),
+            occurred_at=occurred_at,
+        )
+
+        update_fields = []
+        if self.shipping_status in {"shipped", "in_transit", "out_for_delivery", "delivered"} and not self.shipped_at:
+            self.shipped_at = occurred_at
+            update_fields.append("shipped_at")
+        if self.shipping_status == "delivered" and not self.delivered_at:
+            self.delivered_at = occurred_at
+            update_fields.append("delivered_at")
+        if update_fields:
+            update_fields.append("updated_at")
+            self.save(update_fields=update_fields)
+        return event
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
@@ -118,3 +204,19 @@ class OrderItem(models.Model):
 
     def get_cost(self):
         return self.price * self.quantity
+
+
+class OrderShippingEvent(models.Model):
+    order = models.ForeignKey(Order, related_name="shipping_events", on_delete=models.CASCADE)
+    status = models.CharField("Estado de envío", max_length=20, choices=Order.SHIPPING_STATUS_CHOICES)
+    message = models.TextField("Mensaje para cliente", max_length=500, blank=True)
+    occurred_at = models.DateTimeField("Fecha del evento", default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("occurred_at", "id")
+        verbose_name = "Evento de envío"
+        verbose_name_plural = "Eventos de envío"
+
+    def __str__(self):
+        return f"Pedido #{self.order_id} - {self.get_status_display()}"

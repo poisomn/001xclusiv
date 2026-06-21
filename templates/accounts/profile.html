@@ -41,11 +41,8 @@
                     <p class="product-brand">Pedido #{{ order.id }}</p>
                     <h2>{{ order.created_at|date:"d M Y, H:i" }}</h2>
                 </div>
-                <span class="account-order-status
-                    {% if order.status == 'paid' %}is-delivered
-                    {% elif order.status == 'cancelled' %}is-cancelled
-                    {% else %}is-pending{% endif %}">
-                    {{ order.get_status_display }}
+                <span class="account-order-status account-order-status--{{ order.shipping_status_tone }}">
+                    {{ order.get_shipping_status_display }}
                 </span>
             </div>
 
@@ -55,8 +52,8 @@
                     <strong>${{ order.total_amount }} CLP</strong>
                 </div>
                 <div>
-                    <span>Items</span>
-                    <strong>{{ order.items.count }}</strong>
+                    <span>Envío</span>
+                    <strong>{{ order.get_shipping_status_display }}</strong>
                 </div>
                 <div>
                     <span>Pago</span>

@@ -23,9 +23,9 @@
                         <h2>{{ order.created_at|date:"d M Y, H:i" }}</h2>
                     </div>
                     <span class="account-order-status
-                        {% if order.status == 'paid' %}is-delivered
-                        {% elif order.status == 'cancelled' %}is-cancelled
-                        {% else %}is-pending{% endif %}">
+                        {% if order.status == 'paid' %}account-order-status--success
+                        {% elif order.status == 'cancelled' %}account-order-status--alert
+                        {% else %}account-order-status--pending{% endif %}">
                         {{ order.get_status_display }}
                     </span>
                 </div>
@@ -62,6 +62,71 @@
                         <strong>{{ order.items.count }}</strong>
                     </div>
                 </div>
+            </div>
+
+            <div class="account-order-detail-card account-shipping-tracking">
+                <div class="account-order-detail-card__header">
+                    <div>
+                        <p class="product-brand">Seguimiento</p>
+                        <h2>Estado de tu envío</h2>
+                    </div>
+                    <span class="account-order-status account-order-status--{{ order.shipping_status_tone }}">
+                        {{ order.get_shipping_status_display }}
+                    </span>
+                </div>
+
+                <div class="account-shipping-progress" aria-label="Progreso del envío">
+                    {% for step in order.get_shipping_progress_steps %}
+                    <div class="account-shipping-progress__step is-{{ step.state }}">
+                        <span aria-hidden="true"></span>
+                        <strong>{{ step.label }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="account-shipping-details">
+                    <div>
+                        <span>Transportista</span>
+                        <strong>{{ order.carrier_name|default:"Se asignará al despachar" }}</strong>
+                    </div>
+                    <div>
+                        <span>Número de seguimiento</span>
+                        <strong>{{ order.tracking_number|default:"Aún sin asignar" }}</strong>
+                    </div>
+                    <div>
+                        <span>Entrega estimada</span>
+                        <strong>{% if order.estimated_delivery_date %}{{ order.estimated_delivery_date|date:"d M Y" }}{% else %}Por confirmar{% endif %}</strong>
+                    </div>
+                </div>
+
+                <ol class="account-shipping-timeline" aria-label="Historial del envío">
+                    <li class="account-shipping-timeline__item is-complete">
+                        <span class="account-shipping-timeline__marker"><i class="bi bi-bag-check" aria-hidden="true"></i></span>
+                        <div>
+                            <strong>Pedido recibido</strong>
+                            <p>Recibimos tu compra y comenzaremos a actualizar este seguimiento cuando avance su preparación.</p>
+                            <time datetime="{{ order.created_at|date:'c' }}">{{ order.created_at|date:"d M Y, H:i" }}</time>
+                        </div>
+                    </li>
+                    {% for event in order.shipping_events.all %}
+                    <li class="account-shipping-timeline__item is-current">
+                        <span class="account-shipping-timeline__marker"><i class="bi bi-geo-alt" aria-hidden="true"></i></span>
+                        <div>
+                            <strong>{{ event.get_status_display }}</strong>
+                            <p>{{ event.message|default:"Actualizamos el estado de tu envío." }}</p>
+                            <time datetime="{{ event.occurred_at|date:'c' }}">{{ event.occurred_at|date:"d M Y, H:i" }}</time>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="account-shipping-timeline__item is-pending">
+                        <span class="account-shipping-timeline__marker"><i class="bi bi-clock" aria-hidden="true"></i></span>
+                        <div>
+                            <strong>Aún no hay movimientos de envío</strong>
+                            <p>Te mostraremos aquí la preparación, despacho y entrega apenas sean actualizados.</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
             </div>
 
             <div class="account-order-detail-card">
@@ -101,6 +166,8 @@
                     <p><strong>Dirección:</strong> {{ order.address }}</p>
                     <p><strong>Ciudad:</strong> {{ order.city }}</p>
                     <p><strong>Código postal:</strong> {{ order.postal_code }}</p>
+                    {% if order.shipped_at %}<p><strong>Despachado:</strong> {{ order.shipped_at|date:"d M Y, H:i" }}</p>{% endif %}
+                    {% if order.delivered_at %}<p><strong>Entregado:</strong> {{ order.delivered_at|date:"d M Y, H:i" }}</p>{% endif %}
                 </div>
             </div>
 

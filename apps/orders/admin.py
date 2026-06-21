@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, OrderShippingEvent
 
 
 class OrderItemInline(admin.TabularInline):
@@ -10,6 +10,13 @@ class OrderItemInline(admin.TabularInline):
     raw_id_fields = ["product"]
     autocomplete_fields = ["variant"]
     extra = 0
+
+
+class OrderShippingEventInline(admin.TabularInline):
+    model = OrderShippingEvent
+    extra = 0
+    fields = ["status", "message", "occurred_at", "created_at"]
+    readonly_fields = ["created_at"]
 
 
 @admin.register(Order)
@@ -26,12 +33,22 @@ class OrderAdmin(admin.ModelAdmin):
         "promo_code",
         "status",
         "payment_status",
+        "shipping_status",
         "created_at",
         "receipt_link",
     ]
-    list_filter = ["status", "payment_status", "is_paid", "created_at"]
-    search_fields = ["id", "full_name", "email", "payment_id", "payment_token", "promo_code"]
-    list_editable = ["status", "payment_status"]
+    list_filter = ["status", "payment_status", "shipping_status", "is_paid", "created_at"]
+    search_fields = [
+        "id",
+        "full_name",
+        "email",
+        "payment_id",
+        "payment_token",
+        "promo_code",
+        "tracking_number",
+        "carrier_name",
+    ]
+    list_editable = ["status", "payment_status", "shipping_status"]
     readonly_fields = [
         "created_at",
         "updated_at",
@@ -45,10 +62,25 @@ class OrderAdmin(admin.ModelAdmin):
         "promotion_committed",
     ]
     save_on_top = True
-    inlines = [OrderItemInline]
+    inlines = [OrderItemInline, OrderShippingEventInline]
     fieldsets = (
         ("Cliente", {"fields": ("user", "full_name", "email")}),
-        ("Despacho", {"fields": ("address", "city", "postal_code")}),
+        (
+            "Despacho",
+            {
+                "fields": (
+                    "address",
+                    "city",
+                    "postal_code",
+                    "shipping_status",
+                    "carrier_name",
+                    "tracking_number",
+                    "estimated_delivery_date",
+                    "shipped_at",
+                    "delivered_at",
+                )
+            },
+        ),
         (
             "Pago",
             {
@@ -89,3 +121,11 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ["id", "order", "product", "quantity", "price"]
     search_fields = ["order__id", "product__name"]
+
+
+@admin.register(OrderShippingEvent)
+class OrderShippingEventAdmin(admin.ModelAdmin):
+    list_display = ["order", "status", "occurred_at", "created_at"]
+    list_filter = ["status", "occurred_at"]
+    search_fields = ["order__id", "order__full_name", "message"]
+    autocomplete_fields = ["order"]

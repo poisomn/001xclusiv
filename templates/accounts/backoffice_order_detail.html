@@ -146,6 +146,85 @@
                 </form>
             </article>
 
+            <article class="bo-card">
+                <div class="bo-card__header">
+                    <div>
+                        <span class="bo-kicker">Despacho</span>
+                        <h2>Seguimiento del envío</h2>
+                        <p>Esta información y los mensajes serán visibles para el cliente.</p>
+                    </div>
+                    <span class="bo-badge bo-shipping-badge bo-shipping-badge--{{ order.shipping_status_tone }}">
+                        {{ order.get_shipping_status_display }}
+                    </span>
+                </div>
+
+                <form method="post" action="{% url 'accounts:backoffice_order_shipping_update' order.id %}" class="bo-form-stack">
+                    {% csrf_token %}
+                    {% if shipment_form.non_field_errors %}
+                    <div class="bo-form-errors">{{ shipment_form.non_field_errors }}</div>
+                    {% endif %}
+                    <div class="bo-form-grid">
+                        <div class="bo-field">
+                            <label for="{{ shipment_form.shipping_status.id_for_label }}">Estado de envío</label>
+                            {{ shipment_form.shipping_status }}
+                            {{ shipment_form.shipping_status.errors }}
+                        </div>
+                        <div class="bo-field">
+                            <label for="{{ shipment_form.estimated_delivery_date.id_for_label }}">Fecha estimada</label>
+                            {{ shipment_form.estimated_delivery_date }}
+                            {{ shipment_form.estimated_delivery_date.errors }}
+                        </div>
+                        <div class="bo-field">
+                            <label for="{{ shipment_form.carrier_name.id_for_label }}">Transportista</label>
+                            {{ shipment_form.carrier_name }}
+                            {{ shipment_form.carrier_name.errors }}
+                        </div>
+                        <div class="bo-field">
+                            <label for="{{ shipment_form.tracking_number.id_for_label }}">Número de seguimiento</label>
+                            {{ shipment_form.tracking_number }}
+                            {{ shipment_form.tracking_number.errors }}
+                        </div>
+                        <div class="bo-field bo-form-grid__full">
+                            <label for="{{ shipment_form.event_message.id_for_label }}">Mensaje para cliente</label>
+                            {{ shipment_form.event_message }}
+                            {{ shipment_form.event_message.errors }}
+                        </div>
+                        <div class="bo-field bo-form-grid__full">
+                            <label for="{{ shipment_form.event_occurred_at.id_for_label }}">Fecha y hora del movimiento</label>
+                            {{ shipment_form.event_occurred_at }}
+                            {{ shipment_form.event_occurred_at.errors }}
+                        </div>
+                    </div>
+                    <button type="submit" class="bo-button bo-button--primary">
+                        <i class="bi bi-truck"></i>
+                        Actualizar seguimiento
+                    </button>
+                </form>
+
+                <div class="bo-shipping-history">
+                    <span class="bo-kicker">Historial visible</span>
+                    <div class="bo-shipping-history__item">
+                        <i class="bi bi-bag-check" aria-hidden="true"></i>
+                        <div>
+                            <strong>Pedido recibido</strong>
+                            <p>{{ order.created_at|date:"d M Y, H:i" }}</p>
+                        </div>
+                    </div>
+                    {% for event in order.shipping_events.all %}
+                    <div class="bo-shipping-history__item">
+                        <i class="bi bi-clock-history" aria-hidden="true"></i>
+                        <div>
+                            <strong>{{ event.get_status_display }}</strong>
+                            <p>{{ event.message|default:"Estado de envío actualizado." }}</p>
+                            <small>{{ event.occurred_at|date:"d M Y, H:i" }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="bo-muted mb-0">Aún no hay movimientos de envío registrados.</p>
+                    {% endfor %}
+                </div>
+            </article>
+
             <article class="bo-card bo-card--soft">
                 <div class="bo-list">
                     <div class="bo-list-row">

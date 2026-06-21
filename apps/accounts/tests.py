@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from unittest.mock import patch
 
 from apps.cart.models import PromotionCode
-from apps.orders.models import Order
+from apps.orders.models import Order, OrderShippingEvent
 
 
 User = get_user_model()
@@ -31,11 +32,32 @@ class AccountOrderViewsTests(TestCase):
         self.client.login(username="owner", password="pass12345")
         response = self.client.get(reverse("accounts:order_detail", args=[self.order.id]))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Aún sin asignar")
 
     def test_user_cannot_access_other_user_order_detail(self):
         self.client.login(username="other", password="pass12345")
         response = self.client.get(reverse("accounts:order_detail", args=[self.order.id]))
         self.assertEqual(response.status_code, 404)
+
+    def test_order_detail_shows_customer_shipping_timeline(self):
+        self.order.shipping_status = "in_transit"
+        self.order.carrier_name = "Chilexpress"
+        self.order.tracking_number = "TRACK-001"
+        self.order.save()
+        OrderShippingEvent.objects.create(
+            order=self.order,
+            status="in_transit",
+            message="Tu pedido va camino a Santiago.",
+        )
+
+        self.client.login(username="owner", password="pass12345")
+        response = self.client.get(reverse("accounts:order_detail", args=[self.order.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estado de tu envío")
+        self.assertContains(response, "Chilexpress")
+        self.assertContains(response, "TRACK-001")
+        self.assertContains(response, "Tu pedido va camino a Santiago.")
 
     def test_user_can_access_own_order_receipt(self):
         self.client.login(username="owner", password="pass12345")
@@ -46,6 +68,51 @@ class AccountOrderViewsTests(TestCase):
         self.client.login(username="other", password="pass12345")
         response = self.client.get(reverse("accounts:order_receipt", args=[self.order.id]))
         self.assertEqual(response.status_code, 404)
+
+
+class BackofficeShippingTrackingTests(TestCase):
+    def setUp(self):
+        self.staff = User.objects.create_user(username="staff", password="pass12345", is_staff=True)
+        self.order = Order.objects.create(
+            full_name="Shipping Owner",
+            email="shipping-owner@example.com",
+            address="Calle 123",
+            city="Santiago",
+            postal_code="7500000",
+        )
+
+    def test_staff_sees_shipping_controls_in_order_backoffice(self):
+        self.client.login(username="staff", password="pass12345")
+
+        response = self.client.get(reverse("accounts:backoffice_order_detail", args=[self.order.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Seguimiento del envío")
+        self.assertContains(response, "Mensaje para cliente")
+
+    def test_staff_can_add_a_customer_visible_shipping_update(self):
+        self.client.login(username="staff", password="pass12345")
+        occurred_at = timezone.localtime().strftime("%Y-%m-%dT%H:%M")
+
+        response = self.client.post(
+            reverse("accounts:backoffice_order_shipping_update", args=[self.order.id]),
+            {
+                "shipping_status": "in_transit",
+                "carrier_name": "Chilexpress",
+                "tracking_number": "TRACK-001",
+                "estimated_delivery_date": "2026-06-25",
+                "event_message": "Tu pedido va en tránsito hacia tu ciudad.",
+                "event_occurred_at": occurred_at,
+            },
+        )
+
+        self.assertRedirects(response, reverse("accounts:backoffice_order_detail", args=[self.order.id]))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.shipping_status, "in_transit")
+        self.assertEqual(self.order.tracking_number, "TRACK-001")
+        self.assertTrue(self.order.shipped_at)
+        event = OrderShippingEvent.objects.get(order=self.order)
+        self.assertEqual(event.message, "Tu pedido va en tránsito hacia tu ciudad.")
 
 
 class AccountAuthFlowTests(TestCase):
